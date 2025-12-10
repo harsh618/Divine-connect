@@ -55,7 +55,9 @@ export default function AdminDonations() {
     description: '',
     goal_amount: '',
     category: 'temple_renovation',
-    beneficiary_organization: ''
+    beneficiary_organization: '',
+    images: [],
+    thumbnail_url: ''
   });
 
   const { data: donations, isLoading: loadingDonations } = useQuery({
@@ -79,7 +81,9 @@ export default function AdminDonations() {
         description: '',
         goal_amount: '',
         category: 'temple_renovation',
-        beneficiary_organization: ''
+        beneficiary_organization: '',
+        images: [],
+        thumbnail_url: ''
       });
     }
   });
@@ -255,10 +259,10 @@ export default function AdminDonations() {
           
           <div className="space-y-4 py-4">
             <ImageUpload
-              images={newCampaign.images}
-              onImagesChange={(imgs) => setNewCampaign({ ...newCampaign, images: imgs })}
-              thumbnailUrl={newCampaign.thumbnail_url}
-              onThumbnailChange={(url) => setNewCampaign({ ...newCampaign, thumbnail_url: url })}
+              images={formData.images}
+              onImagesChange={(imgs) => setFormData({ ...formData, images: imgs })}
+              thumbnailUrl={formData.thumbnail_url}
+              onThumbnailChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
             />
 
             <div>
