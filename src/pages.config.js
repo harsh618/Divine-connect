@@ -7,6 +7,7 @@ import Astrology from './pages/Astrology';
 import Priests from './pages/Priests';
 import MyBookings from './pages/MyBookings';
 import Profile from './pages/Profile';
+import AdminDashboard from './pages/AdminDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +21,7 @@ export const PAGES = {
     "Priests": Priests,
     "MyBookings": MyBookings,
     "Profile": Profile,
+    "AdminDashboard": AdminDashboard,
 }
 
 export const pagesConfig = {
