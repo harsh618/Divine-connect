@@ -14,7 +14,7 @@ import {
 import { Search, Filter, Video, X } from 'lucide-react';
 import TempleCard from '../components/temple/TempleCard';
 import TempleCardSkeleton from '../components/temple/TempleCardSkeleton';
-import BackButton from '../components/ui/BackButton';
+import PageHero from '../components/shared/PageHero';
 
 const deities = ['All', 'Shiva', 'Vishnu', 'Ganesha', 'Hanuman', 'Durga', 'Krishna', 'Ram', 'Lakshmi'];
 const states = ['All', 'Tamil Nadu', 'Uttar Pradesh', 'Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat', 'Kerala'];
@@ -49,21 +49,10 @@ export default function Temples() {
   const hasFilters = searchQuery || selectedDeity !== 'All' || selectedState !== 'All' || showLiveOnly;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/50 to-white pb-24 md:pb-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
-        <div className="container mx-auto">
-          <BackButton label="Back" />
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Discover Temples
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl">
-            Explore sacred temples across India. Book visits, watch live darshan, and order prasad.
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white pb-24 md:pb-8">
+      <PageHero page="temples" />
 
-      <div className="container mx-auto px-6 -mt-8">
+      <div className="container mx-auto px-6 py-16">
         {/* Search & Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">

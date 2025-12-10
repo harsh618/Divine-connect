@@ -1,0 +1,180 @@
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+
+const heroConfigs = {
+  home: {
+    title: "Divine",
+    subtitle: "Connections",
+    description: "Experience authentic spiritual services from the comfort of your home. Connect with temples, book poojas, consult astrologers, and more.",
+    backgroundImage: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1920",
+    gradientFrom: "from-black/80",
+    gradientVia: "via-black/50",
+    primaryAction: { text: "Explore Temples", link: "Temples", gradient: "from-orange-500 to-amber-500" },
+    secondaryAction: { text: "Book a Pooja", link: "Poojas" },
+    stats: [
+      { value: "10,000+", label: "Devotees" },
+      { value: "500+", label: "Verified Priests" },
+      { value: "100+", label: "Temples" }
+    ],
+    badge: "Welcome to Divine"
+  },
+  temples: {
+    title: "Sacred",
+    subtitle: "Temples",
+    description: "Discover ancient temples across India. Book darshan, watch live ceremonies, order prasad, and immerse yourself in spiritual heritage.",
+    backgroundImage: "https://images.unsplash.com/photo-1548013146-72479768bada?w=1920",
+    gradientFrom: "from-orange-900/80",
+    gradientVia: "via-orange-800/50",
+    primaryAction: { text: "Explore All Temples", link: "Temples", gradient: "from-orange-500 to-amber-500" },
+    secondaryAction: { text: "Watch Live Darshan", link: "Temples" },
+    stats: [
+      { value: "100+", label: "Temples" },
+      { value: "50+", label: "Cities" },
+      { value: "Live", label: "Darshan" }
+    ],
+    badge: "Explore Sacred Places"
+  },
+  poojas: {
+    title: "Divine",
+    subtitle: "Rituals",
+    description: "Book authentic Vedic poojas performed by experienced priests. Choose from virtual ceremonies or in-person rituals at sacred temples.",
+    backgroundImage: "https://images.unsplash.com/photo-1604608672516-f1b9b1a0e25f?w=1920",
+    gradientFrom: "from-amber-900/80",
+    gradientVia: "via-amber-800/50",
+    primaryAction: { text: "Browse Poojas", link: "Poojas", gradient: "from-orange-500 to-amber-500" },
+    secondaryAction: { text: "Virtual Poojas", link: "Poojas" },
+    stats: [
+      { value: "50+", label: "Ritual Types" },
+      { value: "500+", label: "Verified Priests" },
+      { value: "Live", label: "Streaming" }
+    ],
+    badge: "Sacred Ceremonies"
+  },
+  astrology: {
+    title: "Celestial",
+    subtitle: "Guidance",
+    description: "Connect with expert Vedic astrologers for personalized readings, kundli analysis, and life guidance through chat, voice, or video.",
+    backgroundImage: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=1920",
+    gradientFrom: "from-purple-900/80",
+    gradientVia: "via-purple-800/50",
+    primaryAction: { text: "Consult Astrologer", link: "Astrology", gradient: "from-purple-600 to-indigo-600" },
+    secondaryAction: { text: "Generate Kundli", link: "KundliGenerator" },
+    stats: [
+      { value: "200+", label: "Astrologers" },
+      { value: "24/7", label: "Available" },
+      { value: "10k+", label: "Consultations" }
+    ],
+    badge: "Your Cosmic Journey"
+  },
+  priests: {
+    title: "Connect with",
+    subtitle: "Sacred Guides",
+    description: "Find experienced priests for spiritual ceremonies, poojas, and religious consultations. Access authentic Vedic knowledge and guidance.",
+    backgroundImage: "https://images.unsplash.com/photo-1533930100499-a60b4c7883a0?w=1920",
+    gradientFrom: "from-indigo-900/80",
+    gradientVia: "via-indigo-800/50",
+    primaryAction: { text: "Find a Priest", link: "Priests", gradient: "from-indigo-600 to-blue-600" },
+    secondaryAction: { text: "Book Ceremony", link: "Poojas" },
+    stats: [
+      { value: "500+", label: "Verified Priests" },
+      { value: "15+", label: "Languages" },
+      { value: "5k+", label: "Services Done" }
+    ],
+    badge: "Spiritual Guidance"
+  },
+  donate: {
+    title: "Support",
+    subtitle: "Sacred Causes",
+    description: "Your generous contributions help maintain temples, support charitable activities, and spread the light of spirituality across communities.",
+    backgroundImage: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1920",
+    gradientFrom: "from-rose-900/80",
+    gradientVia: "via-rose-800/50",
+    primaryAction: { text: "View Campaigns", link: "Donate", gradient: "from-rose-500 to-pink-500" },
+    secondaryAction: { text: "Donate to Temples", link: "Temples" },
+    stats: [
+      { value: "₹10L+", label: "Raised" },
+      { value: "20+", label: "Active Causes" },
+      { value: "1000+", label: "Donors" }
+    ],
+    badge: "Make a Difference"
+  }
+};
+
+export default function PageHero({ page = 'home' }) {
+  const config = heroConfigs[page] || heroConfigs.home;
+
+  return (
+    <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      {/* Background with gradient overlay */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={config.backgroundImage}
+          alt={config.title}
+          className="w-full h-full object-cover"
+        />
+        <div className={`absolute inset-0 bg-gradient-to-r ${config.gradientFrom} ${config.gradientVia} to-transparent`} />
+      </div>
+
+      {/* Floating decorative elements */}
+      <div className="absolute top-20 right-20 w-72 h-72 bg-orange-500/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 left-20 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
+
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-2xl">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-orange-300 text-sm mb-6 mt-8">
+            <Sparkles className="w-4 h-4" />
+            {config.badge}
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-serif font-bold text-white leading-tight mb-6">
+            {config.title}
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+              {config.subtitle}
+            </span>
+          </h1>
+
+          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+            {config.description}
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link to={createPageUrl(config.primaryAction.link)}>
+              <Button
+                size="lg"
+                className={`bg-gradient-to-r ${config.primaryAction.gradient} hover:opacity-90 text-white px-8 py-6 text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all hover:scale-105`}
+              >
+                {config.primaryAction.text}
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+            <Link to={createPageUrl(config.secondaryAction.link)}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-transparent text-white px-8 py-6 text-lg font-medium rounded-full border border-white/30 hover:bg-white/10 backdrop-blur-sm"
+              >
+                {config.secondaryAction.text}
+              </Button>
+            </Link>
+          </div>
+
+          {/* Trust indicators */}
+          <div className="flex items-center gap-8 mt-12 text-white/70">
+            {config.stats.map((stat, idx) => (
+              <React.Fragment key={idx}>
+                {idx > 0 && <div className="w-px h-12 bg-white/20" />}
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-white">{stat.value}</p>
+                  <p className="text-sm">{stat.label}</p>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

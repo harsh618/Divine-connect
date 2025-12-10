@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import BackButton from '../components/ui/BackButton';
+import PageHero from '../components/shared/PageHero';
 
 function AstrologerCard({ provider }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200";
@@ -186,21 +186,10 @@ export default function Astrology() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white pb-24 md:pb-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 py-16 px-6">
-        <div className="container mx-auto">
-          <BackButton label={t('common.back', language)} />
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Astrology Services
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl">
-            Connect with verified astrologers for personalized readings, kundli analysis, and life guidance.
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white pb-24 md:pb-8">
+      <PageHero page="astrology" />
 
-      <div className="container mx-auto px-6 -mt-8">
+      <div className="container mx-auto px-6 py-16">
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Link to={createPageUrl('KundliGenerator')}>

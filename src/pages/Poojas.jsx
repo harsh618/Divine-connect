@@ -16,7 +16,7 @@ import {
 import { Search, Clock, Video, Package, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import BackButton from '../components/ui/BackButton';
+import PageHero from '../components/shared/PageHero';
 
 const categories = [
   { value: 'all', label: 'All Poojas' },
@@ -116,21 +116,10 @@ export default function Poojas() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/50 to-white pb-24 md:pb-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
-        <div className="container mx-auto">
-          <BackButton label="Back" />
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Book a Pooja
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl">
-            Experience sacred rituals performed by verified pandits, either virtually or at a temple near you.
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white pb-24 md:pb-8">
+      <PageHero page="poojas" />
 
-      <div className="container mx-auto px-6 -mt-8">
+      <div className="container mx-auto px-6 py-16">
         {/* Search & Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">

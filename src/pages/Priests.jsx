@@ -36,7 +36,7 @@ import {
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
-import BackButton from '../components/ui/BackButton';
+import PageHero from '../components/shared/PageHero';
 
 function PriestCard({ provider }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200";
