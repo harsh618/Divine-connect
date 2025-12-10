@@ -8,6 +8,10 @@ import Priests from './pages/Priests';
 import MyBookings from './pages/MyBookings';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
+import MyJourney from './pages/MyJourney';
+import PoojaDetail from './pages/PoojaDetail';
+import BecomeProvider from './pages/BecomeProvider';
+import KundliGenerator from './pages/KundliGenerator';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +26,10 @@ export const PAGES = {
     "MyBookings": MyBookings,
     "Profile": Profile,
     "AdminDashboard": AdminDashboard,
+    "MyJourney": MyJourney,
+    "PoojaDetail": PoojaDetail,
+    "BecomeProvider": BecomeProvider,
+    "KundliGenerator": KundliGenerator,
 }
 
 export const pagesConfig = {
