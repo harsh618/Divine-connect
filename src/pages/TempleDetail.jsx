@@ -65,6 +65,9 @@ export default function TempleDetail() {
   const [specialRequirements, setSpecialRequirements] = useState('');
   const [donationAmount, setDonationAmount] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('english');
+  const [loadingStories, setLoadingStories] = useState(false);
+  const [templeStories, setTempleStories] = useState(null);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -72,7 +75,13 @@ export default function TempleDetail() {
       const temples = await base44.entities.Temple.filter({ id: templeId });
       return temples[0];
     },
-    enabled: !!templeId
+    enabled: !!templeId,
+    onSuccess: (data) => {
+      // Load stories when temple loads
+      if (data && !templeStories) {
+        loadTempleStories(data);
+      }
+    }
   });
 
   const { data: prasadItems } = useQuery({
@@ -143,6 +152,90 @@ export default function TempleDetail() {
     });
   };
 
+  const loadTempleStories = async (templeData) => {
+    setLoadingStories(true);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Generate spiritual stories and historical significance about ${templeData.name} temple dedicated to ${templeData.primary_deity} located in ${templeData.city}, ${templeData.state}.
+
+Include:
+1. Historical legends and origin stories (katha)
+2. Scriptural references from Hindu texts
+3. Famous miracles or divine experiences
+4. Cultural and religious significance
+
+Format as a rich, engaging narrative suitable for devotees.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: "string" },
+            stories: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  heading: { type: "string" },
+                  content: { type: "string" }
+                }
+              }
+            },
+            scriptural_references: { type: "string" }
+          }
+        }
+      });
+      setTempleStories(response);
+    } catch (error) {
+      console.error('Failed to load stories:', error);
+    } finally {
+      setLoadingStories(false);
+    }
+  };
+
+  const translateStories = async (language) => {
+    setLoadingStories(true);
+    setSelectedLanguage(language);
+    try {
+      const languageMap = {
+        english: 'English',
+        hindi: 'Hindi',
+        sanskrit: 'Sanskrit',
+        tamil: 'Tamil',
+        telugu: 'Telugu'
+      };
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Translate the following temple story to ${languageMap[language]}. Keep the spiritual and cultural essence intact.
+
+Title: ${templeStories.title}
+Stories: ${JSON.stringify(templeStories.stories)}
+Scriptural References: ${templeStories.scriptural_references}
+
+Provide the translation in the same JSON format.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: "string" },
+            stories: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  heading: { type: "string" },
+                  content: { type: "string" }
+                }
+              }
+            },
+            scriptural_references: { type: "string" }
+          }
+        }
+      });
+      setTempleStories(response);
+    } catch (error) {
+      toast.error('Translation failed');
+    } finally {
+      setLoadingStories(false);
+    }
+  };
+
   const defaultImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200";
   const images = temple?.images?.length > 0 ? temple.images : [defaultImage];
 
@@ -172,7 +265,7 @@ export default function TempleDetail() {
         <img
           src={images[currentImageIndex]}
           alt={temple.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
         
@@ -236,6 +329,27 @@ export default function TempleDetail() {
           </div>
         </div>
       </div>
+
+      {/* Image Thumbnails Scroll */}
+      {images.length > 1 && (
+        <div className="bg-white border-b">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentImageIndex(idx)}
+                  className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition ${
+                    idx === currentImageIndex ? 'border-orange-500' : 'border-gray-200'
+                  }`}
+                >
+                  <img src={img} alt={`${temple.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-6 -mt-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -323,6 +437,56 @@ export default function TempleDetail() {
                 </div>
               </Card>
             )}
+
+            {/* Sacred Stories & Historical Significance */}
+            <Card className="p-6 bg-gradient-to-br from-orange-50 to-amber-50">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Sacred Stories & Historical Significance</h2>
+                <Select value={selectedLanguage} onValueChange={translateStories}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="english">English</SelectItem>
+                    <SelectItem value="hindi">हिन्दी</SelectItem>
+                    <SelectItem value="sanskrit">संस्कृत</SelectItem>
+                    <SelectItem value="tamil">தமிழ்</SelectItem>
+                    <SelectItem value="telugu">తెలుగు</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {loadingStories ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+                  <span className="ml-3 text-gray-600">Loading sacred stories...</span>
+                </div>
+              ) : templeStories ? (
+                <div className="space-y-6">
+                  <div className="prose prose-orange max-w-none">
+                    <h3 className="text-2xl font-serif text-orange-800 mb-4">{templeStories.title}</h3>
+                    
+                    {templeStories.stories?.map((story, idx) => (
+                      <div key={idx} className="mb-6">
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">{story.heading}</h4>
+                        <p className="text-gray-700 leading-relaxed">{story.content}</p>
+                      </div>
+                    ))}
+
+                    {templeStories.scriptural_references && (
+                      <div className="mt-6 p-4 bg-white/60 rounded-lg border border-orange-200">
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">Scriptural References</h4>
+                        <p className="text-gray-700 leading-relaxed">{templeStories.scriptural_references}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Loading divine stories about this sacred place...</p>
+                </div>
+              )}
+            </Card>
           </div>
 
           {/* Sidebar */}
