@@ -110,6 +110,20 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
                 </div>
               )}
 
+              {article.images?.length > 0 && (
+                <div className="mb-4 grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {(isExpanded ? article.images : article.images.slice(0, 2)).map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`${article.title} ${idx + 1}`}
+                      className="w-full h-40 object-cover rounded-lg border border-amber-200 cursor-pointer hover:opacity-90 transition"
+                      onClick={() => window.open(img, '_blank')}
+                    />
+                  ))}
+                </div>
+              )}
+
               <div className="text-gray-600 leading-relaxed">
                 {isExpanded || !needsExpansion ? (
                   <p>{article.content}</p>

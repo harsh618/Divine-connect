@@ -4,7 +4,9 @@ import { base44 } from '@/api/base44Client';
 import { Upload, X, CheckCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function ImageUpload({ images = [], onImagesChange, thumbnailUrl, onThumbnailChange }) {
+export default function ImageUpload({ images = [], onChange, thumbnailUrl, onThumbnailChange, multiple = true }) {
+  // Support both onChange and onImagesChange for backward compatibility
+  const handleChange = onChange || onImagesChange;
   const [uploading, setUploading] = useState(false);
 
   const handleFileUpload = async (e) => {
@@ -19,10 +21,10 @@ export default function ImageUpload({ images = [], onImagesChange, thumbnailUrl,
       const results = await Promise.all(uploadPromises);
       const newUrls = results.map(r => r.file_url);
       
-      onImagesChange([...images, ...newUrls]);
+      handleChange([...images, ...newUrls]);
       
       // Set first uploaded image as thumbnail if no thumbnail exists
-      if (!thumbnailUrl && newUrls.length > 0) {
+      if (onThumbnailChange && !thumbnailUrl && newUrls.length > 0) {
         onThumbnailChange(newUrls[0]);
       }
       
@@ -37,13 +39,15 @@ export default function ImageUpload({ images = [], onImagesChange, thumbnailUrl,
 
   const removeImage = (url) => {
     const newImages = images.filter(img => img !== url);
-    onImagesChange(newImages);
+    handleChange(newImages);
     
     // If removed image was thumbnail, set new thumbnail
-    if (url === thumbnailUrl && newImages.length > 0) {
-      onThumbnailChange(newImages[0]);
-    } else if (newImages.length === 0) {
-      onThumbnailChange('');
+    if (onThumbnailChange) {
+      if (url === thumbnailUrl && newImages.length > 0) {
+        onThumbnailChange(newImages[0]);
+      } else if (newImages.length === 0) {
+        onThumbnailChange('');
+      }
     }
   };
 
@@ -64,7 +68,7 @@ export default function ImageUpload({ images = [], onImagesChange, thumbnailUrl,
               />
               
               {/* Thumbnail Badge */}
-              {url === thumbnailUrl && (
+              {onThumbnailChange && url === thumbnailUrl && (
                 <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" />
                   Thumbnail
@@ -73,7 +77,7 @@ export default function ImageUpload({ images = [], onImagesChange, thumbnailUrl,
               
               {/* Actions */}
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                {url !== thumbnailUrl && (
+                {onThumbnailChange && url !== thumbnailUrl && (
                   <Button
                     size="sm"
                     variant="secondary"
@@ -99,7 +103,7 @@ export default function ImageUpload({ images = [], onImagesChange, thumbnailUrl,
           <label className="cursor-pointer">
             <input
               type="file"
-              multiple
+              multiple={multiple}
               accept="image/*"
               onChange={handleFileUpload}
               className="hidden"
