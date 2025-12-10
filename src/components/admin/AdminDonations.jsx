@@ -22,6 +22,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button as DropdownButton } from "@/components/ui/button";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -33,7 +40,10 @@ import {
   Plus,
   Loader2,
   Heart,
-  Target
+  Target,
+  Eye,
+  EyeOff,
+  MoreVertical
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -85,6 +95,15 @@ export default function AdminDonations() {
         images: [],
         thumbnail_url: ''
       });
+    }
+  });
+
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, is_visible }) => 
+      base44.entities.DonationCampaign.update(id, { is_visible }),
+    onSuccess: () => {
+      toast.success('Campaign visibility updated');
+      queryClient.invalidateQueries(['admin-campaigns-list']);
     }
   });
 
@@ -160,12 +179,13 @@ export default function AdminDonations() {
               <TableHead>Goal</TableHead>
               <TableHead>Raised</TableHead>
               <TableHead>Progress</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loadingCampaigns ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
@@ -188,11 +208,40 @@ export default function AdminDonations() {
                       />
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <DropdownButton variant="ghost" size="icon">
+                          <MoreVertical className="w-4 h-4" />
+                        </DropdownButton>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem 
+                          onClick={() => toggleVisibilityMutation.mutate({ 
+                            id: campaign.id, 
+                            is_visible: campaign.is_visible === false 
+                          })}
+                        >
+                          {campaign.is_visible !== false ? (
+                            <>
+                              <EyeOff className="w-4 h-4 mr-2" />
+                              Hide from Users
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="w-4 h-4 mr-2" />
+                              Show to Users
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                   No campaigns yet
                 </TableCell>
               </TableRow>

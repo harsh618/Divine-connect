@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle, XCircle, Search, Eye } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -38,6 +38,15 @@ export default function AdminProviders() {
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-providers']);
       toast.success('Provider status updated');
+    }
+  });
+
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, is_visible }) => 
+      base44.entities.ProviderProfile.update(id, { is_visible }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-providers']);
+      toast.success('Provider visibility updated');
     }
   });
 
@@ -84,7 +93,7 @@ export default function AdminProviders() {
               <TableHead>Type</TableHead>
               <TableHead>Experience</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Rating</TableHead>
+              <TableHead>Visible</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -116,7 +125,9 @@ export default function AdminProviders() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {provider.rating_average > 0 ? `${provider.rating_average.toFixed(1)} ⭐` : 'No ratings'}
+                    <Badge className={provider.is_visible !== false ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                      {provider.is_visible !== false ? 'Visible' : 'Hidden'}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -141,6 +152,16 @@ export default function AdminProviders() {
                           <XCircle className="w-4 h-4" />
                         </Button>
                       )}
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => toggleVisibilityMutation.mutate({ 
+                          id: provider.id, 
+                          is_visible: provider.is_visible === false 
+                        })}
+                      >
+                        {provider.is_visible !== false ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
