@@ -12,8 +12,8 @@ export default function HeroSection() {
         <img
           src="https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1920"
           alt="Temple"
-          className="w-full h-full object-cover"
-        />
+          className="w-full h-full object-cover" />
+        
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
       </div>
 
@@ -44,8 +44,8 @@ export default function HeroSection() {
             <Link to={createPageUrl('Temples')}>
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all hover:scale-105"
-              >
+                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all hover:scale-105">
+                
                 Explore Temples
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -53,9 +53,9 @@ export default function HeroSection() {
             <Link to={createPageUrl('Poojas')}>
               <Button
                 size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-full backdrop-blur-sm"
-              >
+                variant="outline" className="bg-transparent text-white px-8 py-6 text-lg font-medium rounded-full inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-10 border-white/30 hover:bg-white/10 backdrop-blur-sm">
+
+                
                 Book a Pooja
               </Button>
             </Link>
@@ -80,6 +80,6 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
