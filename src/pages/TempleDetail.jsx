@@ -47,6 +47,7 @@ import { toast } from 'sonner';
 import ArticlesList from '../components/temple/ArticlesList';
 import PriestArticleForm from '../components/temple/PriestArticleForm';
 import BackButton from '../components/ui/BackButton';
+import PrasadOrderModal from '../components/prasad/PrasadOrderModal';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -78,6 +79,8 @@ export default function TempleDetail() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
+  const [showPrasadOrderModal, setShowPrasadOrderModal] = useState(false);
+  const [selectedPrasadItems, setSelectedPrasadItems] = useState([]);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -312,12 +315,12 @@ export default function TempleDetail() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
       {/* Back Button - Fixed Top Left */}
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-20 left-4 z-50">
         <BackButton />
       </div>
 
       {/* Action Buttons - Fixed Top Right */}
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
+      <div className="fixed top-20 right-4 z-50 flex gap-2">
         <Button
           variant="ghost"
           size="icon"
@@ -444,12 +447,17 @@ export default function TempleDetail() {
               <Button
                 variant="outline"
                 className="flex-col h-auto py-4"
-                asChild
+                onClick={() => {
+                  if (prasadItems?.length > 0) {
+                    setSelectedPrasadItems(prasadItems);
+                    setShowPrasadOrderModal(true);
+                  } else {
+                    toast.error('No prasad items available at this temple');
+                  }
+                }}
               >
-                <Link to={createPageUrl(`Prasad?temple_id=${templeId}`)}>
-                  <Package className="w-6 h-6 mb-2" />
-                  <span className="text-sm">Order Prasad</span>
-                </Link>
+                <Package className="w-6 h-6 mb-2" />
+                <span className="text-sm">Order Prasad</span>
               </Button>
               <Button
                 variant="outline"
@@ -656,11 +664,17 @@ export default function TempleDetail() {
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-gray-900">Prasad Available</h3>
-                  <Link to={createPageUrl(`Prasad?temple_id=${templeId}`)}>
-                    <Button variant="ghost" size="sm" className="text-orange-600">
-                      View All
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-orange-600"
+                    onClick={() => {
+                      setSelectedPrasadItems(prasadItems);
+                      setShowPrasadOrderModal(true);
+                    }}
+                  >
+                    Order Now
+                  </Button>
                 </div>
                 <div className="space-y-3">
                   {prasadItems.slice(0, 3).map((item) => (
@@ -832,6 +846,17 @@ export default function TempleDetail() {
           templeId={templeId}
           templeName={temple?.name}
           onClose={() => setShowPriestArticleForm(false)}
+        />
+      )}
+
+      {/* Prasad Order Modal */}
+      {showPrasadOrderModal && (
+        <PrasadOrderModal
+          isOpen={showPrasadOrderModal}
+          onClose={() => setShowPrasadOrderModal(false)}
+          templeId={templeId}
+          templeName={temple?.name}
+          initialItems={selectedPrasadItems}
         />
       )}
 
