@@ -170,7 +170,8 @@ export default function Astrology() {
     queryFn: () => base44.entities.ProviderProfile.filter({ 
       provider_type: 'astrologer', 
       is_deleted: false,
-      is_verified: true 
+      is_verified: true,
+      is_hidden: false
     }, '-rating_average'),
   });
 

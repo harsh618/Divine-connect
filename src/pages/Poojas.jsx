@@ -106,7 +106,7 @@ export default function Poojas() {
 
   const { data: services, isLoading } = useQuery({
     queryKey: ['pooja-services'],
-    queryFn: () => base44.entities.Service.filter({ category: 'pooja', is_deleted: false }, '-created_date'),
+    queryFn: () => base44.entities.Service.filter({ category: 'pooja', is_deleted: false, is_hidden: false }, '-created_date'),
   });
 
   const filteredServices = services?.filter(service => {

@@ -146,7 +146,7 @@ export default function Donate() {
 
   const { data: campaigns, isLoading } = useQuery({
     queryKey: ['donation-campaigns'],
-    queryFn: () => base44.entities.DonationCampaign.filter({ is_deleted: false, status: 'active' }, '-created_date'),
+    queryFn: () => base44.entities.DonationCampaign.filter({ is_deleted: false, status: 'active', is_hidden: false }, '-created_date'),
   });
 
   const donationMutation = useMutation({

@@ -27,7 +27,7 @@ export default function Temples() {
 
   const { data: temples, isLoading } = useQuery({
     queryKey: ['temples'],
-    queryFn: () => base44.entities.Temple.filter({ is_deleted: false }, '-created_date'),
+    queryFn: () => base44.entities.Temple.filter({ is_deleted: false, is_hidden: false }, '-created_date'),
   });
 
   const filteredTemples = temples?.filter(temple => {
