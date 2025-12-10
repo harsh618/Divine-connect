@@ -116,6 +116,15 @@ export default function PriestArticleForm({ templeId, templeName, onClose }) {
             />
           </div>
 
+          <div>
+            <Label className="mb-2 block">Article Images (Optional)</Label>
+            <ImageUpload
+              images={formData.images}
+              onChange={(images) => setFormData({...formData, images})}
+              multiple={true}
+            />
+          </div>
+
           <div className="bg-amber-50 p-4 rounded-lg text-sm text-gray-600">
             <p className="font-medium text-amber-800 mb-1">Note:</p>
             <p>Your article will be submitted to admin for review. Once approved, it will be visible to all devotees visiting this temple page.</p>

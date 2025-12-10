@@ -32,6 +32,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import ImageUpload from './ImageUpload';
 
 export default function AdminArticles() {
   const queryClient = useQueryClient();
@@ -46,7 +47,8 @@ export default function AdminArticles() {
     content: '',
     scripture_reference: '',
     quote: '',
-    language: 'english'
+    language: 'english',
+    images: []
   });
   const [aiFormData, setAiFormData] = useState({
     temple_id: '',
@@ -236,7 +238,8 @@ Return the article in this JSON format:
       content: '',
       scripture_reference: '',
       quote: '',
-      language: 'english'
+      language: 'english',
+      images: []
     });
     setEditingArticle(null);
   };
@@ -249,7 +252,8 @@ Return the article in this JSON format:
       content: article.content,
       scripture_reference: article.scripture_reference || '',
       quote: article.quote || '',
-      language: article.language
+      language: article.language,
+      images: article.images || []
     });
     setShowModal(true);
   };
@@ -496,6 +500,15 @@ Return the article in this JSON format:
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 rows={10}
                 required
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2 block">Article Images (Optional)</Label>
+              <ImageUpload
+                images={formData.images}
+                onChange={(images) => setFormData({ ...formData, images })}
+                multiple={true}
               />
             </div>
 
