@@ -200,21 +200,10 @@ export default function Donate() {
   const totalRaised = campaigns?.reduce((sum, c) => sum + (c.raised_amount || 0), 0) || 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/50 to-white pb-24 md:pb-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-rose-500 py-16 px-6">
-        <div className="container mx-auto">
-          <BackButton label="Back" />
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Support Sacred Causes
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl">
-            Your donations help maintain temples, support charitable activities, and spread the light of spirituality.
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white pb-24 md:pb-8">
+      <PageHero page="donate" />
 
-      <div className="container mx-auto px-6 -mt-8">
+      <div className="container mx-auto px-6 py-16">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="p-6 bg-white shadow-lg">
