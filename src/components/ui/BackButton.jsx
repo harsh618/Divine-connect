@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/components/LanguageContext';
 import { t } from '@/components/translations';
+import { createPageUrl } from '@/utils';
 
 export default function BackButton({ to, label }) {
   const navigate = useNavigate();
