@@ -41,6 +41,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
 import SacredStories from '../components/temple/SacredStories';
+import EventCalendar from '../components/temple/EventCalendar';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -380,6 +381,9 @@ export default function TempleDetail() {
               selectedLanguage={selectedLanguage}
               onLanguageChange={translateStories}
             />
+
+            {/* Events & Festivals Calendar */}
+            <EventCalendar templeId={templeId} templeName={temple.name} />
 
             {/* Festivals */}
             {temple.festivals?.length > 0 && (
