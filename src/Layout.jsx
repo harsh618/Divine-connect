@@ -189,9 +189,9 @@ export default function Layout({ children, currentPageName }) {
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Home</span>
           </Link>
-          <Link to={createPageUrl('Temples')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
-            <Building2 className="w-5 h-5" />
-            <span className="text-xs mt-1">Temples</span>
+          <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+            <Stars className="w-5 h-5" />
+            <span className="text-xs mt-1">Journey</span>
           </Link>
           <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Flame className="w-5 h-5" />
