@@ -20,12 +20,12 @@ import {
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-import AdminStats from '../components/admin/AdminStats';
-import AdminUsers from '../components/admin/AdminUsers';
-import AdminTemples from '../components/admin/AdminTemples';
-import AdminBookings from '../components/admin/AdminBookings';
-import AdminDonations from '../components/admin/AdminDonations';
-import AdminTrash from '../components/admin/AdminTrash';
+import AdminStats from '@/components/admin/AdminStats';
+import AdminUsers from '@/components/admin/AdminUsers';
+import AdminTemples from '@/components/admin/AdminTemples';
+import AdminBookings from '@/components/admin/AdminBookings';
+import AdminDonations from '@/components/admin/AdminDonations';
+import AdminTrash from '@/components/admin/AdminTrash';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
