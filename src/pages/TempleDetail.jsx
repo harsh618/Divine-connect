@@ -35,7 +35,10 @@ import {
   Check,
   Loader2,
   Star,
-  BookOpen
+  BookOpen,
+  Share2,
+  Navigation,
+  CalendarDays
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -71,6 +74,10 @@ export default function TempleDetail() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [showPriestArticleForm, setShowPriestArticleForm] = useState(false);
   const [isPriest, setIsPriest] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -103,6 +110,23 @@ export default function TempleDetail() {
     enabled: !!templeId
   });
 
+  const { data: events } = useQuery({
+    queryKey: ['temple-events', templeId],
+    queryFn: () => base44.entities.TempleEvent.filter({ 
+      temple_id: templeId, 
+      is_deleted: false 
+    }, 'event_date'),
+    enabled: !!templeId
+  });
+
+  const { data: reviews } = useQuery({
+    queryKey: ['temple-reviews', templeId],
+    queryFn: () => base44.entities.Review.filter({ 
+      temple_id: templeId 
+    }, '-created_date'),
+    enabled: !!templeId
+  });
+
   React.useEffect(() => {
     const checkPriestStatus = async () => {
       try {
@@ -113,12 +137,20 @@ export default function TempleDetail() {
           is_deleted: false 
         });
         setIsPriest(provider.length > 0);
+        
+        // Check if temple is favorited
+        const favorites = await base44.entities.FavoriteTemple.filter({
+          user_id: user.id,
+          temple_id: templeId
+        });
+        setIsFavorite(favorites.length > 0);
       } catch {
         setIsPriest(false);
+        setIsFavorite(false);
       }
     };
     checkPriestStatus();
-  }, []);
+  }, [templeId]);
 
   const bookingMutation = useMutation({
     mutationFn: async (bookingData) => {
@@ -182,6 +214,77 @@ export default function TempleDetail() {
     });
   };
 
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async () => {
+      const user = await base44.auth.me();
+      if (isFavorite) {
+        const favorites = await base44.entities.FavoriteTemple.filter({
+          user_id: user.id,
+          temple_id: templeId
+        });
+        if (favorites[0]) {
+          await base44.entities.FavoriteTemple.delete(favorites[0].id);
+        }
+      } else {
+        await base44.entities.FavoriteTemple.create({
+          user_id: user.id,
+          temple_id: templeId
+        });
+      }
+    },
+    onSuccess: () => {
+      setIsFavorite(!isFavorite);
+      toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites');
+    }
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: async (reviewData) => {
+      const user = await base44.auth.me();
+      return base44.entities.Review.create({
+        ...reviewData,
+        user_id: user.id,
+        temple_id: templeId
+      });
+    },
+    onSuccess: () => {
+      toast.success('Review submitted successfully!');
+      setShowReviewModal(false);
+      setRating(0);
+      setReviewComment('');
+      queryClient.invalidateQueries(['temple-reviews', templeId]);
+    }
+  });
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: temple.name,
+        text: `Check out ${temple.name} on Divine`,
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Link copied to clipboard!');
+    }
+  };
+
+  const handleGetDirections = () => {
+    const address = encodeURIComponent(`${temple.name}, ${temple.location || temple.city + ', ' + temple.state}`);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, '_blank');
+  };
+
+  const handleReviewSubmit = () => {
+    if (rating === 0) {
+      toast.error('Please select a rating');
+      return;
+    }
+    reviewMutation.mutate({
+      rating,
+      comment: reviewComment
+    });
+  };
+
 
 
   const defaultImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200";
@@ -208,6 +311,31 @@ export default function TempleDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
+      {/* Back Button - Fixed Top Left */}
+      <div className="fixed top-4 left-4 z-50">
+        <BackButton />
+      </div>
+
+      {/* Action Buttons - Fixed Top Right */}
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => toggleFavoriteMutation.mutate()}
+          className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
+        >
+          <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleShare}
+          className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
+        >
+          <Share2 className="w-5 h-5 text-gray-700" />
+        </Button>
+      </div>
+
       {/* Hero Image Gallery */}
       <div className="relative h-[50vh] md:h-[60vh] bg-black">
         <img
@@ -300,7 +428,6 @@ export default function TempleDetail() {
       )}
 
       <div className="container mx-auto px-6 -mt-6 relative z-10">
-        <BackButton />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -386,19 +513,85 @@ export default function TempleDetail() {
               maxArticles={maxArticles || 5}
             />
 
-            {/* Festivals */}
-            {temple.festivals?.length > 0 && (
+            {/* Events & Festivals */}
+            {(events?.length > 0 || temple.festivals?.length > 0) && (
               <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Upcoming Festivals</h2>
-                <div className="flex flex-wrap gap-2">
-                  {temple.festivals.map((festival, idx) => (
-                    <Badge key={idx} variant="secondary" className="bg-orange-50 text-orange-700">
-                      {festival}
-                    </Badge>
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                  <CalendarDays className="w-5 h-5 mr-2 text-orange-500" />
+                  Upcoming Events & Festivals
+                </h2>
+                <div className="space-y-4">
+                  {events?.slice(0, 5).map((event) => (
+                    <div key={event.id} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
+                      <div className="flex-shrink-0 w-12 h-12 bg-orange-100 rounded-lg flex flex-col items-center justify-center">
+                        <span className="text-xs text-orange-600 font-semibold">
+                          {format(new Date(event.event_date), 'MMM')}
+                        </span>
+                        <span className="text-lg font-bold text-orange-700">
+                          {format(new Date(event.event_date), 'd')}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                        <p className="text-sm text-gray-600">{event.description}</p>
+                        {event.event_time && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            <Clock className="w-3 h-3 inline mr-1" />
+                            {event.event_time}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   ))}
+                  {temple.festivals?.length > 0 && (
+                    <div className="pt-2 border-t">
+                      <p className="text-sm text-gray-600 mb-2">Other Festivals:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {temple.festivals.map((festival, idx) => (
+                          <Badge key={idx} variant="secondary" className="bg-orange-50 text-orange-700">
+                            {festival}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
+
+            {/* Reviews & Ratings */}
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Reviews & Ratings</h2>
+                <Button onClick={() => setShowReviewModal(true)} className="bg-orange-500 hover:bg-orange-600">
+                  Write Review
+                </Button>
+              </div>
+              
+              {reviews?.length > 0 ? (
+                <div className="space-y-4">
+                  {reviews.slice(0, 5).map((review) => (
+                    <div key={review.id} className="p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex">
+                          {Array(5).fill(0).map((_, i) => (
+                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          {format(new Date(review.created_date), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      {review.comment && (
+                        <p className="text-gray-700 text-sm">{review.comment}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
+              )}
+            </Card>
 
             {/* Live Darshan */}
             {temple.live_darshan_url && (
@@ -448,6 +641,14 @@ export default function TempleDetail() {
                   </div>
                 )}
               </div>
+
+              <Button 
+                onClick={handleGetDirections}
+                className="w-full mt-4 bg-orange-500 hover:bg-orange-600"
+              >
+                <Navigation className="w-4 h-4 mr-2" />
+                Get Directions
+              </Button>
             </Card>
 
             {/* Prasad Preview */}
@@ -633,6 +834,62 @@ export default function TempleDetail() {
           onClose={() => setShowPriestArticleForm(false)}
         />
       )}
+
+      {/* Review Modal */}
+      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Write a Review</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div>
+              <Label className="mb-2 block">Your Rating</Label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className="transition-transform hover:scale-110"
+                  >
+                    <Star 
+                      className={`w-8 h-8 ${star <= rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-2 block">Your Review (Optional)</Label>
+              <Textarea
+                placeholder="Share your experience..."
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                rows={4}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setShowReviewModal(false)} className="flex-1">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleReviewSubmit}
+              disabled={reviewMutation.isPending}
+              className="flex-1 bg-orange-500 hover:bg-orange-600"
+            >
+              {reviewMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Check className="w-4 h-4 mr-2" />
+              )}
+              Submit Review
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
