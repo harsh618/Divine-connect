@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
-import BackButton from '../components/ui/BackButton';
+import PageHero from '../components/shared/PageHero';
 
 const categoryIcons = {
   temple_renovation: Building2,

@@ -141,7 +141,6 @@ function PriestCardSkeleton() {
 }
 
 export default function Priests() {
-  const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState('browse');
   const [searchQuery, setSearchQuery] = useState('');
   const [showQuickQuery, setShowQuickQuery] = useState(false);
@@ -178,21 +177,10 @@ export default function Priests() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/50 to-white pb-24 md:pb-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-teal-500 to-cyan-500 py-16 px-6">
-        <div className="container mx-auto">
-          <BackButton label={t('common.back', language)} />
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Connect with Priests
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl">
-            Get guidance from verified pandits for rituals, ceremonies, and spiritual queries.
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white pb-24 md:pb-8">
+      <PageHero page="priests" />
 
-      <div className="container mx-auto px-6 -mt-8">
+      <div className="container mx-auto px-6 py-16">
         {/* Quick Query Card */}
         <Card className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-orange-200 mb-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">

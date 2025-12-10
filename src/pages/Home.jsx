@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import HeroSection from '../components/home/HeroSection';
+import PageHero from '../components/shared/PageHero';
 import ServiceCards from '../components/home/ServiceCards';
 import FeaturedTemples from '../components/home/FeaturedTemples';
 
@@ -20,7 +20,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      <HeroSection />
+      <PageHero page="home" />
       <ServiceCards />
       <FeaturedTemples temples={displayTemples} isLoading={isLoading && isLoadingAll} />
       
