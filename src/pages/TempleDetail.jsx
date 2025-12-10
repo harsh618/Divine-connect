@@ -44,8 +44,6 @@ import { toast } from 'sonner';
 import ArticlesList from '../components/temple/ArticlesList';
 import PriestArticleForm from '../components/temple/PriestArticleForm';
 import BackButton from '../components/ui/BackButton';
-import { useLanguage } from '@/components/LanguageContext';
-import { t } from '@/components/translations';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -58,7 +56,6 @@ const timeSlots = [
 ];
 
 export default function TempleDetail() {
-  const { language } = useLanguage();
   const urlParams = new URLSearchParams(window.location.search);
   const templeId = urlParams.get('id');
   const queryClient = useQueryClient();
@@ -315,7 +312,7 @@ export default function TempleDetail() {
                 disabled={!temple.visit_booking_enabled}
               >
                 <CalendarIcon className="w-6 h-6 mb-2" />
-                <span className="text-sm">{t('temple.bookVisit', language)}</span>
+                <span className="text-sm">Book Visit</span>
               </Button>
               <Button
                 variant="outline"
@@ -324,7 +321,7 @@ export default function TempleDetail() {
               >
                 <Link to={createPageUrl(`Prasad?temple_id=${templeId}`)}>
                   <Package className="w-6 h-6 mb-2" />
-                  <span className="text-sm">{t('temple.orderPrasad', language)}</span>
+                  <span className="text-sm">Order Prasad</span>
                 </Link>
               </Button>
               <Button
@@ -333,7 +330,7 @@ export default function TempleDetail() {
                 className="flex-col h-auto py-4"
               >
                 <Heart className="w-6 h-6 mb-2" />
-                <span className="text-sm">{t('common.donate', language)}</span>
+                <span className="text-sm">Donate</span>
               </Button>
             </Card>
 
@@ -346,15 +343,15 @@ export default function TempleDetail() {
                       <BookOpen className="w-5 h-5 text-orange-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">{t('articles.articleSeva', language)}</h3>
-                      <p className="text-sm text-gray-600">{t('articles.shareKnowledge', language)}</p>
+                      <h3 className="font-semibold text-gray-900">Article Seva</h3>
+                      <p className="text-sm text-gray-600">Share divine knowledge with devotees</p>
                     </div>
                   </div>
                   <Button 
                     onClick={() => setShowPriestArticleForm(true)}
                     className="bg-orange-500 hover:bg-orange-600"
                   >
-                    {t('articles.writeArticle', language)}
+                    Write Article
                   </Button>
                 </div>
               </Card>
@@ -362,21 +359,21 @@ export default function TempleDetail() {
 
             {/* About */}
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">{t('temple.about', language)}</h2>
+              <h2 className="text-xl font-semibold mb-4">About This Temple</h2>
               <p className="text-gray-600 leading-relaxed mb-6">
                 {temple.description || 'A sacred place of worship and spiritual significance.'}
               </p>
               
               {temple.significance && (
                 <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">{t('temple.significance', language)}</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">Significance</h3>
                   <p className="text-gray-600">{temple.significance}</p>
                 </div>
               )}
 
               {temple.history && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{t('temple.history', language)}</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">History</h3>
                   <p className="text-gray-600">{temple.history}</p>
                 </div>
               )}
