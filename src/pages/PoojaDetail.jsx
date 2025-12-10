@@ -138,7 +138,7 @@ export default function PoojaDetail() {
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
         <div className="container mx-auto">
-          <BackButton to={createPageUrl('Poojas')} label={t('common.back', language)} />
+          <BackButton label={t('common.back', language)} />
           <div className="flex items-center gap-3 mb-4">
             <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
               <Flame className="w-8 h-8 text-white" />

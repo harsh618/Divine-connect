@@ -207,7 +207,7 @@ export default function Donate() {
       {/* Header */}
       <div className="bg-gradient-to-r from-pink-500 to-rose-500 py-16 px-6">
         <div className="container mx-auto">
-          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
+          <BackButton label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Support Sacred Causes
           </h1>

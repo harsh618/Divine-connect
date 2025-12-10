@@ -184,7 +184,7 @@ export default function Priests() {
       {/* Header */}
       <div className="bg-gradient-to-r from-teal-500 to-cyan-500 py-16 px-6">
         <div className="container mx-auto">
-          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
+          <BackButton label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Connect with Priests
           </h1>

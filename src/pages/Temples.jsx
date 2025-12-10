@@ -56,7 +56,7 @@ export default function Temples() {
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
         <div className="container mx-auto">
-          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
+          <BackButton label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Discover Temples
           </h1>
