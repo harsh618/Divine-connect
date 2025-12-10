@@ -28,7 +28,8 @@ import {
   Trash2, 
   Plus,
   Search,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -37,6 +38,7 @@ export default function AdminArticles() {
   const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [showModal, setShowModal] = useState(false);
+  const [showAIWriter, setShowAIWriter] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
   const [formData, setFormData] = useState({
     temple_id: '',
@@ -45,6 +47,11 @@ export default function AdminArticles() {
     scripture_reference: '',
     quote: '',
     language: 'english'
+  });
+  const [aiFormData, setAiFormData] = useState({
+    temple_id: '',
+    topic: '',
+    example: ''
   });
 
   const { data: articles } = useQuery({
@@ -154,6 +161,67 @@ export default function AdminArticles() {
     }
   });
 
+  const writeWithAIMutation = useMutation({
+    mutationFn: async (data) => {
+      const temple = temples.find(t => t.id === data.temple_id);
+      
+      const prompt = `You are a Hindu scripture scholar. Write a detailed, authentic article about "${data.topic}" for ${temple.name} temple dedicated to ${temple.primary_deity}.
+
+${data.example ? `Use this as reference/example: ${data.example}` : ''}
+
+Requirements:
+1. Write an engaging article with proper scriptural references
+2. Include relevant Sanskrit quotes or verses
+3. Make it authentic and based on actual Hindu scriptures/grantha
+4. Structure: Title, Main Content (3-4 paragraphs), Scripture Reference
+5. Keep it devotional yet informative
+
+Return the article in this JSON format:
+{
+  "title": "article title here",
+  "content": "main article content here (3-4 detailed paragraphs)",
+  "scripture_reference": "which scripture/grantha this is from",
+  "quote": "relevant Sanskrit verse or quote"
+}`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: "string" },
+            content: { type: "string" },
+            scripture_reference: { type: "string" },
+            quote: { type: "string" }
+          }
+        }
+      });
+
+      const article = await base44.entities.Article.create({
+        temple_id: data.temple_id,
+        title: response.title,
+        content: response.content,
+        scripture_reference: response.scripture_reference,
+        quote: response.quote,
+        source: 'ai_generated',
+        status: 'approved',
+        is_published: true,
+        language: 'english'
+      });
+
+      return article;
+    },
+    onSuccess: () => {
+      toast.success('AI article created successfully');
+      queryClient.invalidateQueries(['admin-articles']);
+      setShowAIWriter(false);
+      setAiFormData({ temple_id: '', topic: '', example: '' });
+    },
+    onError: () => {
+      toast.error('Failed to generate AI article');
+    }
+  });
+
   const resetForm = () => {
     setFormData({
       temple_id: '',
@@ -207,10 +275,19 @@ export default function AdminArticles() {
           <h2 className="text-2xl font-bold text-gray-900">Temple Articles</h2>
           <p className="text-gray-500">Manage scripture articles and priest submissions</p>
         </div>
-        <Button onClick={() => setShowModal(true)} className="bg-orange-500 hover:bg-orange-600">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Article
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            onClick={() => setShowAIWriter(true)} 
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Write with AI
+          </Button>
+          <Button onClick={() => setShowModal(true)} className="bg-orange-500 hover:bg-orange-600">
+            <Plus className="w-4 h-4 mr-2" />
+            Create Article
+          </Button>
+        </div>
       </div>
 
       <Card className="p-6">
@@ -327,15 +404,15 @@ export default function AdminArticles() {
       <Card className="p-6 bg-gradient-to-br from-purple-50 to-indigo-50">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
           <Sparkles className="w-5 h-5 mr-2 text-purple-600" />
-          Generate AI Articles from Scriptures
+          Bulk Generate Articles from Scriptures
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Select a temple to automatically generate sacred stories from Hindu scriptures using AI.
+          Auto-generate multiple sacred stories for a temple from Hindu scriptures.
         </p>
         <div className="flex gap-3">
-          <Select onValueChange={(value) => generateAIArticles.mutate(value)}>
+          <Select onValueChange={(value) => generateAIArticles.mutate(value)} disabled={generateAIArticles.isPending}>
             <SelectTrigger className="w-64">
-              <SelectValue placeholder="Select temple..." />
+              <SelectValue placeholder={generateAIArticles.isPending ? "Generating..." : "Select temple..."} />
             </SelectTrigger>
             <SelectContent>
               {temples?.map(temple => (
@@ -421,6 +498,98 @@ export default function AdminArticles() {
               </Button>
               <Button type="submit" className="flex-1 bg-orange-500 hover:bg-orange-600">
                 {editingArticle ? 'Update' : 'Create'} Article
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Writer Dialog */}
+      <Dialog open={showAIWriter} onOpenChange={(open) => {
+        setShowAIWriter(open);
+        if (!open) setAiFormData({ temple_id: '', topic: '', example: '' });
+      }}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              Write Article with AI
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!aiFormData.temple_id || !aiFormData.topic) {
+              toast.error('Please select temple and enter topic');
+              return;
+            }
+            writeWithAIMutation.mutate(aiFormData);
+          }} className="space-y-4 py-4">
+            <div>
+              <Label className="mb-2 block">Select Temple *</Label>
+              <Select 
+                value={aiFormData.temple_id} 
+                onValueChange={(value) => setAiFormData({ ...aiFormData, temple_id: value })}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose temple" />
+                </SelectTrigger>
+                <SelectContent>
+                  {temples?.map(temple => (
+                    <SelectItem key={temple.id} value={temple.id}>
+                      {temple.name} - {temple.primary_deity}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="mb-2 block">Article Topic *</Label>
+              <Input
+                placeholder="e.g., The Divine Leela of Lord Krishna, Significance of Monday Fasting"
+                value={aiFormData.topic}
+                onChange={(e) => setAiFormData({ ...aiFormData, topic: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2 block">Example or Context (Optional)</Label>
+              <Textarea
+                placeholder="Provide any specific details, examples, or context you want the AI to consider..."
+                value={aiFormData.example}
+                onChange={(e) => setAiFormData({ ...aiFormData, example: e.target.value })}
+                rows={4}
+              />
+            </div>
+
+            <div className="bg-purple-50 p-4 rounded-lg text-sm text-gray-600">
+              <p className="font-medium text-purple-800 mb-1">How it works:</p>
+              <p>AI will generate an authentic article based on Hindu scriptures and grantha, including relevant Sanskrit quotes and proper references.</p>
+            </div>
+
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={() => setShowAIWriter(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                disabled={writeWithAIMutation.isPending}
+                className="flex-1 bg-purple-600 hover:bg-purple-700"
+              >
+                {writeWithAIMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Article
+                  </>
+                )}
               </Button>
             </div>
           </form>
