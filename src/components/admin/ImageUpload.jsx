@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Upload, X, CheckCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function ImageUpload({ images = [], onChange, thumbnailUrl, onThumbnailChange, multiple = true }) {
+export default function ImageUpload({ images = [], onChange, onImagesChange, thumbnailUrl, onThumbnailChange, multiple = true }) {
   // Support both onChange and onImagesChange for backward compatibility
   const handleChange = onChange || onImagesChange;
   const [uploading, setUploading] = useState(false);
