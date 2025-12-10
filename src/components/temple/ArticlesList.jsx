@@ -13,19 +13,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const languageMap = {
+  'en': 'English',
+  'hi': 'हिन्दी',
+  'ta': 'தமிழ்',
+  'te': 'తెలుగు',
+  'bn': 'বাংলা',
+  'sa': 'संस्कृत',
+  'mr': 'मराठी',
+  'gu': 'ગુજરાતી',
+  'kn': 'ಕನ್ನಡ',
+  'ml': 'മലയാളം'
+};
+
 export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
   const { language, changeLanguage } = useLanguage();
   const [expandedArticles, setExpandedArticles] = useState(new Set());
   const [showAll, setShowAll] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(language);
+  const [selectedLanguage, setSelectedLanguage] = useState('all');
 
   // Filter articles based on selected language
   const filteredArticles = selectedLanguage === 'all' 
     ? (articles || [])
-    : (articles?.filter(article => 
-        article.language === selectedLanguage || 
-        (selectedLanguage === 'en' && article.language === 'english')
-      ) || []);
+    : (articles?.filter(article => {
+        // Normalize both values to lowercase for comparison
+        const articleLang = article.language?.toLowerCase();
+        const selectedLang = selectedLanguage.toLowerCase();
+        
+        // Check if article language matches
+        return articleLang === selectedLang || 
+               (selectedLang === 'english' && articleLang === 'en') ||
+               (selectedLang === 'en' && articleLang === 'english');
+      }) || []);
 
   const toggleArticle = (id) => {
     const newExpanded = new Set(expandedArticles);
@@ -35,6 +54,17 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
       newExpanded.add(id);
     }
     setExpandedArticles(newExpanded);
+  };
+
+  const handleLanguageChange = (value) => {
+    setSelectedLanguage(value);
+    // Update global language if not "all"
+    if (value !== 'all') {
+      const langCode = Object.keys(languageMap).find(key => 
+        languageMap[key] === value || key === value
+      ) || 'en';
+      changeLanguage(langCode);
+    }
   };
 
   if (loading) {
@@ -80,19 +110,19 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
             <p className="text-sm text-gray-500">{t('articles.subtitle', language)}</p>
           </div>
         </div>
-        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+        <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
           <SelectTrigger className="w-[180px]">
             <Languages className="w-4 h-4 mr-2" />
-            <SelectValue />
+            <SelectValue placeholder="Language" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Languages</SelectItem>
-            <SelectItem value="en">English</SelectItem>
-            <SelectItem value="hi">हिन्दी</SelectItem>
-            <SelectItem value="ta">தமிழ்</SelectItem>
-            <SelectItem value="te">తెలుగు</SelectItem>
-            <SelectItem value="bn">বাংলা</SelectItem>
-            <SelectItem value="sa">संस्कृत</SelectItem>
+            <SelectItem value="English">English</SelectItem>
+            <SelectItem value="हिन्दी">हिन्दी</SelectItem>
+            <SelectItem value="தமிழ்">தமிழ்</SelectItem>
+            <SelectItem value="తెలుగు">తెలుగు</SelectItem>
+            <SelectItem value="বাংলা">বাংলা</SelectItem>
+            <SelectItem value="संस्कृत">संस्कृत</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -148,20 +178,6 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
                     {article.quote}
                   </p>
                   <div className="absolute bottom-2 right-2 text-amber-300 text-4xl leading-none">"</div>
-                </div>
-              )}
-
-              {article.images?.length > 0 && (
-                <div className="mb-4 grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {(isExpanded ? article.images : article.images.slice(0, 2)).map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img}
-                      alt={`${article.title} ${idx + 1}`}
-                      className="w-full h-40 object-cover rounded-lg border border-amber-200 cursor-pointer hover:opacity-90 transition"
-                      onClick={() => window.open(img, '_blank')}
-                    />
-                  ))}
                 </div>
               )}
 

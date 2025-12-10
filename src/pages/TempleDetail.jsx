@@ -220,6 +220,11 @@ export default function TempleDetail() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
         
+        {/* Back Button - Top Left */}
+        <div className="absolute top-4 left-4 z-20">
+          <BackButton />
+        </div>
+
         {images.length > 1 && (
           <>
             <button
@@ -302,8 +307,7 @@ export default function TempleDetail() {
         </div>
       )}
 
-      <div className="container mx-auto px-6 -mt-6 relative z-10">
-        <BackButton />
+      <div className="container mx-auto px-6 pt-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
