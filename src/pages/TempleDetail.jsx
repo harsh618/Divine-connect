@@ -43,6 +43,7 @@ import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
 import ArticlesList from '../components/temple/ArticlesList';
 import PriestArticleForm from '../components/temple/PriestArticleForm';
+import BackButton from '../components/ui/BackButton';
 import { useLanguage } from '@/components/LanguageContext';
 import { t } from '@/components/translations';
 
@@ -302,6 +303,7 @@ export default function TempleDetail() {
       )}
 
       <div className="container mx-auto px-6 -mt-6 relative z-10">
+        <BackButton to={createPageUrl('Temples')} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">

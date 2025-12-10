@@ -99,6 +99,7 @@ function PoojaCardSkeleton() {
 }
 
 export default function Poojas() {
+  const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showVirtualOnly, setShowVirtualOnly] = useState(false);

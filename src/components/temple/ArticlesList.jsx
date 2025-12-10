@@ -87,35 +87,48 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
           return (
             <div
               key={article.id}
-              className="bg-white rounded-lg p-5 shadow-sm border border-amber-100 hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl p-6 shadow-sm border border-amber-100 hover:shadow-lg transition-all duration-200"
             >
-              <div className="flex items-start justify-between mb-3">
+              {/* Header with badges */}
+              <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
                     {article.title}
                   </h3>
                   {article.scripture_reference && (
-                    <p className="text-sm text-amber-600 font-medium mb-2">
-                      {t('articles.from', language)}: {article.scripture_reference}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-amber-700 font-semibold">
+                        {t('articles.from', language)}:
+                      </span>
+                      <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50">
+                        {article.scripture_reference}
+                      </Badge>
+                    </div>
                   )}
                 </div>
-                {article.source === 'ai_generated' && (
-                  <Badge className="bg-purple-100 text-purple-700 border-0">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    AI
-                  </Badge>
-                )}
-                {article.source === 'priest' && (
-                  <Badge className="bg-orange-100 text-orange-700 border-0">
-                    By {article.author_name}
-                  </Badge>
-                )}
+                <div className="flex flex-col gap-2">
+                  {article.source === 'ai_generated' && (
+                    <Badge className="bg-purple-100 text-purple-700 border-0">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      AI
+                    </Badge>
+                  )}
+                  {article.source === 'priest' && (
+                    <Badge className="bg-orange-100 text-orange-700 border-0">
+                      <BookOpen className="w-3 h-3 mr-1" />
+                      By {article.author_name}
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               {article.quote && (
-                <div className="bg-amber-50 border-l-4 border-amber-400 p-3 mb-3 rounded">
-                  <p className="text-sm italic text-gray-700">{article.quote}</p>
+                <div className="relative bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-500 p-4 mb-4 rounded-lg">
+                  <div className="absolute top-2 left-2 text-amber-300 text-4xl leading-none">"</div>
+                  <p className="text-sm italic text-gray-800 font-medium pl-6 pr-2">
+                    {article.quote}
+                  </p>
+                  <div className="absolute bottom-2 right-2 text-amber-300 text-4xl leading-none">"</div>
                 </div>
               )}
 
@@ -133,9 +146,9 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
                 </div>
               )}
 
-              <div className="text-gray-600 leading-relaxed">
+              <div className="text-gray-700 leading-relaxed text-justify">
                 {isExpanded || !needsExpansion ? (
-                  <p>{article.content}</p>
+                  <p className="whitespace-pre-line">{article.content}</p>
                 ) : (
                   <p>{article.content.substring(0, previewLength)}...</p>
                 )}

@@ -38,6 +38,7 @@ import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
 
 export default function PoojaDetail() {
+  const { language } = useLanguage();
   const urlParams = new URLSearchParams(window.location.search);
   const serviceId = urlParams.get('id');
   const queryClient = useQueryClient();
