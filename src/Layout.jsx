@@ -109,6 +109,12 @@ export default function Layout({ children, currentPageName }) {
                         Profile
                       </DropdownMenuItem>
                     </Link>
+                    <Link to={createPageUrl('MyJourney')}>
+                      <DropdownMenuItem>
+                        <Stars className="w-4 h-4 mr-2" />
+                        My Journey
+                      </DropdownMenuItem>
+                    </Link>
                     <Link to={createPageUrl('MyBookings')}>
                       <DropdownMenuItem>
                         <Flame className="w-4 h-4 mr-2" />
@@ -161,6 +167,12 @@ export default function Layout({ children, currentPageName }) {
                         Home
                       </Button>
                     </Link>
+                    <Link to={createPageUrl('MyJourney')} onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <Stars className="w-5 h-5 mr-3" />
+                        My Journey
+                      </Button>
+                    </Link>
                     {navLinks.map((link) => (
                       <Link key={link.name} to={createPageUrl(link.page)} onClick={() => setIsOpen(false)}>
                         <Button variant="ghost" className="w-full justify-start">
@@ -169,6 +181,12 @@ export default function Layout({ children, currentPageName }) {
                         </Button>
                       </Link>
                     ))}
+                    <Link to={createPageUrl('BecomeProvider')} onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <Users className="w-5 h-5 mr-3" />
+                        Become Provider
+                      </Button>
+                    </Link>
                   </div>
                 </SheetContent>
               </Sheet>
