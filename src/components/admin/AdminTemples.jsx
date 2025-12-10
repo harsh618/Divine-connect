@@ -52,6 +52,8 @@ const initialFormData = {
   description: '',
   opening_hours: '',
   dress_code: '',
+  images: [],
+  thumbnail_url: '',
   is_featured: false,
   visit_booking_enabled: true
 };
@@ -120,6 +122,8 @@ export default function AdminTemples() {
       description: temple.description || '',
       opening_hours: temple.opening_hours || '',
       dress_code: temple.dress_code || '',
+      images: temple.images || [],
+      thumbnail_url: temple.thumbnail_url || '',
       is_featured: temple.is_featured || false,
       visit_booking_enabled: temple.visit_booking_enabled !== false
     });
@@ -263,6 +267,13 @@ export default function AdminTemples() {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
+            <ImageUpload
+              images={formData.images}
+              onImagesChange={(imgs) => setFormData({ ...formData, images: imgs })}
+              thumbnailUrl={formData.thumbnail_url}
+              onThumbnailChange={(url) => setFormData({ ...formData, thumbnail_url: url })}
+            />
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Name *</Label>
