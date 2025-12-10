@@ -25,7 +25,7 @@ export default function HeroSection() {
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-orange-300 text-sm mb-6 mt-8">
             <Sparkles className="w-4 h-4" />
-            <span>Your Spiritual Journey Awaits</span>
+           
           </div>
 
           <h1 className="text-5xl md:text-7xl font-serif font-bold text-white leading-tight mb-6">
