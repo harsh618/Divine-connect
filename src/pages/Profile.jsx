@@ -244,10 +244,20 @@ export default function Profile() {
                     <SelectContent>
                       <SelectItem value="en">{t('languages.en', language)}</SelectItem>
                       <SelectItem value="hi">{t('languages.hi', language)}</SelectItem>
-                      <SelectItem value="es">{t('languages.es', language)}</SelectItem>
                       <SelectItem value="ta">{t('languages.ta', language)}</SelectItem>
                       <SelectItem value="te">{t('languages.te', language)}</SelectItem>
                       <SelectItem value="bn">{t('languages.bn', language)}</SelectItem>
+                      <SelectItem value="mr">{t('languages.mr', language)}</SelectItem>
+                      <SelectItem value="gu">{t('languages.gu', language)}</SelectItem>
+                      <SelectItem value="kn">{t('languages.kn', language)}</SelectItem>
+                      <SelectItem value="ml">{t('languages.ml', language)}</SelectItem>
+                      <SelectItem value="pa">{t('languages.pa', language)}</SelectItem>
+                      <SelectItem value="or">{t('languages.or', language)}</SelectItem>
+                      <SelectItem value="as">{t('languages.as', language)}</SelectItem>
+                      <SelectItem value="ur">{t('languages.ur', language)}</SelectItem>
+                      <SelectItem value="sa">{t('languages.sa', language)}</SelectItem>
+                      <SelectItem value="kok">{t('languages.kok', language)}</SelectItem>
+                      <SelectItem value="mni">{t('languages.mni', language)}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
