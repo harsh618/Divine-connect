@@ -36,6 +36,9 @@ import {
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
+import BackButton from '../components/ui/BackButton';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/components/translations';
 
 function PriestCard({ provider }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200";
@@ -140,6 +143,7 @@ function PriestCardSkeleton() {
 }
 
 export default function Priests() {
+  const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState('browse');
   const [searchQuery, setSearchQuery] = useState('');
   const [showQuickQuery, setShowQuickQuery] = useState(false);
@@ -180,6 +184,7 @@ export default function Priests() {
       {/* Header */}
       <div className="bg-gradient-to-r from-teal-500 to-cyan-500 py-16 px-6">
         <div className="container mx-auto">
+          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Connect with Priests
           </h1>

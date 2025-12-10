@@ -27,6 +27,9 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import BackButton from '../components/ui/BackButton';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/components/translations';
 
 function AstrologerCard({ provider }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200";
@@ -160,6 +163,7 @@ function AstrologerCardSkeleton() {
 }
 
 export default function Astrology() {
+  const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('all');
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
@@ -189,6 +193,7 @@ export default function Astrology() {
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 py-16 px-6">
         <div className="container mx-auto">
+          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Astrology Services
           </h1>

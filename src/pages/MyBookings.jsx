@@ -20,6 +20,9 @@ import {
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import BackButton from '../components/ui/BackButton';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/components/translations';
 
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -130,6 +133,7 @@ function BookingCardSkeleton() {
 }
 
 export default function MyBookings() {
+  const { language } = useLanguage();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -182,6 +186,7 @@ export default function MyBookings() {
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
         <div className="container mx-auto">
+          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             My Bookings
           </h1>

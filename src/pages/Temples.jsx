@@ -14,11 +14,15 @@ import {
 import { Search, Filter, Video, X } from 'lucide-react';
 import TempleCard from '../components/temple/TempleCard';
 import TempleCardSkeleton from '../components/temple/TempleCardSkeleton';
+import BackButton from '../components/ui/BackButton';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/components/translations';
 
 const deities = ['All', 'Shiva', 'Vishnu', 'Ganesha', 'Hanuman', 'Durga', 'Krishna', 'Ram', 'Lakshmi'];
 const states = ['All', 'Tamil Nadu', 'Uttar Pradesh', 'Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat', 'Kerala'];
 
 export default function Temples() {
+  const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDeity, setSelectedDeity] = useState('All');
   const [selectedState, setSelectedState] = useState('All');
@@ -52,6 +56,7 @@ export default function Temples() {
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
         <div className="container mx-auto">
+          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Discover Temples
           </h1>

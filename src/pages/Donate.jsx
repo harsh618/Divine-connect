@@ -35,6 +35,9 @@ import {
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
+import BackButton from '../components/ui/BackButton';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/components/translations';
 
 const categoryIcons = {
   temple_renovation: Building2,
@@ -135,6 +138,7 @@ function CampaignCardSkeleton() {
 }
 
 export default function Donate() {
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedCampaign, setSelectedCampaign] = useState(null);
@@ -203,6 +207,7 @@ export default function Donate() {
       {/* Header */}
       <div className="bg-gradient-to-r from-pink-500 to-rose-500 py-16 px-6">
         <div className="container mx-auto">
+          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Support Sacred Causes
           </h1>
