@@ -40,6 +40,7 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
+import SacredStories from '../components/temple/SacredStories';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -155,80 +156,45 @@ export default function TempleDetail() {
   const loadTempleStories = async (templeData) => {
     setLoadingStories(true);
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate spiritual stories and historical significance about ${templeData.name} temple dedicated to ${templeData.primary_deity} located in ${templeData.city}, ${templeData.state}.
-
-Include:
-1. Historical legends and origin stories (katha)
-2. Scriptural references from Hindu texts
-3. Famous miracles or divine experiences
-4. Cultural and religious significance
-
-Format as a rich, engaging narrative suitable for devotees.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            title: { type: "string" },
-            stories: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  heading: { type: "string" },
-                  content: { type: "string" }
-                }
-              }
-            },
-            scriptural_references: { type: "string" }
-          }
-        }
+      const response = await base44.functions.invoke('generateTempleStories', {
+        templeName: templeData.name,
+        deity: templeData.primary_deity,
+        city: templeData.city,
+        state: templeData.state,
+        language: selectedLanguage
       });
-      setTempleStories(response);
+
+      if (response.data.success) {
+        setTempleStories(response.data.data);
+      } else {
+        throw new Error(response.data.error || 'Failed to load stories');
+      }
     } catch (error) {
       console.error('Failed to load stories:', error);
+      toast.error('Failed to load sacred stories');
     } finally {
       setLoadingStories(false);
     }
   };
 
   const translateStories = async (language) => {
+    if (!temple) return;
     setLoadingStories(true);
     setSelectedLanguage(language);
     try {
-      const languageMap = {
-        english: 'English',
-        hindi: 'Hindi',
-        sanskrit: 'Sanskrit',
-        tamil: 'Tamil',
-        telugu: 'Telugu'
-      };
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Translate the following temple story to ${languageMap[language]}. Keep the spiritual and cultural essence intact.
-
-Title: ${templeStories.title}
-Stories: ${JSON.stringify(templeStories.stories)}
-Scriptural References: ${templeStories.scriptural_references}
-
-Provide the translation in the same JSON format.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            title: { type: "string" },
-            stories: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  heading: { type: "string" },
-                  content: { type: "string" }
-                }
-              }
-            },
-            scriptural_references: { type: "string" }
-          }
-        }
+      const response = await base44.functions.invoke('generateTempleStories', {
+        templeName: temple.name,
+        deity: temple.primary_deity,
+        city: temple.city,
+        state: temple.state,
+        language: language
       });
-      setTempleStories(response);
+
+      if (response.data.success) {
+        setTempleStories(response.data.data);
+      } else {
+        throw new Error(response.data.error || 'Translation failed');
+      }
     } catch (error) {
       toast.error('Translation failed');
     } finally {
@@ -438,55 +404,13 @@ Provide the translation in the same JSON format.`,
               </Card>
             )}
 
-            {/* Sacred Stories & Historical Significance */}
-            <Card className="p-6 bg-gradient-to-br from-orange-50 to-amber-50">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Sacred Stories & Historical Significance</h2>
-                <Select value={selectedLanguage} onValueChange={translateStories}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="english">English</SelectItem>
-                    <SelectItem value="hindi">हिन्दी</SelectItem>
-                    <SelectItem value="sanskrit">संस्कृत</SelectItem>
-                    <SelectItem value="tamil">தமிழ்</SelectItem>
-                    <SelectItem value="telugu">తెలుగు</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {loadingStories ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-                  <span className="ml-3 text-gray-600">Loading sacred stories...</span>
-                </div>
-              ) : templeStories ? (
-                <div className="space-y-6">
-                  <div className="prose prose-orange max-w-none">
-                    <h3 className="text-2xl font-serif text-orange-800 mb-4">{templeStories.title}</h3>
-                    
-                    {templeStories.stories?.map((story, idx) => (
-                      <div key={idx} className="mb-6">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">{story.heading}</h4>
-                        <p className="text-gray-700 leading-relaxed">{story.content}</p>
-                      </div>
-                    ))}
-
-                    {templeStories.scriptural_references && (
-                      <div className="mt-6 p-4 bg-white/60 rounded-lg border border-orange-200">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-2">Scriptural References</h4>
-                        <p className="text-gray-700 leading-relaxed">{templeStories.scriptural_references}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>Loading divine stories about this sacred place...</p>
-                </div>
-              )}
-            </Card>
+            {/* Sacred Stories with Interactive Features */}
+            <SacredStories
+              stories={templeStories}
+              loading={loadingStories}
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={translateStories}
+            />
           </div>
 
           {/* Sidebar */}
