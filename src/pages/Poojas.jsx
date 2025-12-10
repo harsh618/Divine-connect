@@ -16,6 +16,9 @@ import {
 import { Search, Clock, Video, Package, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import BackButton from '../components/ui/BackButton';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/components/translations';
 
 const categories = [
   { value: 'all', label: 'All Poojas' },
@@ -120,6 +123,7 @@ export default function Poojas() {
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
         <div className="container mx-auto">
+          <BackButton to={createPageUrl('Home')} label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
             Book a Pooja
           </h1>
