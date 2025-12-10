@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { BookOpen, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import ImageUpload from '../admin/ImageUpload';
 
 export default function PriestArticleForm({ templeId, templeName, onClose }) {
   const queryClient = useQueryClient();
