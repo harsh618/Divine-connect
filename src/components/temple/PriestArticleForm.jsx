@@ -22,7 +22,8 @@ export default function PriestArticleForm({ templeId, templeName, onClose }) {
     title: '',
     content: '',
     scripture_reference: '',
-    quote: ''
+    quote: '',
+    images: []
   });
 
   const submitMutation = useMutation({

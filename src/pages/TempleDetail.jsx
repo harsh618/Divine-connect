@@ -34,7 +34,8 @@ import {
   ChevronRight,
   Check,
   Loader2,
-  Star
+  Star,
+  BookOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
