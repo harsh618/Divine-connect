@@ -38,8 +38,7 @@ import {
   Star,
   StarOff,
   Loader2,
-  Eye,
-  EyeOff
+  Eye
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
@@ -56,8 +55,7 @@ const initialFormData = {
   images: [],
   thumbnail_url: '',
   is_featured: false,
-  visit_booking_enabled: true,
-  is_visible: true
+  visit_booking_enabled: true
 };
 
 export default function AdminTemples() {
@@ -108,14 +106,6 @@ export default function AdminTemples() {
     }
   });
 
-  const toggleVisibilityMutation = useMutation({
-    mutationFn: ({ id, is_visible }) => base44.entities.Temple.update(id, { is_visible }),
-    onSuccess: () => {
-      toast.success('Temple visibility updated');
-      queryClient.invalidateQueries(['admin-temples-list']);
-    }
-  });
-
   const filteredTemples = temples?.filter(temple =>
     temple.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     temple.city?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -135,8 +125,7 @@ export default function AdminTemples() {
       images: temple.images || [],
       thumbnail_url: temple.thumbnail_url || '',
       is_featured: temple.is_featured || false,
-      visit_booking_enabled: temple.visit_booking_enabled !== false,
-      is_visible: temple.is_visible !== false
+      visit_booking_enabled: temple.visit_booking_enabled !== false
     });
     setShowModal(true);
   };
@@ -188,7 +177,7 @@ export default function AdminTemples() {
               <TableHead>Deity</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Featured</TableHead>
-              <TableHead>Visible</TableHead>
+              <TableHead>Bookings</TableHead>
               <TableHead className="w-12">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -218,12 +207,9 @@ export default function AdminTemples() {
                     />
                   </TableCell>
                   <TableCell>
-                    <Switch
-                      checked={temple.is_visible !== false}
-                      onCheckedChange={(checked) => 
-                        toggleVisibilityMutation.mutate({ id: temple.id, is_visible: checked })
-                      }
-                    />
+                    <Badge className={temple.visit_booking_enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                      {temple.visit_booking_enabled ? 'Open' : 'Closed'}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -249,21 +235,6 @@ export default function AdminTemples() {
                             <>
                               <Star className="w-4 h-4 mr-2" />
                               Mark Featured
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => toggleVisibilityMutation.mutate({ id: temple.id, is_visible: temple.is_visible === false })}
-                        >
-                          {temple.is_visible !== false ? (
-                            <>
-                              <EyeOff className="w-4 h-4 mr-2" />
-                              Hide from Users
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="w-4 h-4 mr-2" />
-                              Show to Users
                             </>
                           )}
                         </DropdownMenuItem>
@@ -376,7 +347,7 @@ export default function AdminTemples() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6">
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <Switch
                   checked={formData.is_featured}
@@ -390,13 +361,6 @@ export default function AdminTemples() {
                   onCheckedChange={(checked) => setFormData({...formData, visit_booking_enabled: checked})}
                 />
                 <Label>Bookings Enabled</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={formData.is_visible}
-                  onCheckedChange={(checked) => setFormData({...formData, is_visible: checked})}
-                />
-                <Label>Visible to Users</Label>
               </div>
             </div>
           </div>
