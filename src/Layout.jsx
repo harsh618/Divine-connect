@@ -210,14 +210,14 @@ function LayoutContent({ children, currentPageName }) {
           </Link>
         </div>
       </nav>
-      </div>
-      );
-      }
+    </div>
+  );
+}
 
-      export default function Layout({ children, currentPageName }) {
-      return (
-      <LanguageProvider>
+export default function Layout({ children, currentPageName }) {
+  return (
+    <LanguageProvider>
       <LayoutContent children={children} currentPageName={currentPageName} />
-      </LanguageProvider>
-      );
-      }
+    </LanguageProvider>
+  );
+}
