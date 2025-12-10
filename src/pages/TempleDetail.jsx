@@ -40,7 +40,8 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
-import SacredStories from '../components/temple/SacredStories';
+import ArticlesList from '../components/temple/ArticlesList';
+import PriestArticleForm from '../components/temple/PriestArticleForm';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -66,9 +67,8 @@ export default function TempleDetail() {
   const [specialRequirements, setSpecialRequirements] = useState('');
   const [donationAmount, setDonationAmount] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('english');
-  const [loadingStories, setLoadingStories] = useState(false);
-  const [templeStories, setTempleStories] = useState(null);
+  const [showPriestArticleForm, setShowPriestArticleForm] = useState(false);
+  const [isPriest, setIsPriest] = useState(false);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -76,13 +76,7 @@ export default function TempleDetail() {
       const temples = await base44.entities.Temple.filter({ id: templeId });
       return temples[0];
     },
-    enabled: !!templeId,
-    onSuccess: (data) => {
-      // Load stories when temple loads
-      if (data && !templeStories) {
-        loadTempleStories(data);
-      }
-    }
+    enabled: !!templeId
   });
 
   const { data: prasadItems } = useQuery({
@@ -90,6 +84,39 @@ export default function TempleDetail() {
     queryFn: () => base44.entities.PrasadItem.filter({ temple_id: templeId, is_deleted: false }),
     enabled: !!templeId
   });
+
+  const { data: articles, isLoading: loadingArticles } = useQuery({
+    queryKey: ['temple-articles', templeId],
+    queryFn: () => base44.entities.Article.filter({ 
+      temple_id: templeId, 
+      is_published: true,
+      is_deleted: false 
+    }, '-created_date'),
+    enabled: !!templeId
+  });
+
+  const { data: maxArticles } = useQuery({
+    queryKey: ['temple-article-settings', templeId],
+    queryFn: () => 5,
+    enabled: !!templeId
+  });
+
+  React.useEffect(() => {
+    const checkPriestStatus = async () => {
+      try {
+        const user = await base44.auth.me();
+        const provider = await base44.entities.ProviderProfile.filter({ 
+          user_id: user.id, 
+          provider_type: 'priest',
+          is_deleted: false 
+        });
+        setIsPriest(provider.length > 0);
+      } catch {
+        setIsPriest(false);
+      }
+    };
+    checkPriestStatus();
+  }, []);
 
   const bookingMutation = useMutation({
     mutationFn: async (bookingData) => {
@@ -153,54 +180,7 @@ export default function TempleDetail() {
     });
   };
 
-  const loadTempleStories = async (templeData) => {
-    setLoadingStories(true);
-    try {
-      const response = await base44.functions.invoke('generateTempleStories', {
-        templeName: templeData.name,
-        deity: templeData.primary_deity,
-        city: templeData.city,
-        state: templeData.state,
-        language: selectedLanguage
-      });
 
-      if (response.data.success) {
-        setTempleStories(response.data.data);
-      } else {
-        throw new Error(response.data.error || 'Failed to load stories');
-      }
-    } catch (error) {
-      console.error('Failed to load stories:', error);
-      toast.error('Failed to load sacred stories');
-    } finally {
-      setLoadingStories(false);
-    }
-  };
-
-  const translateStories = async (language) => {
-    if (!temple) return;
-    setLoadingStories(true);
-    setSelectedLanguage(language);
-    try {
-      const response = await base44.functions.invoke('generateTempleStories', {
-        templeName: temple.name,
-        deity: temple.primary_deity,
-        city: temple.city,
-        state: temple.state,
-        language: language
-      });
-
-      if (response.data.success) {
-        setTempleStories(response.data.data);
-      } else {
-        throw new Error(response.data.error || 'Translation failed');
-      }
-    } catch (error) {
-      toast.error('Translation failed');
-    } finally {
-      setLoadingStories(false);
-    }
-  };
 
   const defaultImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200";
   const images = temple?.images?.length > 0 ? temple.images : [defaultImage];
@@ -351,6 +331,29 @@ export default function TempleDetail() {
               </Button>
             </Card>
 
+            {/* Priest Article Seva */}
+            {isPriest && (
+              <Card className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Article Seva</h3>
+                      <p className="text-sm text-gray-600">Share divine knowledge with devotees</p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => setShowPriestArticleForm(true)}
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
+                    Write Article
+                  </Button>
+                </div>
+              </Card>
+            )}
+
             {/* About */}
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">About This Temple</h2>
@@ -373,12 +376,11 @@ export default function TempleDetail() {
               )}
             </Card>
 
-            {/* Sacred Stories & Katha from Hindu Scriptures */}
-            <SacredStories
-              stories={templeStories}
-              loading={loadingStories}
-              selectedLanguage={selectedLanguage}
-              onLanguageChange={translateStories}
+            {/* Sacred Articles from Scriptures */}
+            <ArticlesList 
+              articles={articles}
+              loading={loadingArticles}
+              maxArticles={maxArticles || 5}
             />
 
             {/* Festivals */}
@@ -619,6 +621,15 @@ export default function TempleDetail() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Priest Article Form */}
+      {showPriestArticleForm && (
+        <PriestArticleForm
+          templeId={templeId}
+          templeName={temple?.name}
+          onClose={() => setShowPriestArticleForm(false)}
+        />
+      )}
     </div>
   );
 }

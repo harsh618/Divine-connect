@@ -27,6 +27,7 @@ import AdminServices from '@/components/admin/AdminServices';
 import AdminProviders from '@/components/admin/AdminProviders';
 import AdminBookings from '@/components/admin/AdminBookings';
 import AdminDonations from '@/components/admin/AdminDonations';
+import AdminArticles from '@/components/admin/AdminArticles';
 import AdminTrash from '@/components/admin/AdminTrash';
 
 const navItems = [
@@ -37,6 +38,7 @@ const navItems = [
   { id: 'providers', label: 'Providers', icon: UserCheck },
   { id: 'bookings', label: 'Bookings', icon: Calendar },
   { id: 'donations', label: 'Donations', icon: Heart },
+  { id: 'articles', label: 'Articles', icon: TrendingUp },
   { id: 'trash', label: 'Trash', icon: Trash2 },
 ];
 
@@ -134,6 +136,11 @@ export default function AdminDashboard() {
           {/* Donations */}
           <TabsContent value="donations" className="mt-0">
             <AdminDonations />
+          </TabsContent>
+
+          {/* Articles */}
+          <TabsContent value="articles" className="mt-0">
+            <AdminArticles />
           </TabsContent>
 
           {/* Trash */}
