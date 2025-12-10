@@ -3,10 +3,18 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/utils/translations';
 
 export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
+  const { language } = useLanguage();
   const [expandedArticles, setExpandedArticles] = useState(new Set());
   const [showAll, setShowAll] = useState(false);
+
+  // Filter articles by user's preferred language
+  const filteredArticles = articles?.filter(article => 
+    article.language === language || article.language === 'en'
+  ) || [];
 
   const toggleArticle = (id) => {
     const newExpanded = new Set(expandedArticles);
@@ -26,8 +34,8 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
             <BookOpen className="w-5 h-5 text-amber-600 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Sacred Stories from the Scriptures</h2>
-            <p className="text-sm text-gray-500">Loading divine wisdom...</p>
+            <h2 className="text-xl font-semibold text-gray-900">{t('articles.title', language)}</h2>
+            <p className="text-sm text-gray-500">{t('common.loading', language)}</p>
           </div>
         </div>
         <div className="space-y-4">
@@ -43,11 +51,11 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
     );
   }
 
-  if (!articles || articles.length === 0) {
+  if (!filteredArticles || filteredArticles.length === 0) {
     return null;
   }
 
-  const displayedArticles = showAll ? articles : articles.slice(0, maxArticles);
+  const displayedArticles = showAll ? filteredArticles : filteredArticles.slice(0, maxArticles);
 
   return (
     <Card className="p-6 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
@@ -56,8 +64,8 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
           <BookOpen className="w-5 h-5 text-amber-600" />
         </div>
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Sacred Stories from the Scriptures</h2>
-          <p className="text-sm text-gray-500">Divine wisdom and temple history</p>
+          <h2 className="text-xl font-semibold text-gray-900">{t('articles.title', language)}</h2>
+          <p className="text-sm text-gray-500">{t('articles.subtitle', language)}</p>
         </div>
       </div>
 
@@ -79,7 +87,7 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
                   </h3>
                   {article.scripture_reference && (
                     <p className="text-sm text-amber-600 font-medium mb-2">
-                      From: {article.scripture_reference}
+                      {t('articles.from', language)}: {article.scripture_reference}
                     </p>
                   )}
                 </div>
@@ -120,12 +128,12 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
                   {isExpanded ? (
                     <>
                       <ChevronUp className="w-4 h-4 mr-1" />
-                      Show Less
+                      {t('common.showLess', language)}
                     </>
                   ) : (
                     <>
                       <ChevronDown className="w-4 h-4 mr-1" />
-                      Read More
+                      {t('common.readMore', language)}
                     </>
                   )}
                 </Button>
@@ -135,13 +143,13 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
         })}
       </div>
 
-      {articles.length > maxArticles && (
+      {filteredArticles.length > maxArticles && (
         <Button
           variant="outline"
           onClick={() => setShowAll(!showAll)}
           className="w-full mt-4 border-amber-300 text-amber-700 hover:bg-amber-50"
         >
-          {showAll ? 'Show Less' : `Show All ${articles.length} Articles`}
+          {showAll ? t('common.showLess', language) : t('articles.showAll', language, { count: filteredArticles.length })}
         </Button>
       )}
     </Card>

@@ -51,7 +51,8 @@ export default function AdminArticles() {
   const [aiFormData, setAiFormData] = useState({
     temple_id: '',
     topic: '',
-    example: ''
+    example: '',
+    language: 'english'
   });
 
   const { data: articles } = useQuery({
@@ -164,6 +165,11 @@ export default function AdminArticles() {
   const writeWithAIMutation = useMutation({
     mutationFn: async (data) => {
       const temple = temples.find(t => t.id === data.temple_id);
+      const selectedLanguage = data.language || 'english';
+      
+      const languageInstruction = selectedLanguage !== 'english' 
+        ? `Write the entire article in ${selectedLanguage} language.`
+        : '';
       
       const prompt = `You are a Hindu scripture scholar. Write a detailed, authentic article about "${data.topic}" for ${temple.name} temple dedicated to ${temple.primary_deity}.
 
@@ -175,6 +181,7 @@ Requirements:
 3. Make it authentic and based on actual Hindu scriptures/grantha
 4. Structure: Title, Main Content (3-4 paragraphs), Scripture Reference
 5. Keep it devotional yet informative
+${languageInstruction}
 
 Return the article in this JSON format:
 {
@@ -206,7 +213,7 @@ Return the article in this JSON format:
         source: 'ai_generated',
         status: 'approved',
         is_published: true,
-        language: 'english'
+        language: selectedLanguage
       });
 
       return article;
@@ -507,7 +514,7 @@ Return the article in this JSON format:
       {/* AI Writer Dialog */}
       <Dialog open={showAIWriter} onOpenChange={(open) => {
         setShowAIWriter(open);
-        if (!open) setAiFormData({ temple_id: '', topic: '', example: '' });
+        if (!open) setAiFormData({ temple_id: '', topic: '', example: '', language: 'english' });
       }}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
@@ -541,6 +548,26 @@ Return the article in this JSON format:
                       {temple.name} - {temple.primary_deity}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="mb-2 block">Article Language *</Label>
+              <Select 
+                value={aiFormData.language} 
+                onValueChange={(value) => setAiFormData({ ...aiFormData, language: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="english">English</SelectItem>
+                  <SelectItem value="hindi">हिन्दी (Hindi)</SelectItem>
+                  <SelectItem value="spanish">Español (Spanish)</SelectItem>
+                  <SelectItem value="tamil">தமிழ் (Tamil)</SelectItem>
+                  <SelectItem value="telugu">తెలుగు (Telugu)</SelectItem>
+                  <SelectItem value="bengali">বাংলা (Bengali)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

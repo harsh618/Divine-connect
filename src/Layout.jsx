@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
+import { LanguageProvider, useLanguage } from '@/components/LanguageContext';
+import { t } from '@/utils/translations';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,17 +31,18 @@ import {
   Settings
 } from 'lucide-react';
 
-const navLinks = [
-  { name: 'Temples', icon: Building2, page: 'Temples' },
-  { name: 'Poojas', icon: Flame, page: 'Poojas' },
-  { name: 'Astrology', icon: Stars, page: 'Astrology' },
-  { name: 'Priests', icon: Users, page: 'Priests' },
-  { name: 'Donate', icon: Heart, page: 'Donate' },
-];
-
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
+  const { language } = useLanguage();
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const navLinks = [
+    { name: t('nav.temples', language), icon: Building2, page: 'Temples' },
+    { name: t('nav.poojas', language), icon: Flame, page: 'Poojas' },
+    { name: t('nav.astrology', language), icon: Stars, page: 'Astrology' },
+    { name: t('nav.priests', language), icon: Users, page: 'Priests' },
+    { name: t('nav.donate', language), icon: Heart, page: 'Donate' },
+  ];
 
   useEffect(() => {
     const loadUser = async () => {
@@ -109,12 +112,6 @@ export default function Layout({ children, currentPageName }) {
                         Profile
                       </DropdownMenuItem>
                     </Link>
-                    <Link to={createPageUrl('MyJourney')}>
-                      <DropdownMenuItem>
-                        <Stars className="w-4 h-4 mr-2" />
-                        My Journey
-                      </DropdownMenuItem>
-                    </Link>
                     <Link to={createPageUrl('MyBookings')}>
                       <DropdownMenuItem>
                         <Flame className="w-4 h-4 mr-2" />
@@ -132,7 +129,7 @@ export default function Layout({ children, currentPageName }) {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => base44.auth.logout()}>
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {t('common.signOut', language)}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -144,7 +141,7 @@ export default function Layout({ children, currentPageName }) {
                     : 'bg-orange-500 hover:bg-orange-600 text-white'
                   } rounded-full px-6`}
                 >
-                  Sign In
+                  {t('common.signIn', language)}
                 </Button>
               )}
 
@@ -167,12 +164,6 @@ export default function Layout({ children, currentPageName }) {
                         Home
                       </Button>
                     </Link>
-                    <Link to={createPageUrl('MyJourney')} onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <Stars className="w-5 h-5 mr-3" />
-                        My Journey
-                      </Button>
-                    </Link>
                     {navLinks.map((link) => (
                       <Link key={link.name} to={createPageUrl(link.page)} onClick={() => setIsOpen(false)}>
                         <Button variant="ghost" className="w-full justify-start">
@@ -181,12 +172,6 @@ export default function Layout({ children, currentPageName }) {
                         </Button>
                       </Link>
                     ))}
-                    <Link to={createPageUrl('BecomeProvider')} onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <Users className="w-5 h-5 mr-3" />
-                        Become Provider
-                      </Button>
-                    </Link>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -205,26 +190,34 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex items-center justify-around py-2">
           <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">Home</span>
+            <span className="text-xs mt-1">{t('nav.home', language)}</span>
           </Link>
           <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Stars className="w-5 h-5" />
-            <span className="text-xs mt-1">Journey</span>
+            <span className="text-xs mt-1">{t('nav.journey', language)}</span>
           </Link>
           <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Flame className="w-5 h-5" />
-            <span className="text-xs mt-1">Bookings</span>
+            <span className="text-xs mt-1">{t('nav.bookings', language)}</span>
           </Link>
           <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Heart className="w-5 h-5" />
-            <span className="text-xs mt-1">Donate</span>
+            <span className="text-xs mt-1">{t('nav.donate', language)}</span>
           </Link>
           <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <User className="w-5 h-5" />
-            <span className="text-xs mt-1">Profile</span>
+            <span className="text-xs mt-1">{t('nav.profile', language)}</span>
           </Link>
         </div>
       </nav>
-    </div>
-  );
-}
+      </div>
+      );
+      }
+
+      export default function Layout({ children, currentPageName }) {
+      return (
+      <LanguageProvider>
+      <LayoutContent children={children} currentPageName={currentPageName} />
+      </LanguageProvider>
+      );
+      }
