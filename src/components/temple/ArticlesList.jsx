@@ -2,28 +2,30 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { BookOpen, ChevronDown, ChevronUp, Sparkles, Languages } from 'lucide-react';
 import { useLanguage } from '@/components/LanguageContext';
 import { t } from '@/components/translations';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
-  const { language } = useLanguage();
+  const { language, changeLanguage } = useLanguage();
   const [expandedArticles, setExpandedArticles] = useState(new Set());
   const [showAll, setShowAll] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(language);
 
-  // Filter articles - show all if none match preferred language
-  const preferredArticles = articles?.filter(article => 
-    article.language === language
-  ) || [];
-  
-  const englishArticles = articles?.filter(article => 
-    article.language === 'en' || article.language === 'english'
-  ) || [];
-  
-  // Use preferred language articles if available, otherwise fall back to English, then show all
-  const filteredArticles = preferredArticles.length > 0 
-    ? preferredArticles 
-    : (englishArticles.length > 0 ? englishArticles : (articles || []));
+  // Filter articles based on selected language
+  const filteredArticles = selectedLanguage === 'all' 
+    ? (articles || [])
+    : (articles?.filter(article => 
+        article.language === selectedLanguage || 
+        (selectedLanguage === 'en' && article.language === 'english')
+      ) || []);
 
   const toggleArticle = (id) => {
     const newExpanded = new Set(expandedArticles);
@@ -68,14 +70,31 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
 
   return (
     <Card className="p-6 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-          <BookOpen className="w-5 h-5 text-amber-600" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+            <BookOpen className="w-5 h-5 text-amber-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">{t('articles.title', language)}</h2>
+            <p className="text-sm text-gray-500">{t('articles.subtitle', language)}</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">{t('articles.title', language)}</h2>
-          <p className="text-sm text-gray-500">{t('articles.subtitle', language)}</p>
-        </div>
+        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+          <SelectTrigger className="w-[180px]">
+            <Languages className="w-4 h-4 mr-2" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Languages</SelectItem>
+            <SelectItem value="en">English</SelectItem>
+            <SelectItem value="hi">हिन्दी</SelectItem>
+            <SelectItem value="ta">தமிழ்</SelectItem>
+            <SelectItem value="te">తెలుగు</SelectItem>
+            <SelectItem value="bn">বাংলা</SelectItem>
+            <SelectItem value="sa">संस्कृत</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-4">
