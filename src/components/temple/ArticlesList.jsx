@@ -13,8 +13,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const languageMap = {
+  'en': 'English',
+  'hi': 'हिन्दी',
+  'ta': 'தமிழ்',
+  'te': 'తెలుగు',
+  'bn': 'বাংলা',
+  'sa': 'संस्कृत',
+  'mr': 'मराठी',
+  'gu': 'ગુજરાતી',
+  'kn': 'ಕನ್ನಡ',
+  'ml': 'മലയാളം'
+};
+
 export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
-  const { language } = useLanguage();
+  const { language, changeLanguage } = useLanguage();
   const [expandedArticles, setExpandedArticles] = useState(new Set());
   const [showAll, setShowAll] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('all');
@@ -41,6 +54,17 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
       newExpanded.add(id);
     }
     setExpandedArticles(newExpanded);
+  };
+
+  const handleLanguageChange = (value) => {
+    setSelectedLanguage(value);
+    // Update global language if not "all"
+    if (value !== 'all') {
+      const langCode = Object.keys(languageMap).find(key => 
+        languageMap[key] === value || key === value
+      ) || 'en';
+      changeLanguage(langCode);
+    }
   };
 
   if (loading) {
@@ -86,7 +110,7 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
             <p className="text-sm text-gray-500">{t('articles.subtitle', language)}</p>
           </div>
         </div>
-        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+        <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
           <SelectTrigger className="w-[180px]">
             <Languages className="w-4 h-4 mr-2" />
             <SelectValue placeholder="Language" />
