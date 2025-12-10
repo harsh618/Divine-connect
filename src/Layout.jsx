@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
-import { LanguageProvider, useLanguage } from '@/components/LanguageContext';
-import { t } from '@/components/translations';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,16 +31,15 @@ import {
 } from 'lucide-react';
 
 function LayoutContent({ children, currentPageName }) {
-  const { language } = useLanguage();
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: t('nav.temples', language), icon: Building2, page: 'Temples' },
-    { name: t('nav.poojas', language), icon: Flame, page: 'Poojas' },
-    { name: t('nav.astrology', language), icon: Stars, page: 'Astrology' },
-    { name: t('nav.priests', language), icon: Users, page: 'Priests' },
-    { name: t('nav.donate', language), icon: Heart, page: 'Donate' },
+    { name: 'Temples', icon: Building2, page: 'Temples' },
+    { name: 'Poojas', icon: Flame, page: 'Poojas' },
+    { name: 'Astrology', icon: Stars, page: 'Astrology' },
+    { name: 'Priests', icon: Users, page: 'Priests' },
+    { name: 'Donate', icon: Heart, page: 'Donate' },
   ];
 
   useEffect(() => {
@@ -129,8 +127,8 @@ function LayoutContent({ children, currentPageName }) {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => base44.auth.logout()}>
                       <LogOut className="w-4 h-4 mr-2" />
-                      {t('common.signOut', language)}
-                    </DropdownMenuItem>
+                      Sign Out
+                      </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
@@ -140,9 +138,9 @@ function LayoutContent({ children, currentPageName }) {
                     ? 'bg-white/10 hover:bg-white/20 text-white border border-white/30' 
                     : 'bg-orange-500 hover:bg-orange-600 text-white'
                   } rounded-full px-6`}
-                >
-                  {t('common.signIn', language)}
-                </Button>
+                  >
+                  Sign In
+                  </Button>
               )}
 
               {/* Mobile Menu */}
@@ -190,23 +188,23 @@ function LayoutContent({ children, currentPageName }) {
         <div className="flex items-center justify-around py-2">
           <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">{t('nav.home', language)}</span>
+            <span className="text-xs mt-1">Home</span>
           </Link>
           <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Stars className="w-5 h-5" />
-            <span className="text-xs mt-1">{t('nav.journey', language)}</span>
+            <span className="text-xs mt-1">Journey</span>
           </Link>
           <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Flame className="w-5 h-5" />
-            <span className="text-xs mt-1">{t('nav.bookings', language)}</span>
+            <span className="text-xs mt-1">Bookings</span>
           </Link>
           <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <Heart className="w-5 h-5" />
-            <span className="text-xs mt-1">{t('nav.donate', language)}</span>
+            <span className="text-xs mt-1">Donate</span>
           </Link>
           <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
             <User className="w-5 h-5" />
-            <span className="text-xs mt-1">{t('nav.profile', language)}</span>
+            <span className="text-xs mt-1">Profile</span>
           </Link>
         </div>
       </nav>
@@ -215,9 +213,5 @@ function LayoutContent({ children, currentPageName }) {
 }
 
 export default function Layout({ children, currentPageName }) {
-  return (
-    <LanguageProvider>
-      <LayoutContent children={children} currentPageName={currentPageName} />
-    </LanguageProvider>
-  );
+  return <LayoutContent children={children} currentPageName={currentPageName} />;
 }

@@ -21,8 +21,6 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BackButton from '../components/ui/BackButton';
-import { useLanguage } from '@/components/LanguageContext';
-import { t } from '@/components/translations';
 
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -133,7 +131,6 @@ function BookingCardSkeleton() {
 }
 
 export default function MyBookings() {
-  const { language } = useLanguage();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -186,9 +183,9 @@ export default function MyBookings() {
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
         <div className="container mx-auto">
-          <BackButton label={t('common.back', language)} />
+          <BackButton label="Back" />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            {t('bookings.title', language)}
+            My Bookings
           </h1>
           <p className="text-white/80 text-lg">
             Track your temple visits, poojas, and spiritual services

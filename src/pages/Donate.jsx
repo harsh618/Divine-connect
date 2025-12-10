@@ -36,8 +36,6 @@ import {
 import { format, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
 import BackButton from '../components/ui/BackButton';
-import { useLanguage } from '@/components/LanguageContext';
-import { t } from '@/components/translations';
 
 const categoryIcons = {
   temple_renovation: Building2,
@@ -138,7 +136,6 @@ function CampaignCardSkeleton() {
 }
 
 export default function Donate() {
-  const { language } = useLanguage();
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedCampaign, setSelectedCampaign] = useState(null);
@@ -207,12 +204,12 @@ export default function Donate() {
       {/* Header */}
       <div className="bg-gradient-to-r from-pink-500 to-rose-500 py-16 px-6">
         <div className="container mx-auto">
-          <BackButton label={t('common.back', language)} />
+          <BackButton label="Back" />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            {t('donate.title', language)}
+            Support Sacred Causes
           </h1>
           <p className="text-white/80 text-lg max-w-2xl">
-            {t('donate.subtitle', language)}
+            Your donations help maintain temples, support charitable activities, and spread the light of spirituality.
           </p>
         </div>
       </div>
@@ -227,7 +224,7 @@ export default function Donate() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">₹{totalRaised.toLocaleString()}</p>
-                <p className="text-sm text-gray-500">{t('donate.totalRaised', language)}</p>
+                <p className="text-sm text-gray-500">Total Raised</p>
               </div>
             </div>
           </Card>
@@ -238,7 +235,7 @@ export default function Donate() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{campaigns?.length || 0}</p>
-                <p className="text-sm text-gray-500">{t('donate.activeCampaigns', language)}</p>
+                <p className="text-sm text-gray-500">Active Campaigns</p>
               </div>
             </div>
           </Card>
@@ -249,7 +246,7 @@ export default function Donate() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">5,000+</p>
-                <p className="text-sm text-gray-500">{t('donate.generousDonors', language)}</p>
+                <p className="text-sm text-gray-500">Generous Donors</p>
               </div>
             </div>
           </Card>
@@ -262,7 +259,7 @@ export default function Donate() {
             onClick={() => setSelectedCategory('all')}
             className={selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}
           >
-            {t('donate.allCauses', language)}
+            All Causes
             </Button>
           {Object.entries(categoryIcons).map(([key, Icon]) => (
             <Button
@@ -294,8 +291,8 @@ export default function Donate() {
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-pink-100 flex items-center justify-center">
                 <Heart className="w-10 h-10 text-pink-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('donate.noCampaigns', language)}</h3>
-              <p className="text-gray-500">{t('donate.checkBack', language)}</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No campaigns yet</h3>
+              <p className="text-gray-500">Check back soon for donation campaigns</p>
             </div>
           )}
         </div>
