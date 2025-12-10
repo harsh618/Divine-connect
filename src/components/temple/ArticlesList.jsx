@@ -11,10 +11,19 @@ export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
   const [expandedArticles, setExpandedArticles] = useState(new Set());
   const [showAll, setShowAll] = useState(false);
 
-  // Filter articles by user's preferred language
-  const filteredArticles = articles?.filter(article => 
-    article.language === language || article.language === 'en'
+  // Filter articles - show all if none match preferred language
+  const preferredArticles = articles?.filter(article => 
+    article.language === language
   ) || [];
+  
+  const englishArticles = articles?.filter(article => 
+    article.language === 'en' || article.language === 'english'
+  ) || [];
+  
+  // Use preferred language articles if available, otherwise fall back to English, then show all
+  const filteredArticles = preferredArticles.length > 0 
+    ? preferredArticles 
+    : (englishArticles.length > 0 ? englishArticles : (articles || []));
 
   const toggleArticle = (id) => {
     const newExpanded = new Set(expandedArticles);

@@ -381,13 +381,11 @@ export default function TempleDetail() {
             </Card>
 
             {/* Sacred Articles from Scriptures */}
-            {(articles?.length > 0 || loadingArticles) && (
-              <ArticlesList 
-                articles={articles}
-                loading={loadingArticles}
-                maxArticles={maxArticles || 5}
-              />
-            )}
+            <ArticlesList 
+              articles={articles}
+              loading={loadingArticles}
+              maxArticles={maxArticles || 5}
+            />
 
             {/* Festivals */}
             {temple.festivals?.length > 0 && (
