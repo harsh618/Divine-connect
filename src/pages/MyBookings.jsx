@@ -188,7 +188,7 @@ export default function MyBookings() {
         <div className="container mx-auto">
           <BackButton label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            My Bookings
+            {t('bookings.title', language)}
           </h1>
           <p className="text-white/80 text-lg">
             Track your temple visits, poojas, and spiritual services

@@ -209,10 +209,10 @@ export default function Donate() {
         <div className="container mx-auto">
           <BackButton label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Support Sacred Causes
+            {t('donate.title', language)}
           </h1>
           <p className="text-white/80 text-lg max-w-2xl">
-            Your donations help maintain temples, support charitable activities, and spread the light of spirituality.
+            {t('donate.subtitle', language)}
           </p>
         </div>
       </div>
@@ -227,7 +227,7 @@ export default function Donate() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">₹{totalRaised.toLocaleString()}</p>
-                <p className="text-sm text-gray-500">Total Raised</p>
+                <p className="text-sm text-gray-500">{t('donate.totalRaised', language)}</p>
               </div>
             </div>
           </Card>
@@ -238,7 +238,7 @@ export default function Donate() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{campaigns?.length || 0}</p>
-                <p className="text-sm text-gray-500">Active Campaigns</p>
+                <p className="text-sm text-gray-500">{t('donate.activeCampaigns', language)}</p>
               </div>
             </div>
           </Card>
@@ -249,7 +249,7 @@ export default function Donate() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">5,000+</p>
-                <p className="text-sm text-gray-500">Generous Donors</p>
+                <p className="text-sm text-gray-500">{t('donate.generousDonors', language)}</p>
               </div>
             </div>
           </Card>
@@ -262,8 +262,8 @@ export default function Donate() {
             onClick={() => setSelectedCategory('all')}
             className={selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}
           >
-            All Causes
-          </Button>
+            {t('donate.allCauses', language)}
+            </Button>
           {Object.entries(categoryIcons).map(([key, Icon]) => (
             <Button
               key={key}
@@ -294,8 +294,8 @@ export default function Donate() {
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-pink-100 flex items-center justify-center">
                 <Heart className="w-10 h-10 text-pink-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No campaigns yet</h3>
-              <p className="text-gray-500">Check back soon for donation campaigns</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('donate.noCampaigns', language)}</h3>
+              <p className="text-gray-500">{t('donate.checkBack', language)}</p>
             </div>
           )}
         </div>

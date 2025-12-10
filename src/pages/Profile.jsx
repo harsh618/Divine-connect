@@ -134,7 +134,7 @@ export default function Profile() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{bookings?.length || 0}</p>
-                <p className="text-sm text-gray-500">Total Bookings</p>
+                <p className="text-sm text-gray-500">{t('profile.totalBookings', language)}</p>
               </div>
             </div>
           </Card>
@@ -292,7 +292,7 @@ export default function Profile() {
                 <Link to={createPageUrl('KundliGenerator')}>
                   <Button variant="ghost" className="w-full justify-start">
                     <Star className="w-4 h-4 mr-3" />
-                    My Kundlis
+                    {t('profile.myKundli', language)}s
                   </Button>
                 </Link>
                 <Link to={createPageUrl('Donate')}>

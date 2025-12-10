@@ -125,10 +125,10 @@ export default function Poojas() {
         <div className="container mx-auto">
           <BackButton label={t('common.back', language)} />
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Book a Pooja
+            {t('poojas.title', language)}
           </h1>
           <p className="text-white/80 text-lg max-w-2xl">
-            Experience sacred rituals performed by verified pandits, either virtually or at a temple near you.
+            {t('poojas.subtitle', language)}
           </p>
         </div>
       </div>
@@ -140,7 +140,7 @@ export default function Poojas() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Search poojas..."
+                placeholder={t('poojas.searchPlaceholder', language)}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-12"
@@ -164,7 +164,7 @@ export default function Poojas() {
               className={`h-12 ${showVirtualOnly ? 'bg-blue-500 hover:bg-blue-600' : ''}`}
             >
               <Video className="w-4 h-4 mr-2" />
-              Virtual Only
+              {t('poojas.virtualOnly', language)}
             </Button>
           </div>
         </div>
@@ -182,8 +182,8 @@ export default function Poojas() {
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
                 <span className="text-4xl">🪔</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No poojas available</h3>
-              <p className="text-gray-500 mb-4">Check back soon for available pooja services</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('poojas.noPoojas', language)}</h3>
+              <p className="text-gray-500 mb-4">{t('poojas.checkBack', language)}</p>
             </div>
           )}
         </div>
