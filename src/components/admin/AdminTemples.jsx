@@ -41,6 +41,7 @@ import {
   Eye
 } from 'lucide-react';
 import { toast } from 'sonner';
+import ImageUpload from './ImageUpload';
 
 const initialFormData = {
   name: '',

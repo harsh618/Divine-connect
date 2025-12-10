@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import ImageUpload from './ImageUpload';
 
 const categoryColors = {
   temple_renovation: 'bg-orange-100 text-orange-700',
@@ -253,6 +254,13 @@ export default function AdminDonations() {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
+            <ImageUpload
+              images={newCampaign.images}
+              onImagesChange={(imgs) => setNewCampaign({ ...newCampaign, images: imgs })}
+              thumbnailUrl={newCampaign.thumbnail_url}
+              onThumbnailChange={(url) => setNewCampaign({ ...newCampaign, thumbnail_url: url })}
+            />
+
             <div>
               <Label>Title *</Label>
               <Input

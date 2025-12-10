@@ -23,6 +23,8 @@ import { createPageUrl } from '@/utils';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminTemples from '@/components/admin/AdminTemples';
+import AdminServices from '@/components/admin/AdminServices';
+import AdminProviders from '@/components/admin/AdminProviders';
 import AdminBookings from '@/components/admin/AdminBookings';
 import AdminDonations from '@/components/admin/AdminDonations';
 import AdminTrash from '@/components/admin/AdminTrash';
@@ -31,6 +33,8 @@ const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'temples', label: 'Temples', icon: Building2 },
+  { id: 'services', label: 'Services', icon: Settings },
+  { id: 'providers', label: 'Providers', icon: UserCheck },
   { id: 'bookings', label: 'Bookings', icon: Calendar },
   { id: 'donations', label: 'Donations', icon: Heart },
   { id: 'trash', label: 'Trash', icon: Trash2 },
@@ -84,7 +88,7 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           {/* Navigation Tabs */}
-          <TabsList className="grid grid-cols-6 h-auto p-1 bg-white rounded-xl mb-8">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-8 h-auto p-1 bg-white rounded-xl mb-8">
             {navItems.map((item) => (
               <TabsTrigger
                 key={item.id}
@@ -110,6 +114,16 @@ export default function AdminDashboard() {
           {/* Temples */}
           <TabsContent value="temples" className="mt-0">
             <AdminTemples />
+          </TabsContent>
+
+          {/* Services */}
+          <TabsContent value="services" className="mt-0">
+            <AdminServices />
+          </TabsContent>
+
+          {/* Providers */}
+          <TabsContent value="providers" className="mt-0">
+            <AdminProviders />
           </TabsContent>
 
           {/* Bookings */}
