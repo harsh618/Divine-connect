@@ -373,6 +373,14 @@ export default function TempleDetail() {
               )}
             </Card>
 
+            {/* Sacred Stories & Katha from Hindu Scriptures */}
+            <SacredStories
+              stories={templeStories}
+              loading={loadingStories}
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={translateStories}
+            />
+
             {/* Festivals */}
             {temple.festivals?.length > 0 && (
               <Card className="p-6">
@@ -403,14 +411,6 @@ export default function TempleDetail() {
                 </div>
               </Card>
             )}
-
-            {/* Sacred Stories with Interactive Features */}
-            <SacredStories
-              stories={templeStories}
-              loading={loadingStories}
-              selectedLanguage={selectedLanguage}
-              onLanguageChange={translateStories}
-            />
           </div>
 
           {/* Sidebar */}
