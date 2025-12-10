@@ -27,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash2, Plus, Search } from 'lucide-react';
+import { Pencil, Trash2, Plus, Search, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
 
@@ -76,6 +76,14 @@ export default function AdminServices() {
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-services']);
       toast.success('Service deleted successfully');
+    }
+  });
+
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, is_hidden }) => base44.entities.Service.update(id, { is_hidden }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-services']);
+      toast.success('Visibility updated');
     }
   });
 
@@ -173,6 +181,7 @@ export default function AdminServices() {
               <TableHead>Price</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Type</TableHead>
+              <TableHead>Visibility</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -183,7 +192,7 @@ export default function AdminServices() {
               </TableRow>
             ) : filteredServices?.length > 0 ? (
               filteredServices.map((service) => (
-                <TableRow key={service.id}>
+                <TableRow key={service.id} className={service.is_hidden ? 'opacity-50' : ''}>
                   <TableCell>
                     {service.thumbnail_url ? (
                       <img src={service.thumbnail_url} alt={service.title} className="w-16 h-16 object-cover rounded" />
@@ -199,9 +208,21 @@ export default function AdminServices() {
                   <TableCell>{service.duration_minutes ? `${service.duration_minutes} min` : '-'}</TableCell>
                   <TableCell>{service.is_virtual ? 'Virtual' : 'In-person'}</TableCell>
                   <TableCell>
+                    <Badge className={!service.is_hidden ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                      {!service.is_hidden ? 'Visible' : 'Hidden'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => handleEdit(service)}>
                         <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => toggleVisibilityMutation.mutate({ id: service.id, is_hidden: !service.is_hidden })}
+                      >
+                        {service.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                       </Button>
                       <Button size="sm" variant="destructive" onClick={() => deleteMutation.mutate(service.id)}>
                         <Trash2 className="w-4 h-4" />

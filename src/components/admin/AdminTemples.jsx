@@ -38,7 +38,8 @@ import {
   Star,
   StarOff,
   Loader2,
-  Eye
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
@@ -55,7 +56,8 @@ const initialFormData = {
   images: [],
   thumbnail_url: '',
   is_featured: false,
-  visit_booking_enabled: true
+  visit_booking_enabled: true,
+  is_hidden: false
 };
 
 export default function AdminTemples() {
@@ -106,6 +108,14 @@ export default function AdminTemples() {
     }
   });
 
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, is_hidden }) => base44.entities.Temple.update(id, { is_hidden }),
+    onSuccess: () => {
+      toast.success('Visibility updated');
+      queryClient.invalidateQueries(['admin-temples-list']);
+    }
+  });
+
   const filteredTemples = temples?.filter(temple =>
     temple.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     temple.city?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -125,7 +135,8 @@ export default function AdminTemples() {
       images: temple.images || [],
       thumbnail_url: temple.thumbnail_url || '',
       is_featured: temple.is_featured || false,
-      visit_booking_enabled: temple.visit_booking_enabled !== false
+      visit_booking_enabled: temple.visit_booking_enabled !== false,
+      is_hidden: temple.is_hidden || false
     });
     setShowModal(true);
   };
@@ -178,6 +189,7 @@ export default function AdminTemples() {
               <TableHead>Location</TableHead>
               <TableHead>Featured</TableHead>
               <TableHead>Bookings</TableHead>
+              <TableHead>Visibility</TableHead>
               <TableHead className="w-12">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -190,7 +202,7 @@ export default function AdminTemples() {
               </TableRow>
             ) : filteredTemples?.length > 0 ? (
               filteredTemples.map((temple) => (
-                <TableRow key={temple.id}>
+                <TableRow key={temple.id} className={temple.is_hidden ? 'opacity-50' : ''}>
                   <TableCell className="font-medium">{temple.name}</TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="bg-orange-50 text-orange-700">
@@ -209,6 +221,11 @@ export default function AdminTemples() {
                   <TableCell>
                     <Badge className={temple.visit_booking_enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
                       {temple.visit_booking_enabled ? 'Open' : 'Closed'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={!temple.is_hidden ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                      {!temple.is_hidden ? 'Visible' : 'Hidden'}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -235,6 +252,21 @@ export default function AdminTemples() {
                             <>
                               <Star className="w-4 h-4 mr-2" />
                               Mark Featured
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => toggleVisibilityMutation.mutate({ id: temple.id, is_hidden: !temple.is_hidden })}
+                        >
+                          {temple.is_hidden ? (
+                            <>
+                              <Eye className="w-4 h-4 mr-2" />
+                              Show Temple
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-4 h-4 mr-2" />
+                              Hide Temple
                             </>
                           )}
                         </DropdownMenuItem>

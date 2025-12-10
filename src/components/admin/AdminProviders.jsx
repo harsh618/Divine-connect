@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle, XCircle, Search, Eye } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -46,6 +46,14 @@ export default function AdminProviders() {
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-providers']);
       toast.success('Provider deleted');
+    }
+  });
+
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: ({ id, is_hidden }) => base44.entities.ProviderProfile.update(id, { is_hidden }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-providers']);
+      toast.success('Visibility updated');
     }
   });
 
@@ -85,6 +93,7 @@ export default function AdminProviders() {
               <TableHead>Experience</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Rating</TableHead>
+              <TableHead>Visibility</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -95,7 +104,7 @@ export default function AdminProviders() {
               </TableRow>
             ) : filteredProviders?.length > 0 ? (
               filteredProviders.map((provider) => (
-                <TableRow key={provider.id}>
+                <TableRow key={provider.id} className={provider.is_hidden ? 'opacity-50' : ''}>
                   <TableCell>
                     {provider.avatar_url ? (
                       <img src={provider.avatar_url} alt={provider.display_name} className="w-12 h-12 object-cover rounded-full" />
@@ -119,9 +128,21 @@ export default function AdminProviders() {
                     {provider.rating_average > 0 ? `${provider.rating_average.toFixed(1)} ⭐` : 'No ratings'}
                   </TableCell>
                   <TableCell>
+                    <Badge className={!provider.is_hidden ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                      {!provider.is_hidden ? 'Visible' : 'Hidden'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => setSelectedProvider(provider)}>
                         <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => toggleVisibilityMutation.mutate({ id: provider.id, is_hidden: !provider.is_hidden })}
+                      >
+                        {provider.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                       </Button>
                       {!provider.is_verified && (
                         <Button 

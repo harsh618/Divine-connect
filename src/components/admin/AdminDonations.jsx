@@ -33,7 +33,9 @@ import {
   Plus,
   Loader2,
   Heart,
-  Target
+  Target,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -85,6 +87,14 @@ export default function AdminDonations() {
         images: [],
         thumbnail_url: ''
       });
+    }
+  });
+
+  const toggleCampaignVisibilityMutation = useMutation({
+    mutationFn: ({ id, is_hidden }) => base44.entities.DonationCampaign.update(id, { is_hidden }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-campaigns-list']);
+      toast.success('Campaign visibility updated');
     }
   });
 
@@ -160,6 +170,8 @@ export default function AdminDonations() {
               <TableHead>Goal</TableHead>
               <TableHead>Raised</TableHead>
               <TableHead>Progress</TableHead>
+              <TableHead>Visibility</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -171,7 +183,7 @@ export default function AdminDonations() {
               </TableRow>
             ) : campaigns?.length > 0 ? (
               campaigns.map((campaign) => (
-                <TableRow key={campaign.id}>
+                <TableRow key={campaign.id} className={campaign.is_hidden ? 'opacity-50' : ''}>
                   <TableCell className="font-medium">{campaign.title}</TableCell>
                   <TableCell>
                     <Badge className={categoryColors[campaign.category]}>
@@ -187,6 +199,20 @@ export default function AdminDonations() {
                         style={{ width: `${Math.min((campaign.raised_amount / campaign.goal_amount) * 100, 100)}%` }}
                       />
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={!campaign.is_hidden ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                      {!campaign.is_hidden ? 'Visible' : 'Hidden'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => toggleCampaignVisibilityMutation.mutate({ id: campaign.id, is_hidden: !campaign.is_hidden })}
+                    >
+                      {campaign.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
