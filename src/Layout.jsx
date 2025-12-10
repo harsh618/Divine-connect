@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { LanguageProvider, useLanguage } from '@/components/LanguageContext';
-import { t } from '@/utils/translations';
+import { t } from '@/components/translations';
 import {
   DropdownMenu,
   DropdownMenuContent,

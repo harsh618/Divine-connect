@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/components/LanguageContext';
-import { t } from '@/utils/translations';
+import { t } from '@/components/translations';
 
 export default function ArticlesList({ articles, loading, maxArticles = 3 }) {
   const { language } = useLanguage();

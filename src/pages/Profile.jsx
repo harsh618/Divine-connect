@@ -27,6 +27,8 @@ import {
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useLanguage } from '@/components/LanguageContext';
+import { t } from '@/components/translations';
 
 const deities = ['Shiva', 'Vishnu', 'Ganesha', 'Hanuman', 'Durga', 'Krishna', 'Ram', 'Lakshmi', 'Saraswati'];
 const rashis = ['Mesha (Aries)', 'Vrishabha (Taurus)', 'Mithuna (Gemini)', 'Karka (Cancer)', 'Simha (Leo)', 
@@ -34,12 +36,14 @@ const rashis = ['Mesha (Aries)', 'Vrishabha (Taurus)', 'Mithuna (Gemini)', 'Kark
                'Makara (Capricorn)', 'Kumbha (Aquarius)', 'Meena (Pisces)'];
 
 export default function Profile() {
+  const { language, changeLanguage } = useLanguage();
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     full_name: '',
     gotra: '',
     rashi: '',
-    favorite_deity: ''
+    favorite_deity: '',
+    preferred_language: 'en'
   });
 
   useEffect(() => {
@@ -51,7 +55,8 @@ export default function Profile() {
           full_name: userData.full_name || '',
           gotra: userData.gotra || '',
           rashi: userData.rashi || '',
-          favorite_deity: userData.favorite_deity || ''
+          favorite_deity: userData.favorite_deity || '',
+          preferred_language: userData.preferred_language || 'en'
         });
       } catch {
         base44.auth.redirectToLogin();
@@ -79,12 +84,14 @@ export default function Profile() {
     }
   });
 
-  const handleSave = () => {
-    updateMutation.mutate({
+  const handleSave = async () => {
+    await updateMutation.mutateAsync({
       gotra: formData.gotra,
       rashi: formData.rashi,
-      favorite_deity: formData.favorite_deity
+      favorite_deity: formData.favorite_deity,
+      preferred_language: formData.preferred_language
     });
+    changeLanguage(formData.preferred_language);
   };
 
   const totalDonated = donations?.reduce((sum, d) => sum + (d.amount || 0), 0) || 0;
@@ -221,6 +228,26 @@ export default function Profile() {
                       {deities.map(deity => (
                         <SelectItem key={deity} value={deity}>{deity}</SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">{t('profile.language', language)}</Label>
+                  <Select 
+                    value={formData.preferred_language} 
+                    onValueChange={(value) => setFormData({...formData, preferred_language: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">{t('languages.en', language)}</SelectItem>
+                      <SelectItem value="hi">{t('languages.hi', language)}</SelectItem>
+                      <SelectItem value="es">{t('languages.es', language)}</SelectItem>
+                      <SelectItem value="ta">{t('languages.ta', language)}</SelectItem>
+                      <SelectItem value="te">{t('languages.te', language)}</SelectItem>
+                      <SelectItem value="bn">{t('languages.bn', language)}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

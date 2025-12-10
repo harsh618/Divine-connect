@@ -43,7 +43,7 @@ import { toast } from 'sonner';
 import ArticlesList from '../components/temple/ArticlesList';
 import PriestArticleForm from '../components/temple/PriestArticleForm';
 import { useLanguage } from '@/components/LanguageContext';
-import { t } from '@/utils/translations';
+import { t } from '@/components/translations';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
