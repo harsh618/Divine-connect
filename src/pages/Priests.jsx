@@ -156,7 +156,8 @@ export default function Priests() {
     queryFn: () => base44.entities.ProviderProfile.filter({ 
       provider_type: 'priest', 
       is_deleted: false,
-      is_verified: true 
+      is_verified: true,
+      is_visible: true
     }, '-rating_average'),
   });
 
