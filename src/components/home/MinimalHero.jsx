@@ -40,15 +40,52 @@ export default function MinimalHero() {
           Divine
         </h1>
         
-        <p className="text-xl md:text-2xl text-white/90 mb-12 font-light">
-          Your spiritual journey, simplified
+        <p className="text-xl md:text-2xl text-white/90 mb-8 font-light max-w-3xl mx-auto">
+          Discover temples, book poojas and astrologers, and donate to trusted causes across India
         </p>
+
+        {/* Search Bar */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="flex flex-col md:flex-row gap-3 bg-white/95 backdrop-blur-md rounded-2xl md:rounded-full p-3 shadow-2xl">
+            <div className="flex-1 flex items-center gap-3 px-4">
+              <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search temples, poojas, astrologers, or causes..."
+                className="flex-1 py-3 bg-transparent text-gray-900 placeholder-gray-500 outline-none"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Select value={city} onValueChange={setCity}>
+                <SelectTrigger className="w-full md:w-48 bg-white border-0 rounded-full h-12 px-6 font-medium">
+                  <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                  <SelectValue placeholder="Select city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((c) => (
+                    <SelectItem key={c} value={c.toLowerCase().replace(' ', '-')}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button 
+                size="lg"
+                className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-8 font-medium shadow-lg hover:shadow-xl transition-all hover:scale-105 whitespace-nowrap"
+              >
+                Search
+              </Button>
+            </div>
+          </div>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={createPageUrl('Temples')}>
             <Button
               size="lg"
-              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/30 rounded-full px-8 py-6 text-lg"
+              className="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-900 rounded-full px-8 py-6 text-lg font-medium shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               Explore Temples
             </Button>
@@ -57,7 +94,7 @@ export default function MinimalHero() {
             <Button
               size="lg"
               variant="outline"
-              className="bg-transparent text-white px-8 py-6 text-lg rounded-full border border-white/30 hover:bg-white/10"
+              className="w-full sm:w-auto bg-transparent text-white px-8 py-6 text-lg font-medium rounded-full border-2 border-white/40 hover:bg-white/10 hover:border-white/60 transition-all"
             >
               Consult Astrologer
             </Button>
