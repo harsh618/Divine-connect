@@ -20,7 +20,7 @@ function CampaignCard({ campaign }) {
   };
   
   return (
-    <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all group">
+    <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all group cursor-pointer">
       <div className="relative h-48 overflow-hidden">
         <img
           src={campaign.images?.[0] || campaign.thumbnail_url || defaultImage}

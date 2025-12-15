@@ -75,10 +75,26 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4 text-white text-sm uppercase tracking-wider">Support</h4>
               <ul className="space-y-3">
-                <li className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer">Contact</li>
-                <li className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer">FAQs</li>
-                <li className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer">Privacy Policy</li>
-                <li className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer">Terms of Service</li>
+                <li>
+                  <a href="mailto:support@divine.com" className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <Link to={createPageUrl('Home')} className="text-gray-400 hover:text-white transition-colors text-sm">
+                    FAQs
+                  </Link>
+                </li>
+                <li>
+                  <Link to={createPageUrl('Home')} className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to={createPageUrl('Home')} className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Terms of Service
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
@@ -89,9 +105,21 @@ export default function Home() {
                     Donate
                   </Link>
                 </li>
-                <li className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer">Blog</li>
-                <li className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer">Events</li>
-                <li className="text-gray-400 hover:text-white transition-colors text-sm cursor-pointer">Partners</li>
+                <li>
+                  <Link to={createPageUrl('Home')} className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link to={createPageUrl('Home')} className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Events
+                  </Link>
+                </li>
+                <li>
+                  <Link to={createPageUrl('Home')} className="text-gray-400 hover:text-white transition-colors text-sm">
+                    Partners
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
@@ -100,15 +128,30 @@ export default function Home() {
                 Follow us for daily spiritual content and updates
               </p>
               <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center cursor-pointer transition-colors">
+                <a 
+                  href="https://facebook.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors"
+                >
                   <span className="text-xs">FB</span>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center cursor-pointer transition-colors">
+                </a>
+                <a 
+                  href="https://twitter.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors"
+                >
                   <span className="text-xs">TW</span>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center cursor-pointer transition-colors">
+                </a>
+                <a 
+                  href="https://instagram.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-800 hover:bg-orange-500 flex items-center justify-center transition-colors"
+                >
                   <span className="text-xs">IG</span>
-                </div>
+                </a>
               </div>
             </div>
           </div>
@@ -117,9 +160,15 @@ export default function Home() {
               © 2025 Divine. All rights reserved.
             </p>
             <div className="flex gap-6 text-gray-500 text-sm">
-              <span className="hover:text-white transition-colors cursor-pointer">Sitemap</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Accessibility</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Cookies</span>
+              <Link to={createPageUrl('Home')} className="hover:text-white transition-colors">
+                Sitemap
+              </Link>
+              <Link to={createPageUrl('Home')} className="hover:text-white transition-colors">
+                Accessibility
+              </Link>
+              <Link to={createPageUrl('Home')} className="hover:text-white transition-colors">
+                Cookies
+              </Link>
             </div>
           </div>
         </div>

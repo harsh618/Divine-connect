@@ -55,12 +55,12 @@ function PriestCard({ priest }) {
       <div className="pt-4 border-t border-gray-100 space-y-3">
         {priest.consultation_rate_chat && priest.consultation_rate_chat > 0 ? (
           <p className="text-sm text-gray-600">
-            Starting at <span className="font-semibold text-gray-900">₹{priest.consultation_rate_chat}</span>/session
+            Starting at <span className="font-semibold text-gray-900">₹{priest.consultation_rate_chat}</span>/min
           </p>
         ) : (
-          <p className="text-sm text-gray-500 italic">Pricing coming soon</p>
+          <p className="text-sm text-gray-500 italic">Contact for pricing</p>
         )}
-        <Link to={createPageUrl('Priests')}>
+        <Link to={createPageUrl('PriestProfile') + `?id=${priest.id}`}>
           <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl font-medium transition-all hover:shadow-lg">
             View Profile
           </button>
