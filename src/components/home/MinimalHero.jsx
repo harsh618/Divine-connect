@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Sparkles } from 'lucide-react';
+import HeroSearch from './HeroSearch';
 
 const heroImages = [
   'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/8cd80df37_pexels-thash-11656202.jpg',
@@ -50,9 +51,13 @@ export default function MinimalHero() {
           Divine
         </h1>
         
-        <p className="text-xl md:text-2xl text-white/90 mb-12 font-light">
+        <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
           Your spiritual journey, simplified
         </p>
+
+        <div className="mb-12">
+          <HeroSearch />
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={createPageUrl('Temples')}>

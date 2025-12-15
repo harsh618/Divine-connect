@@ -183,6 +183,61 @@ function LayoutContent({ children, currentPageName }) {
         {children}
       </main>
 
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 mt-16">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="text-2xl font-serif font-bold mb-4 text-orange-400">Divine</h3>
+              <p className="text-gray-400 text-sm">Your spiritual journey, simplified</p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">SUPPORT</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><a href="mailto:support@divine.com" className="hover:text-orange-400 transition-colors">Contact</a></li>
+                <li><Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">FAQs</Link></li>
+                <li><Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">COMMUNITY</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li><Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Blog</Link></li>
+                <li><Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Events</Link></li>
+                <li><Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Partners</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">FOLLOW US</h4>
+              <div className="flex gap-3">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange-500 transition-colors">
+                  <span className="text-xs">FB</span>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange-500 transition-colors">
+                  <span className="text-xs">TW</span>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange-500 transition-colors">
+                  <span className="text-xs">IG</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+            <p>© 2025 Divine. All rights reserved.</p>
+            <div className="flex gap-4 mt-4 md:mt-0">
+              <Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Sitemap</Link>
+              <Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Accessibility</Link>
+              <Link to={createPageUrl('Home')} className="hover:text-orange-400 transition-colors">Cookies</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
         <div className="flex items-center justify-around py-2">
@@ -208,10 +263,10 @@ function LayoutContent({ children, currentPageName }) {
           </Link>
         </div>
       </nav>
-    </div>
-  );
-}
+      </div>
+      );
+      }
 
-export default function Layout({ children, currentPageName }) {
-  return <LayoutContent children={children} currentPageName={currentPageName} />;
-}
+      export default function Layout({ children, currentPageName }) {
+      return <LayoutContent children={children} currentPageName={currentPageName} />;
+      }
