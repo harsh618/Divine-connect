@@ -20,12 +20,12 @@ function CampaignCard({ campaign }) {
   };
   
   return (
-    <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:scale-[1.02] transition-all group cursor-pointer">
+    <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
       <div className="relative h-48 overflow-hidden">
         <img
           src={campaign.images?.[0] || campaign.thumbnail_url || defaultImage}
-          alt={campaign.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          alt={`${campaign.title} - ${campaign.category}`}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">
           <TrendingUp className="w-3.5 h-3.5 text-green-600" />
@@ -51,7 +51,7 @@ function CampaignCard({ campaign }) {
         </div>
 
         <Link to={createPageUrl('Donate')}>
-          <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-medium transition-all hover:shadow-lg flex items-center justify-center gap-2">
+          <button className="w-full bg-orange-500 hover:bg-orange-600 hover:scale-105 text-white py-3 rounded-xl font-medium transition-all hover:shadow-lg focus:ring-4 focus:ring-orange-500/50 flex items-center justify-center gap-2">
             <Heart className="w-4 h-4" />
             Donate Now
           </button>
@@ -84,7 +84,7 @@ export default function DonationCampaignsMinimal() {
             <p className="text-gray-600">Help maintain sacred traditions and support communities</p>
           </div>
           <Link to={createPageUrl('Donate')}>
-            <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
+            <button className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100 hover:border-orange-300 font-medium text-sm hover:gap-3 transition-all">
               View all
               <ArrowRight className="w-4 h-4" />
             </button>

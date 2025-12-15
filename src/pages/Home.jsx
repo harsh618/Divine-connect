@@ -27,9 +27,13 @@ export default function Home() {
     <div className="min-h-screen bg-white pb-20 md:pb-0">
       <MinimalHero />
       <FeaturedTemplesMinimal temples={displayTemples} isLoading={isLoading && isLoadingAll} />
-      <AuspiciousTimeline />
+      <div className="bg-gradient-to-b from-orange-50/30 to-white">
+        <AuspiciousTimeline />
+      </div>
       <UpcomingEvents />
-      <DonationCampaignsMinimal />
+      <div className="bg-gradient-to-b from-orange-50/30 to-white">
+        <DonationCampaignsMinimal />
+      </div>
       <PriestsMinimal />
       
       {/* Footer */}

@@ -72,3 +72,23 @@
 .overflow-x-auto {
   scroll-behavior: smooth;
 }
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #f97316;
+  outline-offset: 2px;
+}
+
+/* Mobile touch targets */
+@media (max-width: 768px) {
+  button,
+  a {
+    min-height: 44px;
+  }
+  
+  input {
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+}

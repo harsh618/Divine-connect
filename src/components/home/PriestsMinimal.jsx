@@ -10,13 +10,13 @@ function PriestCard({ priest }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400";
   
   return (
-    <div className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl transition-all hover:scale-[1.01]">
+    <div className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer">
       <div className="flex items-start gap-4 mb-4">
         <div className="relative flex-shrink-0">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
             <img
               src={priest.avatar_url || defaultAvatar}
-              alt={priest.display_name}
+              alt={`${priest.display_name} - ${priest.provider_type}`}
               className="w-full h-full object-cover"
             />
           </div>
@@ -61,7 +61,7 @@ function PriestCard({ priest }) {
           <p className="text-sm text-gray-500 italic">Contact for pricing</p>
         )}
         <Link to={createPageUrl('PriestProfile') + `?id=${priest.id}`}>
-          <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl font-medium transition-all hover:shadow-lg">
+          <button className="w-full bg-orange-500 hover:bg-orange-600 hover:scale-105 text-white py-2.5 rounded-xl font-medium transition-all hover:shadow-lg focus:ring-4 focus:ring-orange-500/50">
             View Profile
           </button>
         </Link>
@@ -109,7 +109,7 @@ export default function PriestsMinimal() {
             <p className="text-gray-600">Expert guidance for your spiritual journey</p>
           </div>
           <Link to={createPageUrl('Priests')}>
-            <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
+            <button className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100 hover:border-orange-300 font-medium text-sm hover:gap-3 transition-all">
               View all
               <ArrowRight className="w-4 h-4" />
             </button>

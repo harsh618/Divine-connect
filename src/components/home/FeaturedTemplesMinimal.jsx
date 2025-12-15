@@ -9,16 +9,16 @@ function TempleCard({ temple }) {
   
   return (
     <div className="group cursor-pointer">
-      <Link to={createPageUrl('TempleDetail', { templeId: temple.id })}>
-        <div className="relative overflow-hidden rounded-2xl aspect-[4/5] mb-4 shadow-md hover:shadow-xl transition-all">
+      <Link to={createPageUrl('TempleDetail') + `?templeId=${temple.id}`}>
+        <div className="relative overflow-hidden rounded-2xl aspect-[4/5] mb-4 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
           <img
             src={temple.images?.[0] || temple.thumbnail_url || defaultImage}
-            alt={temple.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            alt={`${temple.name} Temple in ${temple.city}`}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="flex items-center gap-2 text-white/90 text-sm mb-2">
+          <div className="absolute bottom-0 left-0 right-0 p-4 group-hover:pb-5 transition-all">
+            <div className="flex items-center gap-2 text-white text-sm mb-2 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full inline-flex group-hover:bg-black/60 transition-colors">
               <MapPin className="w-3.5 h-3.5" />
               <span>{temple.city}</span>
             </div>
@@ -26,14 +26,12 @@ function TempleCard({ temple }) {
         </div>
       </Link>
       <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-gray-900">{temple.name}</h3>
-        <p className="text-sm text-gray-600">{temple.city} · {temple.primary_deity}</p>
-        <Link to={createPageUrl('TempleDetail', { templeId: temple.id })}>
-          <button className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 mt-2">
-            View Temple
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </Link>
+        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">{temple.name}</h3>
+        <p className="text-sm text-gray-600">{temple.city}, {temple.state} · {temple.primary_deity}</p>
+        <button className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 mt-2 group-hover:gap-2 transition-all">
+          View Temple
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );
@@ -61,7 +59,7 @@ export default function FeaturedTemplesMinimal({ temples, isLoading }) {
             <p className="text-gray-600">Explore famous and nearby temples with timings and rituals</p>
           </div>
           <Link to={createPageUrl('Temples')}>
-            <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
+            <button className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100 hover:border-orange-300 font-medium text-sm hover:gap-3 transition-all">
               View all
               <ArrowRight className="w-4 h-4" />
             </button>

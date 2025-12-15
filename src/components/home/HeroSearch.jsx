@@ -28,6 +28,7 @@ export default function HeroSearch() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-12 h-14 border-0 focus-visible:ring-0 text-base"
+            aria-label="Search for temples, poojas, and astrologers"
           />
         </div>
         <div className="relative md:w-48">
@@ -38,11 +39,13 @@ export default function HeroSearch() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             className="pl-12 h-14 border-0 focus-visible:ring-0 text-base"
+            aria-label="Enter location"
           />
         </div>
         <Button 
           type="submit"
-          className="h-14 px-8 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl"
+          className="h-14 px-8 bg-orange-500 hover:bg-orange-600 hover:scale-105 text-white font-semibold rounded-xl transition-all focus:ring-4 focus:ring-orange-500/50"
+          aria-label="Search button"
         >
           Search
         </Button>
