@@ -14,8 +14,8 @@ function EventCard({ event, temple }) {
         <img
           src={temple?.images?.[0] || temple?.thumbnail_url || "https://images.unsplash.com/photo-1548013146-72479768bada?w=800"}
           alt={event.title}
-          className="w-full h-full object-cover"
-        />
+          className="w-full h-full object-cover" />
+
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium">
           {event.event_date ? format(new Date(event.event_date), 'MMM dd') : 'TBA'}
         </div>
@@ -27,15 +27,15 @@ function EventCard({ event, temple }) {
         </div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.title}</h3>
         <p className="text-sm text-gray-600 mb-4 line-clamp-2">{event.description}</p>
-        {temple && (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+        {temple &&
+        <div className="flex items-center gap-2 text-sm text-gray-500">
             <MapPin className="w-4 h-4" />
             {temple.name}
           </div>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 export default function UpcomingEvents() {
@@ -43,13 +43,13 @@ export default function UpcomingEvents() {
 
   const { data: events, isLoading } = useQuery({
     queryKey: ['upcoming-events'],
-    queryFn: () => base44.entities.TempleEvent.filter({ is_deleted: false }, 'event_date', 10),
+    queryFn: () => base44.entities.TempleEvent.filter({ is_deleted: false }, 'event_date', 10)
   });
 
   const { data: temples } = useQuery({
     queryKey: ['temples-for-events'],
     queryFn: () => base44.entities.Temple.filter({ is_deleted: false }),
-    enabled: !!events?.length,
+    enabled: !!events?.length
   });
 
   const templesMap = temples?.reduce((acc, temple) => {
@@ -58,7 +58,7 @@ export default function UpcomingEvents() {
   }, {}) || {};
 
   return (
-    <section className="py-24 px-6 bg-white">
+    <section className="bg-white pt-16 pr-6 pb-20 pl-6">
       <div className="container mx-auto max-w-7xl mb-12">
         <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-3">
           Upcoming Events
@@ -66,35 +66,35 @@ export default function UpcomingEvents() {
         <p className="text-gray-500">Festivals and ceremonies near you</p>
       </div>
 
-      <div 
+      <div
         ref={scrollRef}
         className="flex gap-6 overflow-x-auto scrollbar-hide px-6 pb-4"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+
         <div className="container mx-auto max-w-7xl">
           <div className="flex gap-6">
-            {isLoading ? (
-              Array(3).fill(0).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-96">
+            {isLoading ?
+            Array(3).fill(0).map((_, i) =>
+            <div key={i} className="flex-shrink-0 w-96">
                   <Skeleton className="w-full h-80 rounded-2xl" />
                 </div>
-              ))
-            ) : events?.length > 0 ? (
-              events.map((event) => (
-                <EventCard 
-                  key={event.id} 
-                  event={event} 
-                  temple={templesMap[event.temple_id]}
-                />
-              ))
-            ) : (
-              <div className="w-96 text-gray-500 text-center py-12">
+            ) :
+            events?.length > 0 ?
+            events.map((event) =>
+            <EventCard
+              key={event.id}
+              event={event}
+              temple={templesMap[event.temple_id]} />
+
+            ) :
+
+            <div className="w-96 text-gray-500 text-center py-12">
                 No upcoming events
               </div>
-            )}
+            }
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
