@@ -45,44 +45,14 @@ export default function AuspiciousTimeline() {
     }, 'date', 20),
   });
 
-  const { data: aiTimeline, isLoading } = useQuery({
-    queryKey: ['auspicious-timeline'],
-    queryFn: async () => {
-      // If admin has added days, use those instead of AI
-      if (adminDays && adminDays.length > 0) {
-        return adminDays.map(day => ({
-          date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          title: day.title,
-          description: day.description,
-          image_url: day.image_url
-        }));
-      }
+  const displayEvents = adminDays?.map(day => ({
+    date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    title: day.title,
+    description: day.description,
+    image_url: day.image_url
+  })) || [];
 
-      // Fallback to AI generation
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Generate a list of 5 auspicious days and spiritual events for the upcoming month (December 2025) in Hindu calendar. For each event, provide: date (format: "Dec 15"), title (short, 3-5 words), and description (one sentence, max 15 words). Return as JSON array with objects having: date, title, description fields.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            events: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  date: { type: "string" },
-                  title: { type: "string" },
-                  description: { type: "string" }
-                }
-              }
-            }
-          }
-        }
-      });
-      return response.events || [];
-    },
-    enabled: !!adminDays, // Wait for admin days to load first
-    staleTime: 1000 * 60 * 60 * 24 // Cache for 24 hours
-  });
+  const isLoading = !adminDays;
 
   return (
     <section className="bg-gradient-to-b from-orange-50/30 to-white px-6 py-24">
@@ -113,8 +83,8 @@ export default function AuspiciousTimeline() {
                   <Skeleton className="w-full h-64 rounded-2xl" />
                 </div>
               ))
-            ) : aiTimeline?.length > 0 ? (
-              aiTimeline.slice(0, 5).map((event, idx) => (
+            ) : displayEvents?.length > 0 ? (
+              displayEvents.slice(0, 5).map((event, idx) => (
                 <TimelineCard key={idx} event={event} />
               ))
             ) : (
