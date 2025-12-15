@@ -15,8 +15,8 @@ function TimelineCard({ event }) {
       </div>
       <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.title}</h3>
       <p className="text-sm text-gray-600 leading-relaxed">{event.description}</p>
-    </div>
-  );
+    </div>);
+
 }
 
 export default function AuspiciousTimeline() {
@@ -46,11 +46,11 @@ export default function AuspiciousTimeline() {
       });
       return response.events || [];
     },
-    staleTime: 1000 * 60 * 60 * 24, // Cache for 24 hours
+    staleTime: 1000 * 60 * 60 * 24 // Cache for 24 hours
   });
 
   return (
-    <section className="py-24 px-6 bg-gradient-to-b from-white to-orange-50/30">
+    <section className="bg-slate-50 px-6 py-24 from-white to-orange-50/30">
       <div className="container mx-auto max-w-7xl mb-12">
         <div className="flex items-center gap-3 mb-3">
           <Sparkles className="w-6 h-6 text-orange-500" />
@@ -61,31 +61,31 @@ export default function AuspiciousTimeline() {
         <p className="text-gray-500">Upcoming sacred moments this month</p>
       </div>
 
-      <div 
+      <div
         ref={scrollRef}
         className="flex gap-6 overflow-x-auto scrollbar-hide px-6 pb-4"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+
         <div className="container mx-auto max-w-7xl">
           <div className="flex gap-6">
-            {isLoading ? (
-              Array(3).fill(0).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-80">
+            {isLoading ?
+            Array(3).fill(0).map((_, i) =>
+            <div key={i} className="flex-shrink-0 w-80">
                   <Skeleton className="w-full h-48 rounded-2xl" />
                 </div>
-              ))
-            ) : aiTimeline?.length > 0 ? (
-              aiTimeline.map((event, idx) => (
-                <TimelineCard key={idx} event={event} />
-              ))
-            ) : (
-              <div className="w-80 text-gray-500 text-center py-12">
+            ) :
+            aiTimeline?.length > 0 ?
+            aiTimeline.map((event, idx) =>
+            <TimelineCard key={idx} event={event} />
+            ) :
+
+            <div className="w-80 text-gray-500 text-center py-12">
                 No events available
               </div>
-            )}
+            }
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
