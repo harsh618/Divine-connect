@@ -9,7 +9,7 @@ const heroConfigs = {
     title: "Divine",
     subtitle: "Connections",
     description: "Experience authentic spiritual services from the comfort of your home. Connect with temples, book poojas, consult astrologers, and more.",
-    backgroundImage: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1920",
+    backgroundImage: "https://www.pexels.com/photo/photo-of-brown-concrete-building-interior-3098608,
     gradientFrom: "from-black/80",
     gradientVia: "via-black/50",
     primaryAction: { text: "Explore Temples", link: "Temples", gradient: "from-orange-500 to-amber-500" },
