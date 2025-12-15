@@ -60,7 +60,7 @@ export default function FeaturedTemplesMinimal({ temples, isLoading }) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {isLoading ? (
             Array(4).fill(0).map((_, i) => <TempleCardSkeleton key={i} />)
           ) : temples?.length > 0 ? (

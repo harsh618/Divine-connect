@@ -71,16 +71,23 @@ function LayoutContent({ children, currentPageName }) {
 
             {/* Desktop Links */}
             <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link key={link.name} to={createPageUrl(link.page)}>
-                  <Button
-                    variant="ghost"
-                    className="text-gray-600 hover:text-gray-900"
-                  >
-                    {link.name}
-                  </Button>
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = currentPageName === link.page;
+                return (
+                  <Link key={link.name} to={createPageUrl(link.page)}>
+                    <Button
+                      variant="ghost"
+                      className={`${
+                        isActive 
+                          ? 'text-orange-600 bg-orange-50 font-medium' 
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      {link.name}
+                    </Button>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Right Side */}

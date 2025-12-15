@@ -94,11 +94,11 @@ export default function DonationCampaignsMinimal() {
 
       <div 
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide px-6 pb-4"
+        className="overflow-x-auto scrollbar-hide px-6 pb-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <div className="container mx-auto max-w-7xl">
-          <div className="flex gap-6">
+          <div className="flex md:grid md:grid-cols-3 gap-6">
             {isLoading ? (
               Array(3).fill(0).map((_, i) => (
                 <div key={i} className="flex-shrink-0 w-80">

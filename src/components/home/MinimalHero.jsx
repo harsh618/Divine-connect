@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, MapPin, Search } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function MinimalHero() {
+  const [city, setCity] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const cities = ['All Cities', 'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Varanasi', 'Ayodhya'];
+
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
