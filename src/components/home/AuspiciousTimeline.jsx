@@ -6,25 +6,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function TimelineCard({ event }) {
   return (
-    <div className="flex-shrink-0 w-80 bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow">
-      {event.image_url && (
-        <div className="h-48 overflow-hidden">
-          <img 
-            src={event.image_url} 
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-orange-100 rounded-full">
-            <Calendar className="w-5 h-5 text-orange-600" />
+    <div className="flex-shrink-0 w-80">
+      <div className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl transition-all overflow-hidden group hover:scale-[1.02]">
+        {event.image_url && (
+          <div className="h-40 overflow-hidden">
+            <img 
+              src={event.image_url} 
+              alt={event.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
           </div>
-          <span className="text-sm font-medium text-orange-600">{event.date}</span>
+        )}
+        <div className="p-5">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 flex flex-col items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-xl px-3 py-2 min-w-[60px]">
+              <span className="text-2xl font-bold leading-none">{event.date.split(' ')[1]}</span>
+              <span className="text-xs font-medium uppercase mt-1">{event.date.split(' ')[0]}</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-semibold text-gray-900 mb-2 leading-snug">{event.title}</h3>
+              <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{event.description}</p>
+            </div>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.title}</h3>
-        <p className="text-sm text-gray-600 leading-relaxed">{event.description}</p>
       </div>
     </div>
   );
@@ -81,15 +85,19 @@ export default function AuspiciousTimeline() {
   });
 
   return (
-    <section className="bg-slate-50 px-6 py-24 from-white to-orange-50/30">
+    <section className="bg-gradient-to-b from-orange-50/30 to-white px-6 py-24">
       <div className="container mx-auto max-w-7xl mb-12">
-        <div className="flex items-center gap-3 mb-3">
-          <Sparkles className="w-6 h-6 text-orange-500" />
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900">
-            Auspicious Days
-          </h2>
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <Sparkles className="w-6 h-6 text-orange-500" />
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900">
+                Auspicious Days
+              </h2>
+            </div>
+            <p className="text-gray-600">Upcoming sacred moments and festivals this month</p>
+          </div>
         </div>
-        <p className="text-gray-500">Upcoming sacred moments this month</p>
       </div>
 
       <div

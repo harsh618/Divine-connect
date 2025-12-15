@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Heart, TrendingUp } from 'lucide-react';
+import { Heart, TrendingUp, ArrowRight } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from 'react-router-dom';
@@ -11,37 +11,53 @@ function CampaignCard({ campaign }) {
   const progress = (campaign.raised_amount / campaign.goal_amount) * 100;
   const defaultImage = "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800";
   
+  const categoryColors = {
+    temple_renovation: 'bg-orange-100 text-orange-700',
+    gaushala: 'bg-green-100 text-green-700',
+    anna_daan: 'bg-pink-100 text-pink-700',
+    education: 'bg-blue-100 text-blue-700',
+    medical: 'bg-purple-100 text-purple-700'
+  };
+  
   return (
-    <Link to={createPageUrl('Donate')}>
-      <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={campaign.images?.[0] || campaign.thumbnail_url || defaultImage}
-            alt={campaign.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-green-600" />
-            <span className="text-xs font-medium">{Math.round(progress)}%</span>
-          </div>
-        </div>
-        <div className="p-6">
-          <div className="flex items-center gap-2 text-pink-600 text-sm mb-3">
-            <Heart className="w-4 h-4" />
-            {campaign.category?.replace(/_/g, ' ')}
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">{campaign.title}</h3>
-          
-          <div className="space-y-2">
-            <Progress value={Math.min(progress, 100)} className="h-1.5" />
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
-              <span className="text-gray-900 font-medium">₹{campaign.goal_amount?.toLocaleString()}</span>
-            </div>
-          </div>
+    <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all group">
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={campaign.images?.[0] || campaign.thumbnail_url || defaultImage}
+          alt={campaign.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">
+          <TrendingUp className="w-3.5 h-3.5 text-green-600" />
+          <span className="text-xs font-medium">{Math.round(progress)}%</span>
         </div>
       </div>
-    </Link>
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">{campaign.title}</h3>
+        
+        <div className="mb-4">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${categoryColors[campaign.category] || 'bg-gray-100 text-gray-700'}`}>
+            {campaign.category?.replace(/_/g, ' ')}
+          </span>
+        </div>
+        
+        <div className="space-y-3 mb-4">
+          <Progress value={Math.min(progress, 100)} className="h-2" />
+          <div className="text-sm">
+            <span className="text-gray-900 font-semibold">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
+            <span className="text-gray-500"> raised of </span>
+            <span className="text-gray-900 font-semibold">₹{campaign.goal_amount?.toLocaleString()}</span>
+          </div>
+        </div>
+
+        <Link to={createPageUrl('Donate')}>
+          <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-medium transition-all hover:shadow-lg flex items-center justify-center gap-2">
+            <Heart className="w-4 h-4" />
+            Donate Now
+          </button>
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -60,10 +76,20 @@ export default function DonationCampaignsMinimal() {
   return (
     <section className="py-24 px-6 bg-gradient-to-b from-orange-50/30 to-white">
       <div className="container mx-auto max-w-7xl mb-12">
-        <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-3">
-          Support Causes
-        </h2>
-        <p className="text-gray-500">Help maintain sacred traditions</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-3">
+              Support Causes
+            </h2>
+            <p className="text-gray-600">Help maintain sacred traditions and support communities</p>
+          </div>
+          <Link to={createPageUrl('Donate')}>
+            <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
+              View all
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </Link>
+        </div>
       </div>
 
       <div 

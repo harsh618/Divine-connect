@@ -11,60 +11,63 @@ function PriestCard({ priest }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400";
   
   return (
-    <Link to={createPageUrl('Priests')}>
-      <div className="group cursor-pointer bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg transition-all">
-        <div className="flex items-start gap-4 mb-4">
-          <div className="relative">
-            <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
-              <img
-                src={priest.avatar_url || defaultAvatar}
-                alt={priest.display_name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            {priest.is_verified && (
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-            )}
+    <div className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl transition-all hover:scale-[1.01]">
+      <div className="flex items-start gap-4 mb-4">
+        <div className="relative flex-shrink-0">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
+            <img
+              src={priest.avatar_url || defaultAvatar}
+              alt={priest.display_name}
+              className="w-full h-full object-cover"
+            />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 mb-1 truncate">{priest.display_name}</h3>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                <span className="text-sm font-medium">{priest.rating_average?.toFixed(1) || '5.0'}</span>
-              </div>
-              <span className="text-gray-400">•</span>
-              <span className="text-sm text-gray-600">{priest.years_of_experience}+ years</span>
+          {priest.is_verified && (
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-md">
+              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
             </div>
-            {priest.specializations && priest.specializations.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {priest.specializations.slice(0, 2).map((spec, idx) => (
-                  <Badge key={idx} variant="secondary" className="text-xs">
-                    {spec}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
+          )}
         </div>
-        {priest.bio && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-4">{priest.bio}</p>
-        )}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <span className="text-sm text-gray-500">
-            ₹{priest.consultation_rate_chat || 0}/session
-          </span>
-          <div className="flex items-center gap-1 text-orange-600 text-sm font-medium group-hover:gap-2 transition-all">
-            Consult
-            <ArrowRight className="w-4 h-4" />
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900 mb-2">{priest.display_name}</h3>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+              <span className="text-sm font-medium text-gray-900">{priest.rating_average?.toFixed(1) || '5.0'}</span>
+            </div>
+            <span className="text-gray-400">•</span>
+            <span className="text-sm text-gray-600">{priest.years_of_experience}+ years</span>
           </div>
+          {priest.specializations && priest.specializations.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {priest.specializations.slice(0, 2).map((spec, idx) => (
+                <span key={idx} className="inline-block px-2.5 py-1 bg-orange-50 text-orange-700 text-xs rounded-full font-medium">
+                  {spec}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </Link>
+      {priest.bio && (
+        <p className="text-sm text-gray-600 line-clamp-2 mb-4">{priest.bio}</p>
+      )}
+      <div className="pt-4 border-t border-gray-100 space-y-3">
+        {priest.consultation_rate_chat && priest.consultation_rate_chat > 0 ? (
+          <p className="text-sm text-gray-600">
+            Starting at <span className="font-semibold text-gray-900">₹{priest.consultation_rate_chat}</span>/session
+          </p>
+        ) : (
+          <p className="text-sm text-gray-500 italic">Pricing coming soon</p>
+        )}
+        <Link to={createPageUrl('Priests')}>
+          <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl font-medium transition-all hover:shadow-lg">
+            View Profile
+          </button>
+        </Link>
+      </div>
+    </div>
   );
 }
 
