@@ -8,15 +8,15 @@ function TimelineCard({ event }) {
   return (
     <div className="flex-shrink-0 w-80">
       <div className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl transition-all overflow-hidden group hover:scale-[1.02]">
-        {event.image_url && (
-          <div className="h-40 overflow-hidden">
-            <img 
-              src={event.image_url} 
-              alt={event.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+        {event.image_url &&
+        <div className="h-40 overflow-hidden">
+            <img
+            src={event.image_url}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+
           </div>
-        )}
+        }
         <div className="p-5">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 flex flex-col items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-xl px-3 py-2 min-w-[60px]">
@@ -30,8 +30,8 @@ function TimelineCard({ event }) {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 export default function AuspiciousTimeline() {
@@ -39,13 +39,13 @@ export default function AuspiciousTimeline() {
 
   const { data: adminDays } = useQuery({
     queryKey: ['auspicious-days-admin'],
-    queryFn: () => base44.entities.AuspiciousDay.filter({ 
-      is_deleted: false, 
-      is_visible: true 
-    }, 'date', 20),
+    queryFn: () => base44.entities.AuspiciousDay.filter({
+      is_deleted: false,
+      is_visible: true
+    }, 'date', 20)
   });
 
-  const displayEvents = adminDays?.map(day => ({
+  const displayEvents = adminDays?.map((day) => ({
     date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     title: day.title,
     description: day.description,
@@ -55,7 +55,7 @@ export default function AuspiciousTimeline() {
   const isLoading = !adminDays;
 
   return (
-    <section className="bg-gradient-to-b from-orange-50/30 to-white px-6 py-24">
+    <section className="bg-gradient-to-b pt-8 pr-6 pb-12 pl-6 from-orange-50/30 to-white">
       <div className="container mx-auto max-w-7xl mb-12">
         <div className="flex items-start justify-between">
           <div>
@@ -70,32 +70,31 @@ export default function AuspiciousTimeline() {
         </div>
       </div>
 
-      <div 
+      <div
         ref={scrollRef}
         className="overflow-x-auto scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+
         <div className="container mx-auto max-w-7xl">
           <div className="flex gap-6">
-            {isLoading ? (
-              Array(3).fill(0).map((_, i) => (
-                <div key={i} className="flex-shrink-0 w-80">
+            {isLoading ?
+            Array(3).fill(0).map((_, i) =>
+            <div key={i} className="flex-shrink-0 w-80">
                   <Skeleton className="w-full h-64 rounded-2xl" />
                 </div>
-              ))
-            ) : displayEvents?.length > 0 ? (
-              displayEvents.slice(0, 5).map((event, idx) => (
-                <TimelineCard key={idx} event={event} />
-              ))
-            ) : (
-              <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 p-12 text-center">
+            ) :
+            displayEvents?.length > 0 ?
+            displayEvents.slice(0, 5).map((event, idx) =>
+            <TimelineCard key={idx} event={event} />
+            ) :
+
+            <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 p-12 text-center">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
                   <Sparkles className="w-8 h-8 text-orange-500" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">No Events Scheduled</h3>
-                <p className="text-gray-500 text-sm">Follow temples to get personalized updates on auspicious days</p>
+                <p className="text-gray-500">No auspicious days scheduled yet</p>
               </div>
-            )}
+            }
           </div>
         </div>
       </div>
