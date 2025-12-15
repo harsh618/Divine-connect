@@ -102,33 +102,52 @@ export default function PriestsMinimal() {
   return (
     <section className="py-24 px-6 bg-white">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex items-end justify-between mb-12">
+        <div className="flex items-start justify-between mb-12">
           <div>
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-3">
               Connect with Priests
             </h2>
-            <p className="text-gray-500">Expert guidance for your spiritual journey</p>
+            <p className="text-gray-600">Expert guidance for your spiritual journey</p>
           </div>
           <Link to={createPageUrl('Priests')}>
-            <button className="hidden md:flex items-center gap-2 text-gray-900 hover:gap-3 transition-all">
+            <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
               View all
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {isLoading ? (
-            Array(6).fill(0).map((_, i) => <PriestCardSkeleton key={i} />)
-          ) : priests?.length > 0 ? (
-            priests.map((priest) => (
-              <PriestCard key={priest.id} priest={priest} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-gray-500">
-              No priests available
-            </div>
-          )}
+        {/* Horizontal Scroll Container */}
+        <div className="overflow-x-auto scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0">
+          <div className="flex gap-6 md:grid md:grid-cols-2 lg:grid-cols-3">
+            {isLoading ? (
+              Array(6).fill(0).map((_, i) => (
+                <div key={i} className="flex-shrink-0 w-80 md:w-auto">
+                  <PriestCardSkeleton />
+                </div>
+              ))
+            ) : priests?.length > 0 ? (
+              priests.map((priest) => (
+                <div key={priest.id} className="flex-shrink-0 w-80 md:w-auto">
+                  <PriestCard priest={priest} />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12 text-gray-500">
+                No priests available
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile View All */}
+        <div className="mt-8 md:hidden text-center">
+          <Link to={createPageUrl('Priests')}>
+            <button className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm">
+              View all priests
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </Link>
         </div>
       </div>
     </section>

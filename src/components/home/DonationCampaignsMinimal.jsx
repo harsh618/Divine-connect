@@ -94,7 +94,7 @@ export default function DonationCampaignsMinimal() {
 
       <div 
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide px-6 pb-4"
+        className="overflow-x-auto scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <div className="container mx-auto max-w-7xl">
@@ -110,8 +110,11 @@ export default function DonationCampaignsMinimal() {
                 <CampaignCard key={campaign.id} campaign={campaign} />
               ))
             ) : (
-              <div className="w-80 text-gray-500 text-center py-12">
-                No active campaigns
+              <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 p-12 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-pink-100 flex items-center justify-center">
+                  <Heart className="w-8 h-8 text-pink-500" />
+                </div>
+                <p className="text-gray-500">No active campaigns yet</p>
               </div>
             )}
           </div>

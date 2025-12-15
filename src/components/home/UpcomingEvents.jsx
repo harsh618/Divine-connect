@@ -4,6 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { Calendar, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 function EventCard({ event, temple }) {
   return (
