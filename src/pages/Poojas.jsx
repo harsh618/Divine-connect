@@ -32,52 +32,67 @@ const categories = [
   { value: 'durga', label: 'Durga Pooja' },
   { value: 'shiva', label: 'Shiva Pooja' },
   { value: 'havan', label: 'Havan' },
+  { value: 'griha_pravesh', label: 'Griha Pravesh' },
+  { value: 'navagraha', label: 'Navagraha Shanti' },
+  { value: 'rudrabhishek', label: 'Rudrabhishek' },
 ];
 
-function PoojaCard({ service }) {
+function PoojaCard({ pooja }) {
+  const defaultImage = "https://images.unsplash.com/photo-1604608672516-f1e3c1f9f6e6?w=800";
+  
   return (
-    <Link to={createPageUrl(`PoojaDetail?id=${service.id}`)}>
+    <Link to={createPageUrl(`PoojaDetail?id=${pooja.id}`)}>
       <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer">
-        <div className="relative h-48 bg-gradient-to-br from-orange-100 to-amber-50 flex items-center justify-center">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
-            <span className="text-3xl">🪔</span>
-          </div>
-          {service.is_virtual && (
-            <Badge className="absolute top-3 right-3 bg-blue-500 text-white border-0">
-              <Video className="w-3 h-3 mr-1" />
-              Virtual
+        <div className="relative h-48 overflow-hidden">
+          <img 
+            src={pooja.image_url || defaultImage} 
+            alt={pooja.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          {pooja.is_popular && (
+            <Badge className="absolute top-3 right-3 bg-orange-500 text-white border-0">
+              Popular
             </Badge>
           )}
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="font-semibold text-lg text-white mb-1">
+              {pooja.name}
+            </h3>
+          </div>
         </div>
         <div className="p-5">
-          <h3 className="font-semibold text-lg text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">
-            {service.title}
-          </h3>
-          <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-            {service.description || 'A sacred ritual to invoke divine blessings'}
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+            {pooja.purpose || pooja.description}
           </p>
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-2xl font-bold text-orange-600">₹{service.price}</p>
-              {service.duration_minutes && (
-                <p className="text-xs text-gray-500 flex items-center mt-1">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {service.duration_minutes} mins
-                </p>
-              )}
+              <p className="text-xs text-gray-500 mb-1">Starting from</p>
+              <p className="text-2xl font-bold text-orange-600">
+                ₹{pooja.base_price_virtual || pooja.base_price_temple || pooja.base_price_in_person}
+              </p>
             </div>
-            <Button size="sm" className="bg-orange-500 hover:bg-orange-600">
-              Book Now
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
+            {pooja.duration_minutes && (
+              <div className="text-right">
+                <p className="text-xs text-gray-500 flex items-center justify-end">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {pooja.duration_minutes} mins
+                </p>
+              </div>
+            )}
           </div>
 
-          {service.materials_included?.length > 0 && (
-            <div className="mt-4 pt-4 border-t">
-              <p className="text-xs text-gray-500 flex items-center">
-                <Package className="w-3 h-3 mr-1" />
-                Includes: {service.materials_included.slice(0, 3).join(', ')}
+          <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600">
+            Book Now
+            <ArrowRight className="w-4 h-4 ml-1" />
+          </Button>
+
+          {pooja.required_items?.length > 0 && (
+            <div className="mt-3 pt-3 border-t">
+              <p className="text-xs text-gray-500 flex items-start">
+                <Package className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
+                <span className="line-clamp-1">{pooja.required_items.slice(0, 3).join(', ')}</span>
               </p>
             </div>
           )}
@@ -117,15 +132,17 @@ export default function Poojas() {
     return () => clearInterval(interval);
   }, []);
 
-  const { data: services, isLoading } = useQuery({
-    queryKey: ['pooja-services'],
-    queryFn: () => base44.entities.Service.filter({ category: 'pooja', is_deleted: false, is_hidden: false }, '-created_date'),
+  const { data: poojas, isLoading } = useQuery({
+    queryKey: ['poojas'],
+    queryFn: () => base44.entities.Pooja.filter({ is_deleted: false }, '-is_popular'),
   });
 
-  const filteredServices = services?.filter(service => {
-    const matchesSearch = service.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesVirtual = !showVirtualOnly || service.is_virtual;
-    return matchesSearch && matchesVirtual;
+  const filteredPoojas = poojas?.filter(pooja => {
+    const matchesSearch = pooja.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         pooja.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || pooja.category === selectedCategory;
+    const matchesVirtual = !showVirtualOnly || pooja.base_price_virtual > 0;
+    return matchesSearch && matchesCategory && matchesVirtual;
   });
 
   return (
@@ -208,21 +225,21 @@ export default function Poojas() {
           </div>
         </div>
 
-        {/* Services Grid */}
+        {/* Poojas Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => <PoojaCardSkeleton key={i} />)
-          ) : filteredServices?.length > 0 ? (
-            filteredServices.map((service) => (
-              <PoojaCard key={service.id} service={service} />
+          ) : filteredPoojas?.length > 0 ? (
+            filteredPoojas.map((pooja) => (
+              <PoojaCard key={pooja.id} pooja={pooja} />
             ))
           ) : (
             <div className="col-span-full text-center py-16">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
                 <span className="text-4xl">🪔</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No poojas available</h3>
-              <p className="text-gray-500 mb-4">Check back soon for available pooja services</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No poojas found</h3>
+              <p className="text-gray-500 mb-4">Try adjusting your search or filters</p>
             </div>
           )}
         </div>
