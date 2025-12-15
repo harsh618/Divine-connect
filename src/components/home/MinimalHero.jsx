@@ -41,7 +41,7 @@ export default function MinimalHero() {
       </div>
 
       {/* Content */}
-      <div className="pr-40 pb-48 pl-64 text-center opacity-100 relative z-10 max-w-4xl">
+      <div className="pr-64 pb-48 pl-64 text-center opacity-100 relative z-10 max-w-4xl">
         <div className="bg-white/10 text-orange-200 mb-8 px-4 py-2 text-sm opacity-0 rounded-full inline-flex items-center gap-2 backdrop-blur-md">
           <Sparkles className="w-4 h-4" />
           Welcome to Divine
