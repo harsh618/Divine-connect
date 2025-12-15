@@ -28,6 +28,7 @@ import AdminProviders from '@/components/admin/AdminProviders';
 import AdminBookings from '@/components/admin/AdminBookings';
 import AdminDonations from '@/components/admin/AdminDonations';
 import AdminArticles from '@/components/admin/AdminArticles';
+import AdminAuspiciousDays from '@/components/admin/AdminAuspiciousDays';
 import AdminTrash from '@/components/admin/AdminTrash';
 
 const navItems = [
@@ -39,6 +40,7 @@ const navItems = [
   { id: 'bookings', label: 'Bookings', icon: Calendar },
   { id: 'donations', label: 'Donations', icon: Heart },
   { id: 'articles', label: 'Articles', icon: TrendingUp },
+  { id: 'auspicious', label: 'Auspicious Days', icon: Calendar },
   { id: 'trash', label: 'Trash', icon: Trash2 },
 ];
 
@@ -90,7 +92,7 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           {/* Navigation Tabs */}
-          <TabsList className="grid grid-cols-4 lg:grid-cols-8 h-auto p-1 bg-white rounded-xl mb-8">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-10 h-auto p-1 bg-white rounded-xl mb-8">
             {navItems.map((item) => (
               <TabsTrigger
                 key={item.id}
@@ -141,6 +143,11 @@ export default function AdminDashboard() {
           {/* Articles */}
           <TabsContent value="articles" className="mt-0">
             <AdminArticles />
+          </TabsContent>
+
+          {/* Auspicious Days */}
+          <TabsContent value="auspicious" className="mt-0">
+            <AdminAuspiciousDays />
           </TabsContent>
 
           {/* Trash */}

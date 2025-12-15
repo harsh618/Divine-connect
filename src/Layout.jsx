@@ -59,14 +59,12 @@ function LayoutContent({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Desktop Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isHomePage ? 'bg-transparent' : 'bg-white/95 backdrop-blur-md shadow-sm'
-      }`}>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-              <span className={`text-2xl font-serif font-bold ${isHomePage ? 'text-white' : 'text-orange-500'}`}>
+              <span className="text-2xl font-serif font-bold text-orange-500">
                 Divine
               </span>
             </Link>
@@ -77,7 +75,7 @@ function LayoutContent({ children, currentPageName }) {
                 <Link key={link.name} to={createPageUrl(link.page)}>
                   <Button
                     variant="ghost"
-                    className={`${isHomePage ? 'text-white/90 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-900'}`}
+                    className="text-gray-600 hover:text-gray-900"
                   >
                     {link.name}
                   </Button>
@@ -93,7 +91,7 @@ function LayoutContent({ children, currentPageName }) {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className={`rounded-full ${isHomePage ? 'text-white hover:bg-white/10' : ''}`}
+                      className="rounded-full"
                     >
                       <User className="w-5 h-5" />
                     </Button>
@@ -108,6 +106,12 @@ function LayoutContent({ children, currentPageName }) {
                       <DropdownMenuItem>
                         <User className="w-4 h-4 mr-2" />
                         Profile
+                      </DropdownMenuItem>
+                    </Link>
+                    <Link to={createPageUrl('AstrologyProfile')}>
+                      <DropdownMenuItem>
+                        <Stars className="w-4 h-4 mr-2" />
+                        Astrology Profile
                       </DropdownMenuItem>
                     </Link>
                     <Link to={createPageUrl('MyBookings')}>
@@ -134,13 +138,10 @@ function LayoutContent({ children, currentPageName }) {
               ) : (
                 <Button
                   onClick={() => base44.auth.redirectToLogin()}
-                  className={`${isHomePage 
-                    ? 'bg-white/10 hover:bg-white/20 text-white border border-white/30' 
-                    : 'bg-orange-500 hover:bg-orange-600 text-white'
-                  } rounded-full px-6`}
-                  >
+                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-6"
+                >
                   Sign In
-                  </Button>
+                </Button>
               )}
 
               {/* Mobile Menu */}
@@ -149,7 +150,6 @@ function LayoutContent({ children, currentPageName }) {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    className={isHomePage ? 'text-white' : ''}
                   >
                     <Menu className="w-6 h-6" />
                   </Button>
@@ -179,7 +179,7 @@ function LayoutContent({ children, currentPageName }) {
       </nav>
 
       {/* Page Content */}
-      <main className={isHomePage ? '' : 'pt-16'}>
+      <main className="pt-16">
         {children}
       </main>
 

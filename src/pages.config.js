@@ -12,6 +12,7 @@ import MyJourney from './pages/MyJourney';
 import PoojaDetail from './pages/PoojaDetail';
 import BecomeProvider from './pages/BecomeProvider';
 import KundliGenerator from './pages/KundliGenerator';
+import AstrologyProfile from './pages/AstrologyProfile';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "PoojaDetail": PoojaDetail,
     "BecomeProvider": BecomeProvider,
     "KundliGenerator": KundliGenerator,
+    "AstrologyProfile": AstrologyProfile,
 }
 
 export const pagesConfig = {

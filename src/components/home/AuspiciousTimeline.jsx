@@ -6,25 +6,55 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function TimelineCard({ event }) {
   return (
-    <div className="flex-shrink-0 w-80 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-orange-100 rounded-full">
-          <Calendar className="w-5 h-5 text-orange-600" />
+    <div className="flex-shrink-0 w-80 bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow">
+      {event.image_url && (
+        <div className="h-48 overflow-hidden">
+          <img 
+            src={event.image_url} 
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
         </div>
-        <span className="text-sm font-medium text-orange-600">{event.date}</span>
+      )}
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-orange-100 rounded-full">
+            <Calendar className="w-5 h-5 text-orange-600" />
+          </div>
+          <span className="text-sm font-medium text-orange-600">{event.date}</span>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.title}</h3>
+        <p className="text-sm text-gray-600 leading-relaxed">{event.description}</p>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.title}</h3>
-      <p className="text-sm text-gray-600 leading-relaxed">{event.description}</p>
-    </div>);
-
+    </div>
+  );
 }
 
 export default function AuspiciousTimeline() {
   const scrollRef = useRef(null);
 
+  const { data: adminDays } = useQuery({
+    queryKey: ['auspicious-days-admin'],
+    queryFn: () => base44.entities.AuspiciousDay.filter({ 
+      is_deleted: false, 
+      is_visible: true 
+    }, 'date', 20),
+  });
+
   const { data: aiTimeline, isLoading } = useQuery({
     queryKey: ['auspicious-timeline'],
     queryFn: async () => {
+      // If admin has added days, use those instead of AI
+      if (adminDays && adminDays.length > 0) {
+        return adminDays.map(day => ({
+          date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          title: day.title,
+          description: day.description,
+          image_url: day.image_url
+        }));
+      }
+
+      // Fallback to AI generation
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `Generate a list of 5 auspicious days and spiritual events for the upcoming month (December 2025) in Hindu calendar. For each event, provide: date (format: "Dec 15"), title (short, 3-5 words), and description (one sentence, max 15 words). Return as JSON array with objects having: date, title, description fields.`,
         response_json_schema: {
@@ -46,6 +76,7 @@ export default function AuspiciousTimeline() {
       });
       return response.events || [];
     },
+    enabled: !!adminDays, // Wait for admin days to load first
     staleTime: 1000 * 60 * 60 * 24 // Cache for 24 hours
   });
 
