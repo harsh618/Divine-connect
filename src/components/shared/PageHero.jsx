@@ -89,7 +89,7 @@ const heroConfigs = {
     title: "Support",
     subtitle: "Sacred Causes",
     description: "Your generous contributions help maintain temples, support charitable activities, and spread the light of spirituality across communities.",
-    backgroundImage: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1920",
+    backgroundImage: "https://www.pexels.com/photo/photo-of-brown-concrete-building-interior-3098608",
     gradientFrom: "from-rose-900/80",
     gradientVia: "via-rose-800/50",
     primaryAction: { text: "View Campaigns", link: "Donate", gradient: "from-rose-500 to-pink-500" },
