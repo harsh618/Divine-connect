@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar, Plus, Edit, Trash2, Eye, EyeOff, Loader2, Image } from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, Eye, EyeOff, Loader2, Image, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
 
@@ -106,8 +106,8 @@ export default function AdminAuspiciousDays() {
   };
 
   const [hoveredDate, setHoveredDate] = useState(null);
-  const [aiSuggestion, setAiSuggestion] = useState(null);
-  const [loadingAi, setLoadingAi] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState({});
+  const [loadingDates, setLoadingDates] = useState(new Set());
 
   // Generate calendar for current and next month
   const getCalendarDays = () => {
@@ -135,58 +135,60 @@ export default function AdminAuspiciousDays() {
   const calendarDays = getCalendarDays();
 
   const handleDateHover = async (day) => {
-    if (day.hasEvent || loadingAi) return;
+    if (day.hasEvent) return;
     
     setHoveredDate(day.date);
-    setLoadingAi(true);
+    
+    // Check if we already have suggestion for this date
+    if (aiSuggestions[day.date]) return;
+    
+    // Check if already loading
+    if (loadingDates.has(day.date)) return;
+    
+    setLoadingDates(prev => new Set(prev).add(day.date));
     
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `For the date ${day.displayDate} (${day.dayOfWeek}), check if there is any significant Hindu festival, auspicious day, or spiritual event. If yes, provide a title (max 5 words) and description (max 20 words). If no significant event, return null for both. Return as JSON.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            title: { type: ["string", "null"] },
-            description: { type: ["string", "null"] }
-          }
-        }
+      const response = await base44.functions.invoke('getHinduCalendarDate', {
+        date: day.date,
+        displayDate: day.displayDate
       });
       
-      if (response.title && response.description) {
-        setAiSuggestion({
-          ...response,
-          date: day.date,
-          displayDate: day.displayDate
-        });
-      } else {
-        setAiSuggestion(null);
+      if (response.data?.hasEvent) {
+        setAiSuggestions(prev => ({
+          ...prev,
+          [day.date]: {
+            title: response.data.title,
+            description: response.data.description,
+            displayDate: day.displayDate
+          }
+        }));
       }
     } catch (error) {
       console.error('AI suggestion error:', error);
-      setAiSuggestion(null);
     } finally {
-      setLoadingAi(false);
+      setLoadingDates(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(day.date);
+        return newSet;
+      });
     }
   };
 
   const handleDateLeave = () => {
-    setTimeout(() => {
-      setHoveredDate(null);
-      setAiSuggestion(null);
-    }, 300);
+    setHoveredDate(null);
   };
 
-  const handleUseAiSuggestion = () => {
-    if (aiSuggestion) {
+  const handleUseAiSuggestion = (date) => {
+    const suggestion = aiSuggestions[date];
+    if (suggestion) {
       setFormData({
-        date: aiSuggestion.date,
-        title: aiSuggestion.title,
-        description: aiSuggestion.description,
+        date: date,
+        title: suggestion.title,
+        description: suggestion.description,
         image_url: '',
         is_visible: true
       });
       setShowDialog(true);
-      setAiSuggestion(null);
       setHoveredDate(null);
     }
   };
@@ -206,80 +208,154 @@ export default function AdminAuspiciousDays() {
 
       {/* Calendar View */}
       <Card className="p-6">
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
-          💡 Hover over empty dates to get AI suggestions for auspicious days
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800 flex items-center gap-2">
+          <Sparkles className="w-4 h-4" />
+          Hover over dates to discover Hindu festivals and auspicious days
         </div>
-        <div className="grid grid-cols-7 gap-2 relative">
-          {calendarDays.map((day, idx) => (
-            <div
-              key={idx}
-              className={`p-3 rounded-lg border transition-all relative ${
-                day.hasEvent
-                  ? day.eventData?.is_visible
-                    ? 'bg-green-50 border-green-300 hover:shadow-md'
-                    : 'bg-gray-50 border-gray-300'
-                  : hoveredDate === day.date
-                  ? 'bg-orange-50 border-orange-300'
-                  : 'bg-white border-gray-200 hover:border-orange-300'
-              } cursor-pointer`}
-              onClick={() => day.hasEvent ? handleEdit(day.eventData) : null}
-              onMouseEnter={() => !day.hasEvent && handleDateHover(day)}
-              onMouseLeave={handleDateLeave}
-            >
-              <div className="text-xs text-gray-500">{day.dayOfWeek}</div>
-              <div className="text-sm font-semibold text-gray-900">{day.displayDate}</div>
-              {day.hasEvent && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-1 mb-1">
-                    {day.eventData.is_visible ? (
-                      <Eye className="w-3 h-3 text-green-600" />
-                    ) : (
-                      <EyeOff className="w-3 h-3 text-gray-400" />
+        <div className="grid grid-cols-7 gap-2">
+          {calendarDays.map((day, idx) => {
+            const aiSuggestion = aiSuggestions[day.date];
+            const isLoading = loadingDates.has(day.date);
+            const showTooltip = hoveredDate === day.date && (aiSuggestion || day.hasEvent);
+            
+            return (
+              <div
+                key={idx}
+                className="relative group"
+                onMouseEnter={() => handleDateHover(day)}
+                onMouseLeave={handleDateLeave}
+              >
+                <div
+                  className={`p-3 rounded-lg border transition-all ${
+                    day.hasEvent
+                      ? day.eventData?.is_visible
+                        ? 'bg-green-50 border-green-300 hover:shadow-md'
+                        : 'bg-gray-50 border-gray-300'
+                      : aiSuggestion
+                      ? 'bg-purple-50 border-purple-300 hover:shadow-md'
+                      : 'bg-white border-gray-200 hover:border-orange-300'
+                  } cursor-pointer min-h-[80px]`}
+                  onClick={() => {
+                    if (day.hasEvent) {
+                      handleEdit(day.eventData);
+                    } else if (aiSuggestion) {
+                      handleUseAiSuggestion(day.date);
+                    }
+                  }}
+                >
+                  <div className="text-xs text-gray-500">{day.dayOfWeek}</div>
+                  <div className="text-sm font-semibold text-gray-900 mb-1">{day.displayDate}</div>
+                  
+                  {/* Existing Event */}
+                  {day.hasEvent && (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        {day.eventData.is_visible ? (
+                          <Eye className="w-3 h-3 text-green-600" />
+                        ) : (
+                          <EyeOff className="w-3 h-3 text-gray-400" />
+                        )}
+                        {day.eventData.image_url && (
+                          <Image className="w-3 h-3 text-purple-600" />
+                        )}
+                      </div>
+                      <p className="text-xs font-semibold text-gray-900 line-clamp-2">
+                        {day.eventData.title}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* AI Suggestion Title */}
+                  {!day.hasEvent && aiSuggestion && (
+                    <div className="mt-2">
+                      <div className="flex items-center gap-1 mb-1">
+                        <Sparkles className="w-3 h-3 text-purple-600" />
+                        <span className="text-xs text-purple-600 font-medium">AI</span>
+                      </div>
+                      <p className="text-xs font-semibold text-purple-900 line-clamp-2">
+                        {aiSuggestion.title}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Loading State */}
+                  {isLoading && !day.hasEvent && (
+                    <div className="mt-2 flex items-center gap-1 text-orange-600">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span className="text-xs">Checking...</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Hover Tooltip with Details */}
+                {showTooltip && (
+                  <div className="absolute z-50 bottom-full left-0 mb-2 w-72 p-4 bg-white rounded-lg shadow-2xl border-2 border-orange-400 group-hover:block">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="p-2 bg-orange-100 rounded-lg flex-shrink-0">
+                        <Calendar className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs text-orange-600 font-medium mb-1">
+                          {day.displayDate}
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-2">
+                          {day.hasEvent ? day.eventData.title : aiSuggestion?.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          {day.hasEvent ? day.eventData.description : aiSuggestion?.description}
+                        </p>
+                      </div>
+                    </div>
+                    {!day.hasEvent && aiSuggestion && (
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUseAiSuggestion(day.date);
+                        }}
+                        className="w-full bg-orange-500 hover:bg-orange-600"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add to Calendar
+                      </Button>
                     )}
-                    {day.eventData.image_url && (
-                      <Image className="w-3 h-3 text-purple-600" />
+                    {day.hasEvent && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(day.eventData);
+                          }}
+                          className="flex-1"
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={day.eventData.is_visible ? "default" : "outline"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleVisibilityMutation.mutate({ 
+                              id: day.eventData.id, 
+                              is_visible: !day.eventData.is_visible 
+                            });
+                          }}
+                          className="flex-1"
+                        >
+                          {day.eventData.is_visible ? <Eye className="w-4 h-4 mr-2" /> : <EyeOff className="w-4 h-4 mr-2" />}
+                          {day.eventData.is_visible ? 'Public' : 'Hidden'}
+                        </Button>
+                      </div>
                     )}
                   </div>
-                  <p className="text-xs font-medium text-gray-900 line-clamp-2">
-                    {day.eventData.title}
-                  </p>
-                </div>
-              )}
-              {hoveredDate === day.date && loadingAi && (
-                <div className="mt-2 flex items-center gap-1 text-orange-600">
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  <span className="text-xs">Checking...</span>
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            );
+          })}
         </div>
-        
-        {/* AI Suggestion Popup */}
-        {aiSuggestion && hoveredDate && (
-          <div className="absolute z-10 mt-2 p-4 bg-white rounded-lg shadow-xl border-2 border-orange-300 max-w-sm">
-            <div className="flex items-start gap-2 mb-3">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Calendar className="w-4 h-4 text-orange-600" />
-              </div>
-              <div className="flex-1">
-                <div className="text-xs text-orange-600 font-medium mb-1">
-                  AI Suggestion for {aiSuggestion.displayDate}
-                </div>
-                <h4 className="font-semibold text-gray-900 mb-1">{aiSuggestion.title}</h4>
-                <p className="text-sm text-gray-600">{aiSuggestion.description}</p>
-              </div>
-            </div>
-            <Button
-              size="sm"
-              onClick={handleUseAiSuggestion}
-              className="w-full bg-orange-500 hover:bg-orange-600"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add This Event
-            </Button>
-          </div>
-        )}
       </Card>
 
       {/* List View */}
