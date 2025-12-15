@@ -17,7 +17,7 @@ export default function MinimalHero() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 120000); // 2 minutes = 120000ms
+    }, 2000); // 2 seconds = 2000ms
 
     return () => clearInterval(interval);
   }, []);
