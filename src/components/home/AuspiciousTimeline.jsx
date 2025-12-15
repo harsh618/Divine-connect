@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
-import { Calendar, Sparkles, ArrowRight } from 'lucide-react';
+import { Calendar, Sparkles } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 
 function TimelineCard({ event }) {
@@ -116,7 +114,7 @@ export default function AuspiciousTimeline() {
                 </div>
             ) :
             aiTimeline?.length > 0 ?
-            aiTimeline.slice(0, 5).map((event, idx) =>
+            aiTimeline.map((event, idx) =>
             <TimelineCard key={idx} event={event} />
             ) :
 
@@ -124,16 +122,6 @@ export default function AuspiciousTimeline() {
                 No events available
               </div>
             }
-            {aiTimeline?.length > 5 && (
-              <div className="flex-shrink-0 w-80 flex items-center justify-center">
-                <Link to={createPageUrl('AdminDashboard')}>
-                  <button className="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-2">
-                    View full calendar
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       </div>
