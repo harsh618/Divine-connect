@@ -105,10 +105,14 @@ export default function AdminAuspiciousDays() {
     }
   };
 
+  const [hoveredDate, setHoveredDate] = useState(null);
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [loadingAi, setLoadingAi] = useState(false);
+
   // Generate calendar for current and next month
   const getCalendarDays = () => {
     const today = new Date();
-    const days = [];
+    const calendarDays = [];
     
     for (let i = 0; i < 60; i++) {
       const date = new Date(today);
@@ -116,7 +120,7 @@ export default function AdminAuspiciousDays() {
       const dateStr = date.toISOString().split('T')[0];
       const dayData = days?.find(d => d.date === dateStr);
       
-      days.push({
+      calendarDays.push({
         date: dateStr,
         displayDate: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         dayOfWeek: date.toLocaleDateString('en-US', { weekday: 'short' }),
@@ -125,10 +129,67 @@ export default function AdminAuspiciousDays() {
       });
     }
     
-    return days;
+    return calendarDays;
   };
 
   const calendarDays = getCalendarDays();
+
+  const handleDateHover = async (day) => {
+    if (day.hasEvent || loadingAi) return;
+    
+    setHoveredDate(day.date);
+    setLoadingAi(true);
+    
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `For the date ${day.displayDate} (${day.dayOfWeek}), check if there is any significant Hindu festival, auspicious day, or spiritual event. If yes, provide a title (max 5 words) and description (max 20 words). If no significant event, return null for both. Return as JSON.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            title: { type: ["string", "null"] },
+            description: { type: ["string", "null"] }
+          }
+        }
+      });
+      
+      if (response.title && response.description) {
+        setAiSuggestion({
+          ...response,
+          date: day.date,
+          displayDate: day.displayDate
+        });
+      } else {
+        setAiSuggestion(null);
+      }
+    } catch (error) {
+      console.error('AI suggestion error:', error);
+      setAiSuggestion(null);
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
+  const handleDateLeave = () => {
+    setTimeout(() => {
+      setHoveredDate(null);
+      setAiSuggestion(null);
+    }, 300);
+  };
+
+  const handleUseAiSuggestion = () => {
+    if (aiSuggestion) {
+      setFormData({
+        date: aiSuggestion.date,
+        title: aiSuggestion.title,
+        description: aiSuggestion.description,
+        image_url: '',
+        is_visible: true
+      });
+      setShowDialog(true);
+      setAiSuggestion(null);
+      setHoveredDate(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -145,18 +206,25 @@ export default function AdminAuspiciousDays() {
 
       {/* Calendar View */}
       <Card className="p-6">
-        <div className="grid grid-cols-7 gap-2">
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+          💡 Hover over empty dates to get AI suggestions for auspicious days
+        </div>
+        <div className="grid grid-cols-7 gap-2 relative">
           {calendarDays.map((day, idx) => (
             <div
               key={idx}
-              className={`p-3 rounded-lg border transition-all ${
+              className={`p-3 rounded-lg border transition-all relative ${
                 day.hasEvent
                   ? day.eventData?.is_visible
                     ? 'bg-green-50 border-green-300 hover:shadow-md'
                     : 'bg-gray-50 border-gray-300'
+                  : hoveredDate === day.date
+                  ? 'bg-orange-50 border-orange-300'
                   : 'bg-white border-gray-200 hover:border-orange-300'
               } cursor-pointer`}
               onClick={() => day.hasEvent ? handleEdit(day.eventData) : null}
+              onMouseEnter={() => !day.hasEvent && handleDateHover(day)}
+              onMouseLeave={handleDateLeave}
             >
               <div className="text-xs text-gray-500">{day.dayOfWeek}</div>
               <div className="text-sm font-semibold text-gray-900">{day.displayDate}</div>
@@ -177,9 +245,41 @@ export default function AdminAuspiciousDays() {
                   </p>
                 </div>
               )}
+              {hoveredDate === day.date && loadingAi && (
+                <div className="mt-2 flex items-center gap-1 text-orange-600">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span className="text-xs">Checking...</span>
+                </div>
+              )}
             </div>
           ))}
         </div>
+        
+        {/* AI Suggestion Popup */}
+        {aiSuggestion && hoveredDate && (
+          <div className="absolute z-10 mt-2 p-4 bg-white rounded-lg shadow-xl border-2 border-orange-300 max-w-sm">
+            <div className="flex items-start gap-2 mb-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Calendar className="w-4 h-4 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-orange-600 font-medium mb-1">
+                  AI Suggestion for {aiSuggestion.displayDate}
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-1">{aiSuggestion.title}</h4>
+                <p className="text-sm text-gray-600">{aiSuggestion.description}</p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              onClick={handleUseAiSuggestion}
+              className="w-full bg-orange-500 hover:bg-orange-600"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add This Event
+            </Button>
+          </div>
+        )}
       </Card>
 
       {/* List View */}
