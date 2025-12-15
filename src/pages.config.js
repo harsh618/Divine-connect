@@ -13,6 +13,7 @@ import PoojaDetail from './pages/PoojaDetail';
 import BecomeProvider from './pages/BecomeProvider';
 import KundliGenerator from './pages/KundliGenerator';
 import AstrologyProfile from './pages/AstrologyProfile';
+import Dashboard from './pages/Dashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +33,7 @@ export const PAGES = {
     "BecomeProvider": BecomeProvider,
     "KundliGenerator": KundliGenerator,
     "AstrologyProfile": AstrologyProfile,
+    "Dashboard": Dashboard,
 }
 
 export const pagesConfig = {
