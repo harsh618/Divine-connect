@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
@@ -13,10 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Clock, Video, Package, ArrowRight } from 'lucide-react';
+import { Search, Clock, Video, Package, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import PageHero from '../components/shared/PageHero';
+
+const poojaImages = [
+  'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/5b4ba668f_pexels-vijay-krishnawat-2932162-14855916.jpg',
+  'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/b48d58310_pexels-nilkanthdham-30544428.jpg',
+  'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/ad191a7af_pexels-saikumar-chowdary-pothumarthi-72150037-30623344.jpg'
+];
 
 const categories = [
   { value: 'all', label: 'All Poojas' },
@@ -100,9 +105,17 @@ function PoojaCardSkeleton() {
 }
 
 export default function Poojas() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showVirtualOnly, setShowVirtualOnly] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % poojaImages.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: services, isLoading } = useQuery({
     queryKey: ['pooja-services'],
@@ -117,7 +130,47 @@ export default function Poojas() {
 
   return (
     <div className="min-h-screen bg-white pb-24 md:pb-8">
-      <PageHero page="poojas" />
+      {/* Hero Section with Rotating Images */}
+      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+        {/* Background Images with Transition */}
+        <div className="absolute inset-0 z-0">
+          {poojaImages.map((image, index) => (
+            <img
+              key={image}
+              src={image}
+              alt={`Pooja ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-orange-200 text-sm mb-6">
+            <Sparkles className="w-4 h-4" />
+            Sacred Rituals
+          </div>
+          
+          <h1 className="text-5xl md:text-6xl font-serif font-bold text-white mb-4 leading-tight" style={{ 
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 53, 0.3)' 
+          }}>
+            Book Poojas Online
+          </h1>
+          
+          <p className="text-xl text-white/90 mb-8 font-light">
+            Connect with experienced priests for authentic rituals
+          </p>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
+          <span className="text-xs">Explore</span>
+          <div className="w-1 h-3 bg-white/50 rounded-full" />
+        </div>
+      </section>
 
       <div className="container mx-auto px-6 py-16">
         {/* Search & Filters */}
