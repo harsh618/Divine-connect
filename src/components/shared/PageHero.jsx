@@ -73,7 +73,7 @@ const heroConfigs = {
     title: "Connect with",
     subtitle: "Sacred Guides",
     description: "Find experienced priests for spiritual ceremonies, poojas, and religious consultations. Access authentic Vedic knowledge and guidance.",
-    backgroundImage: "https://images.unsplash.com/photo-1533930100499-a60b4c7883a0?w=1920",
+    backgroundImage: "https://www.pexels.com/photo/photo-of-brown-concrete-building-interior-3098608/",
     gradientFrom: "from-indigo-900/80",
     gradientVia: "via-indigo-800/50",
     primaryAction: { text: "Find a Priest", link: "Priests", gradient: "from-indigo-600 to-blue-600" },
