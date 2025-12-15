@@ -19,7 +19,7 @@ export default function HeroSearch() {
 
   return (
     <form onSubmit={handleSearch} className="w-full max-w-3xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-2xl p-2 flex flex-col md:flex-row gap-2">
+      <div className="bg-white/95 backdrop-blur-lg rounded-full shadow-2xl p-2 flex flex-col md:flex-row gap-2 border border-white/20 hover:shadow-orange-500/20 hover:-translate-y-0.5 transition-all duration-300">
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Input
@@ -44,7 +44,7 @@ export default function HeroSearch() {
         </div>
         <Button 
           type="submit"
-          className="h-14 px-8 bg-orange-500 hover:bg-orange-600 hover:scale-105 text-white font-semibold rounded-xl transition-all focus:ring-4 focus:ring-orange-500/50"
+          className="h-14 px-8 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:scale-105 text-white font-bold rounded-full transition-all duration-300 shadow-lg hover:shadow-orange-500/50 focus:ring-4 focus:ring-orange-500/50"
           aria-label="Search button"
         >
           Search

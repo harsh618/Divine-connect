@@ -27,9 +27,9 @@ function CampaignCard({ campaign }) {
           alt={`${campaign.title} - ${campaign.category}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5">
+        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg animate-bounce" style={{ animationDuration: '2s' }}>
           <TrendingUp className="w-3.5 h-3.5 text-green-600" />
-          <span className="text-xs font-medium">{Math.round(progress)}%</span>
+          <span className="text-xs font-bold">{Math.round(progress)}%</span>
         </div>
       </div>
       <div className="p-6">
@@ -42,11 +42,18 @@ function CampaignCard({ campaign }) {
         </div>
         
         <div className="space-y-3 mb-4">
-          <Progress value={Math.min(progress, 100)} className="h-2" />
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full relative overflow-hidden transition-all duration-1000 ease-out"
+              style={{ width: `${Math.min(progress, 100)}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+            </div>
+          </div>
           <div className="text-sm">
-            <span className="text-gray-900 font-semibold">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
+            <span className="text-gray-900 font-bold">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
             <span className="text-gray-500"> raised of </span>
-            <span className="text-gray-900 font-semibold">₹{campaign.goal_amount?.toLocaleString()}</span>
+            <span className="text-gray-900 font-bold">₹{campaign.goal_amount?.toLocaleString()}</span>
           </div>
         </div>
 
