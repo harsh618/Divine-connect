@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -25,10 +25,7 @@ const heroConfigs = {
     title: "Sacred",
     subtitle: "Temples",
     description: "Discover ancient temples across India. Book darshan, watch live ceremonies, order prasad, and immerse yourself in spiritual heritage.",
-    backgroundImages: [
-      "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/36b5ae11a_pexels-koushalya-karthikeyan-605468635-18362045.jpg",
-      "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/be17e0619_WhatsAppImage2025-12-08at131011_839c7371.jpg"
-    ],
+    backgroundImage: "https://images.unsplash.com/photo-1548013146-72479768bada?w=1920",
     gradientFrom: "from-orange-900/80",
     gradientVia: "via-orange-800/50",
     primaryAction: { text: "Explore All Temples", link: "Temples", gradient: "from-orange-500 to-amber-500" },
@@ -108,33 +105,16 @@ const heroConfigs = {
 
 export default function PageHero({ page = 'home' }) {
   const config = heroConfigs[page] || heroConfigs.home;
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  const backgroundImages = config.backgroundImages || [config.backgroundImage];
-
-  useEffect(() => {
-    if (backgroundImages.length > 1) {
-      const interval = setInterval(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [backgroundImages.length]);
 
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden">
       {/* Background with gradient overlay */}
       <div className="absolute inset-0 z-0">
-        {backgroundImages.map((image, index) => (
-          <img
-            key={image}
-            src={image}
-            alt={`${config.title} ${index + 1}`}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-        ))}
+        <img
+          src={config.backgroundImage}
+          alt={config.title}
+          className="w-full h-full object-cover"
+        />
         <div className={`absolute inset-0 bg-gradient-to-r ${config.gradientFrom} ${config.gradientVia} to-transparent`} />
       </div>
 
