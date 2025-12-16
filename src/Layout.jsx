@@ -27,7 +27,8 @@ import {
   Users, 
   Heart,
   Search,
-  Settings
+  Settings,
+  BookOpen
 } from 'lucide-react';
 
 function LayoutContent({ children, currentPageName }) {
@@ -99,6 +100,14 @@ function LayoutContent({ children, currentPageName }) {
                   </Button>
                 </Link>
               ))}
+              <Link to={createPageUrl('Articles')}>
+                <Button
+                  variant="ghost"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Articles
+                </Button>
+              </Link>
             </div>
 
             {/* Right Side */}
@@ -212,6 +221,12 @@ function LayoutContent({ children, currentPageName }) {
                         </Button>
                       </Link>
                     ))}
+                    <Link to={createPageUrl('Articles')} onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start">
+                        <BookOpen className="w-5 h-5 mr-3" />
+                        Articles
+                      </Button>
+                    </Link>
                   </div>
                 </SheetContent>
               </Sheet>

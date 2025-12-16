@@ -22,6 +22,8 @@ import PriestDashboard from './pages/PriestDashboard';
 import AstrologerDashboard from './pages/AstrologerDashboard';
 import AstrologerProfile from './pages/AstrologerProfile';
 import MatchMaking from './pages/MatchMaking';
+import Articles from './pages/Articles';
+import ArticleDetail from './pages/ArticleDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +52,8 @@ export const PAGES = {
     "AstrologerDashboard": AstrologerDashboard,
     "AstrologerProfile": AstrologerProfile,
     "MatchMaking": MatchMaking,
+    "Articles": Articles,
+    "ArticleDetail": ArticleDetail,
 }
 
 export const pagesConfig = {

@@ -10,6 +10,7 @@ import UpcomingEvents from '../components/home/UpcomingEvents';
 import DonationCampaignsMinimal from '../components/home/DonationCampaignsMinimal';
 import PriestsMinimal from '../components/home/PriestsMinimal';
 import JoinUsSection from '../components/home/JoinUsSection';
+import ArticlesSection from '../components/articles/ArticlesSection';
 
 export default function Home() {
   const { data: temples, isLoading } = useQuery({
@@ -36,6 +37,7 @@ export default function Home() {
         <DonationCampaignsMinimal />
       </div>
       <PriestsMinimal />
+      <ArticlesSection />
       <JoinUsSection />
       
       {/* Footer */}
