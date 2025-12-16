@@ -80,12 +80,14 @@ function CampaignCard({ campaign, onDonate }) {
       </div>
       
       <div className="p-5">
-        <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">
+        <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-1">
           {campaign.title}
         </h3>
-        <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-          {campaign.description}
-        </p>
+        {campaign.description && (
+          <p className="text-gray-500 text-sm mb-4 line-clamp-3">
+            {campaign.description}
+          </p>
+        )}
 
         <div className="mb-4">
           <div className="flex justify-between text-sm mb-2">

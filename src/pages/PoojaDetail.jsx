@@ -33,12 +33,13 @@ import {
   Star
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
 import BackButton from '../components/ui/BackButton';
 
 export default function PoojaDetail() {
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const serviceId = urlParams.get('id');
   const queryClient = useQueryClient();
@@ -249,7 +250,7 @@ export default function PoojaDetail() {
               </div>
 
               <Button 
-                onClick={() => setShowBookingModal(true)}
+                onClick={() => navigate(createPageUrl(`PoojaBooking?id=${service.id}`))}
                 className="w-full bg-orange-500 hover:bg-orange-600 py-6 text-lg"
               >
                 Book This Pooja

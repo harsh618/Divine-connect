@@ -1,33 +1,44 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, ShoppingCart, Plus, Minus, Trash2, Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Package, 
+  Loader2, 
+  Plus, 
+  Minus, 
+  CheckCircle, 
+  MapPin,
+  Calendar as CalendarIcon,
+  ChevronRight,
+  ChevronLeft
+} from 'lucide-react';
+import { format, addDays } from 'date-fns';
 import { toast } from 'sonner';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
-export default function PrasadOrderModal({ isOpen, onClose, templeId, templeName, initialItems = [] }) {
+const PRASAD_STAGES = {
+  SELECT_ITEMS: 1,
+  DELIVERY_DETAILS: 2,
+  PAYMENT: 3,
+  CONFIRMATION: 4
+};
+
+export default function PrasadOrderModal({ open, onClose, templeId, prasadItems }) {
   const queryClient = useQueryClient();
-  const [cartItems, setCartItems] = useState(
-    initialItems.map(item => ({ ...item, quantity: 1 }))
-  );
-  const [deliveryDate, setDeliveryDate] = useState(null);
-  const [deliveryAddress, setDeliveryAddress] = useState({
+  const [currentStage, setCurrentStage] = useState(PRASAD_STAGES.SELECT_ITEMS);
+  const [selectedItems, setSelectedItems] = useState({});
+  const [deliveryDetails, setDeliveryDetails] = useState({
     full_name: '',
     phone: '',
     address_line1: '',
@@ -36,247 +47,353 @@ export default function PrasadOrderModal({ isOpen, onClose, templeId, templeName
     state: '',
     pincode: ''
   });
-
-  const updateQuantity = (itemId, change) => {
-    setCartItems(items => 
-      items.map(item => 
-        item.id === itemId 
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
-  };
-
-  const removeItem = (itemId) => {
-    setCartItems(items => items.filter(item => item.id !== itemId));
-  };
-
-  const totalAmount = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const [deliveryDate, setDeliveryDate] = useState(null);
+  const [specialInstructions, setSpecialInstructions] = useState('');
 
   const orderMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (orderData) => {
       const user = await base44.auth.me();
-      
       return base44.entities.Booking.create({
+        ...orderData,
         user_id: user.id,
         temple_id: templeId,
         booking_type: 'prasad',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        delivery_date: deliveryDate ? format(deliveryDate, 'yyyy-MM-dd') : null,
-        status: 'pending',
-        payment_status: 'pending',
-        total_amount: totalAmount,
-        prasad_order_details: cartItems.map(item => ({
-          prasad_item_id: item.id,
-          prasad_item_name: item.name,
-          quantity: item.quantity,
-          unit_price: item.price
-        })),
-        delivery_address: deliveryAddress
+        status: 'confirmed',
+        payment_status: 'completed'
       });
     },
     onSuccess: () => {
-      toast.success('Prasad order placed successfully! You will receive confirmation soon.');
+      setCurrentStage(PRASAD_STAGES.CONFIRMATION);
       queryClient.invalidateQueries(['bookings']);
-      onClose();
     },
     onError: () => {
-      toast.error('Failed to place order. Please try again.');
+      toast.error('Order failed. Please try again.');
     }
   });
 
-  const handleSubmit = () => {
-    if (cartItems.length === 0) {
-      toast.error('Please add items to your cart');
-      return;
+  const updateQuantity = (itemId, change) => {
+    setSelectedItems(prev => {
+      const current = prev[itemId] || 0;
+      const newQty = Math.max(0, current + change);
+      if (newQty === 0) {
+        const { [itemId]: removed, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [itemId]: newQty };
+    });
+  };
+
+  const calculateTotal = () => {
+    return Object.entries(selectedItems).reduce((total, [itemId, qty]) => {
+      const item = prasadItems.find(p => p.id === itemId);
+      return total + (item?.price || 0) * qty;
+    }, 0);
+  };
+
+  const handleNext = () => {
+    if (currentStage === PRASAD_STAGES.SELECT_ITEMS) {
+      if (Object.keys(selectedItems).length === 0) {
+        toast.error('Please select at least one item');
+        return;
+      }
+      setCurrentStage(PRASAD_STAGES.DELIVERY_DETAILS);
+    } else if (currentStage === PRASAD_STAGES.DELIVERY_DETAILS) {
+      if (!deliveryDetails.full_name || !deliveryDetails.phone || !deliveryDetails.address_line1 || 
+          !deliveryDetails.city || !deliveryDetails.state || !deliveryDetails.pincode || !deliveryDate) {
+        toast.error('Please fill all required fields');
+        return;
+      }
+      setCurrentStage(PRASAD_STAGES.PAYMENT);
+    } else if (currentStage === PRASAD_STAGES.PAYMENT) {
+      handleOrder();
     }
-    if (!deliveryAddress.full_name || !deliveryAddress.phone || !deliveryAddress.address_line1 || 
-        !deliveryAddress.city || !deliveryAddress.state || !deliveryAddress.pincode) {
-      toast.error('Please fill in all required delivery details');
-      return;
+  };
+
+  const handleBack = () => {
+    if (currentStage > PRASAD_STAGES.SELECT_ITEMS) {
+      setCurrentStage(currentStage - 1);
     }
-    if (!deliveryDate) {
-      toast.error('Please select a delivery date');
-      return;
-    }
-    orderMutation.mutate();
+  };
+
+  const handleOrder = () => {
+    const orderDetails = Object.entries(selectedItems).map(([itemId, qty]) => {
+      const item = prasadItems.find(p => p.id === itemId);
+      return {
+        prasad_item_id: itemId,
+        prasad_item_name: item.name,
+        quantity: qty,
+        unit_price: item.price
+      };
+    });
+
+    orderMutation.mutate({
+      prasad_order_details: orderDetails,
+      delivery_address: deliveryDetails,
+      delivery_date: format(deliveryDate, 'yyyy-MM-dd'),
+      special_requirements: specialInstructions,
+      total_amount: calculateTotal(),
+      date: format(deliveryDate, 'yyyy-MM-dd')
+    });
+  };
+
+  const handleClose = () => {
+    setCurrentStage(PRASAD_STAGES.SELECT_ITEMS);
+    setSelectedItems({});
+    setDeliveryDetails({
+      full_name: '',
+      phone: '',
+      address_line1: '',
+      address_line2: '',
+      city: '',
+      state: '',
+      pincode: ''
+    });
+    setDeliveryDate(null);
+    setSpecialInstructions('');
+    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Order Prasad from {templeName}</DialogTitle>
-          <DialogDescription>
-            Complete your order details for sacred prasad delivery
-          </DialogDescription>
+          <DialogTitle>
+            {currentStage === PRASAD_STAGES.CONFIRMATION ? 'Order Confirmed!' : 'Order Prasad'}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Cart Items */}
-          <div>
-            <Label className="text-base font-semibold mb-3 block">Order Items</Label>
-            {cartItems.length > 0 ? (
-              <div className="space-y-3">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-                    <img
-                      src={item.image_url || 'https://images.unsplash.com/photo-1606491956689-2ea866880049?w=200'}
-                      alt={item.name}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-orange-600">₹{item.price} each</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateQuantity(item.id, -1)}
-                      >
-                        <Minus className="w-3 h-3" />
-                      </Button>
-                      <span className="w-8 text-center font-medium">{item.quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => updateQuantity(item.id, 1)}
-                      >
-                        <Plus className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-red-500"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <p className="font-semibold text-gray-900 w-20 text-right">
-                      ₹{item.price * item.quantity}
-                    </p>
+        {/* Progress */}
+        {currentStage !== PRASAD_STAGES.CONFIRMATION && (
+          <div className="flex items-center gap-2 mb-6">
+            {Array(3).fill(0).map((_, idx) => (
+              <div key={idx} className="flex-1">
+                <div className={`h-2 rounded-full transition-all ${
+                  idx < currentStage ? 'bg-orange-500' : 'bg-gray-200'
+                }`} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="py-4">
+          {currentStage === PRASAD_STAGES.SELECT_ITEMS && (
+            <div className="space-y-4">
+              <p className="text-gray-600 mb-4">Select prasad items and quantities</p>
+              {prasadItems?.map((item) => (
+                <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                  {item.image_url && (
+                    <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{item.name}</h3>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                    <p className="text-orange-600 font-bold mt-1">₹{item.price}</p>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-8">No items in cart</p>
-            )}
-          </div>
-
-          {/* Delivery Address */}
-          <div>
-            <Label className="text-base font-semibold mb-3 block">Delivery Address</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label className="mb-1 block text-sm">Full Name *</Label>
-                <Input
-                  value={deliveryAddress.full_name}
-                  onChange={(e) => setDeliveryAddress({...deliveryAddress, full_name: e.target.value})}
-                  placeholder="Enter full name"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label className="mb-1 block text-sm">Phone Number *</Label>
-                <Input
-                  value={deliveryAddress.phone}
-                  onChange={(e) => setDeliveryAddress({...deliveryAddress, phone: e.target.value})}
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label className="mb-1 block text-sm">Address Line 1 *</Label>
-                <Input
-                  value={deliveryAddress.address_line1}
-                  onChange={(e) => setDeliveryAddress({...deliveryAddress, address_line1: e.target.value})}
-                  placeholder="House/Flat number, Building name"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label className="mb-1 block text-sm">Address Line 2</Label>
-                <Input
-                  value={deliveryAddress.address_line2}
-                  onChange={(e) => setDeliveryAddress({...deliveryAddress, address_line2: e.target.value})}
-                  placeholder="Street, Area, Landmark (Optional)"
-                />
-              </div>
-              <div>
-                <Label className="mb-1 block text-sm">City *</Label>
-                <Input
-                  value={deliveryAddress.city}
-                  onChange={(e) => setDeliveryAddress({...deliveryAddress, city: e.target.value})}
-                  placeholder="City"
-                />
-              </div>
-              <div>
-                <Label className="mb-1 block text-sm">State *</Label>
-                <Input
-                  value={deliveryAddress.state}
-                  onChange={(e) => setDeliveryAddress({...deliveryAddress, state: e.target.value})}
-                  placeholder="State"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label className="mb-1 block text-sm">Pincode *</Label>
-                <Input
-                  value={deliveryAddress.pincode}
-                  onChange={(e) => setDeliveryAddress({...deliveryAddress, pincode: e.target.value})}
-                  placeholder="Enter pincode"
-                />
-              </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => updateQuantity(item.id, -1)}
+                      disabled={!selectedItems[item.id]}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-12 text-center font-semibold">
+                      {selectedItems[item.id] || 0}
+                    </span>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => updateQuantity(item.id, 1)}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
 
-          {/* Delivery Date */}
-          <div>
-            <Label className="mb-2 block text-sm">Preferred Delivery Date *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {deliveryDate ? format(deliveryDate, 'PPP') : 'Select delivery date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+          {currentStage === PRASAD_STAGES.DELIVERY_DETAILS && (
+            <div className="space-y-6">
+              <p className="text-gray-600 mb-4">Enter delivery address and preferred date</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-2 block">Full Name *</Label>
+                  <Input
+                    value={deliveryDetails.full_name}
+                    onChange={(e) => setDeliveryDetails({...deliveryDetails, full_name: e.target.value})}
+                    placeholder="Enter full name"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">Phone Number *</Label>
+                  <Input
+                    value={deliveryDetails.phone}
+                    onChange={(e) => setDeliveryDetails({...deliveryDetails, phone: e.target.value})}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="mb-2 block">Address Line 1 *</Label>
+                <Input
+                  value={deliveryDetails.address_line1}
+                  onChange={(e) => setDeliveryDetails({...deliveryDetails, address_line1: e.target.value})}
+                  placeholder="House/Flat number, Street"
+                />
+              </div>
+
+              <div>
+                <Label className="mb-2 block">Address Line 2 (Optional)</Label>
+                <Input
+                  value={deliveryDetails.address_line2}
+                  onChange={(e) => setDeliveryDetails({...deliveryDetails, address_line2: e.target.value})}
+                  placeholder="Landmark, Area"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label className="mb-2 block">City *</Label>
+                  <Input
+                    value={deliveryDetails.city}
+                    onChange={(e) => setDeliveryDetails({...deliveryDetails, city: e.target.value})}
+                    placeholder="City"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">State *</Label>
+                  <Input
+                    value={deliveryDetails.state}
+                    onChange={(e) => setDeliveryDetails({...deliveryDetails, state: e.target.value})}
+                    placeholder="State"
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">Pincode *</Label>
+                  <Input
+                    value={deliveryDetails.pincode}
+                    onChange={(e) => setDeliveryDetails({...deliveryDetails, pincode: e.target.value})}
+                    placeholder="Pincode"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="mb-2 block">Preferred Delivery Date *</Label>
                 <Calendar
                   mode="single"
                   selected={deliveryDate}
                   onSelect={setDeliveryDate}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => date < addDays(new Date(), 2)}
+                  className="rounded-lg border"
                 />
-              </PopoverContent>
-            </Popover>
-          </div>
+              </div>
 
-          {/* Order Summary */}
-          <div className="border-t pt-4">
-            <div className="flex justify-between items-center text-lg font-semibold">
-              <span>Total Amount:</span>
-              <span className="text-orange-600">₹{totalAmount}</span>
+              <div>
+                <Label className="mb-2 block">Special Instructions (Optional)</Label>
+                <Textarea
+                  value={specialInstructions}
+                  onChange={(e) => setSpecialInstructions(e.target.value)}
+                  placeholder="Any delivery instructions..."
+                  rows={3}
+                />
+              </div>
             </div>
-          </div>
+          )}
+
+          {currentStage === PRASAD_STAGES.PAYMENT && (
+            <div className="space-y-6">
+              <p className="text-gray-600 mb-4">Review your order and proceed to payment</p>
+              
+              <div className="border rounded-lg p-4 space-y-3">
+                <h3 className="font-semibold">Order Summary</h3>
+                {Object.entries(selectedItems).map(([itemId, qty]) => {
+                  const item = prasadItems.find(p => p.id === itemId);
+                  return (
+                    <div key={itemId} className="flex justify-between text-sm">
+                      <span>{item?.name} x {qty}</span>
+                      <span className="font-medium">₹{(item?.price * qty).toLocaleString()}</span>
+                    </div>
+                  );
+                })}
+                <div className="pt-3 border-t flex justify-between font-bold">
+                  <span>Total Amount:</span>
+                  <span className="text-orange-600">₹{calculateTotal().toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <div className="flex items-start gap-2 mb-2">
+                  <MapPin className="w-5 h-5 text-gray-600 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-semibold">{deliveryDetails.full_name}</p>
+                    <p className="text-gray-600">{deliveryDetails.phone}</p>
+                    <p className="text-gray-600 mt-1">
+                      {deliveryDetails.address_line1}, {deliveryDetails.address_line2 && `${deliveryDetails.address_line2}, `}
+                      {deliveryDetails.city}, {deliveryDetails.state} - {deliveryDetails.pincode}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-3 text-sm text-gray-600">
+                  <CalendarIcon className="w-4 h-4" />
+                  <span>Delivery by {deliveryDate && format(deliveryDate, 'PPP')}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentStage === PRASAD_STAGES.CONFIRMATION && (
+            <div className="text-center py-6">
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Order Confirmed!</h3>
+              <p className="text-gray-600 mb-6">
+                Your prasad order has been placed successfully. You will receive tracking details via email and WhatsApp.
+              </p>
+              <div className="bg-orange-50 p-4 rounded-lg mb-6 text-left">
+                <p className="text-sm text-gray-700">
+                  <strong>What's Next:</strong><br/>
+                  • You'll receive order confirmation via email<br/>
+                  • Prasad will be dispatched within 24 hours<br/>
+                  • Expected delivery: {deliveryDate && format(deliveryDate, 'PPP')}<br/>
+                  • Track your order in My Bookings section
+                </p>
+              </div>
+              <Button onClick={handleClose} className="bg-orange-500 hover:bg-orange-600">
+                Close
+              </Button>
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSubmit}
-            disabled={orderMutation.isPending || cartItems.length === 0}
-            className="flex-1 bg-orange-500 hover:bg-orange-600"
-          >
-            {orderMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <ShoppingCart className="w-4 h-4 mr-2" />
+        {currentStage !== PRASAD_STAGES.CONFIRMATION && (
+          <div className="flex gap-3 mt-6">
+            {currentStage > PRASAD_STAGES.SELECT_ITEMS && (
+              <Button variant="outline" onClick={handleBack} className="flex-1">
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
             )}
-            Place Order (₹{totalAmount})
-          </Button>
-        </div>
+            <Button 
+              onClick={handleNext}
+              disabled={orderMutation.isPending}
+              className="flex-1 bg-orange-500 hover:bg-orange-600"
+            >
+              {orderMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Processing...</>
+              ) : currentStage === PRASAD_STAGES.PAYMENT ? (
+                <>Pay ₹{calculateTotal()}</>
+              ) : (
+                <>Continue <ChevronRight className="w-4 h-4 ml-2" /></>
+              )}
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

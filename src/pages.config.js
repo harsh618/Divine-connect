@@ -15,6 +15,7 @@ import KundliGenerator from './pages/KundliGenerator';
 import AstrologyProfile from './pages/AstrologyProfile';
 import Dashboard from './pages/Dashboard';
 import PriestProfile from './pages/PriestProfile';
+import PoojaBooking from './pages/PoojaBooking';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +37,7 @@ export const PAGES = {
     "AstrologyProfile": AstrologyProfile,
     "Dashboard": Dashboard,
     "PriestProfile": PriestProfile,
+    "PoojaBooking": PoojaBooking,
 }
 
 export const pagesConfig = {
