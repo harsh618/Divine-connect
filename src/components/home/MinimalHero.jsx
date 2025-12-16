@@ -74,7 +74,7 @@ export default function MinimalHero() {
               variant="outline"
               className="bg-transparent text-white px-8 py-6 text-lg rounded-full border border-white/30 hover:bg-white/10">
 
-              Pooja consultant
+              Explore Pooja
             </Button>
           </Link>
         </div>
