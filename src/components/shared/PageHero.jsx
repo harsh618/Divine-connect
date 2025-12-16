@@ -61,7 +61,6 @@ const heroConfigs = {
     gradientVia: "via-purple-800/50",
     primaryAction: { text: "Consult Astrologer", link: "Astrology", gradient: "from-purple-600 to-indigo-600" },
     secondaryAction: { text: "Generate Kundli", link: "KundliGenerator" },
-    
     badge: "Your Cosmic Journey"
   },
   priests: {
@@ -131,9 +130,11 @@ export default function PageHero({ page = 'home' }) {
             </span>
           </h1>
 
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            {config.description}
-          </p>
+          {config.description && (
+            <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+              {config.description}
+            </p>
+          )}
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link to={createPageUrl(config.primaryAction.link)}>
@@ -157,17 +158,19 @@ export default function PageHero({ page = 'home' }) {
           </div>
 
           {/* Trust indicators */}
-          <div className="flex items-center gap-8 mt-12 text-white/70">
-            {config.stats.map((stat, idx) => (
-              <React.Fragment key={idx}>
-                {idx > 0 && <div className="w-px h-12 bg-white/20" />}
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-white">{stat.value}</p>
-                  <p className="text-sm">{stat.label}</p>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
+          {config.stats && config.stats.length > 0 && (
+            <div className="flex items-center gap-8 mt-12 text-white/70">
+              {config.stats.map((stat, idx) => (
+                <React.Fragment key={idx}>
+                  {idx > 0 && <div className="w-px h-12 bg-white/20" />}
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-white">{stat.value}</p>
+                    <p className="text-sm">{stat.label}</p>
+                  </div>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
