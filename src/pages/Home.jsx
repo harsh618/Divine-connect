@@ -9,6 +9,7 @@ import AuspiciousTimeline from '../components/home/AuspiciousTimeline';
 import UpcomingEvents from '../components/home/UpcomingEvents';
 import DonationCampaignsMinimal from '../components/home/DonationCampaignsMinimal';
 import PriestsMinimal from '../components/home/PriestsMinimal';
+import JoinUsSection from '../components/home/JoinUsSection';
 
 export default function Home() {
   const { data: temples, isLoading } = useQuery({
@@ -35,6 +36,7 @@ export default function Home() {
         <DonationCampaignsMinimal />
       </div>
       <PriestsMinimal />
+      <JoinUsSection />
       
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16 px-6 mt-24">
