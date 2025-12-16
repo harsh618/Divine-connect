@@ -56,7 +56,7 @@ export default function ArticlesSection() {
     <section className="py-16 bg-white">
       <div className="container mx-auto px-6">
         <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8 text-center">
-          {featuredArticles?.length > 0 ? 'Featured Articles' : 'Latest Articles'}
+          {featuredArticles?.length > 0 ? 'Featured Articles' : 'Latest Journal'}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {articles.map(article => (
