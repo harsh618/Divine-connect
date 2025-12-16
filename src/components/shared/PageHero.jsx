@@ -129,16 +129,9 @@ export default function PageHero({ page = 'home' }) {
             {config.badge}
           </div>
 
-          <h1 className="text-white mb-6 pb-40 text-5xl font-bold leading-tight md:text-7xl">
-            {config.title}
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
-              {config.subtitle}
-            </span>
-          </h1>
+        
 
-          <p className="text-gray-300 mb-8 text-xl leading-relaxed opacity-0">
-            {config.description}
-          </p>
+          
 
           <div className="pt-1 flex flex-col sm:flex-row gap-4">
             <Link to={createPageUrl(config.primaryAction.link)}>
