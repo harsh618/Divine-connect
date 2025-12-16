@@ -24,6 +24,7 @@ import AstrologerProfile from './pages/AstrologerProfile';
 import MatchMaking from './pages/MatchMaking';
 import Articles from './pages/Articles';
 import ArticleDetail from './pages/ArticleDetail';
+import CampaignDetail from './pages/CampaignDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +55,7 @@ export const PAGES = {
     "MatchMaking": MatchMaking,
     "Articles": Articles,
     "ArticleDetail": ArticleDetail,
+    "CampaignDetail": CampaignDetail,
 }
 
 export const pagesConfig = {
