@@ -101,7 +101,7 @@ If the user does not provide latitude/longitude, approximate them based on the C
 Begin the response with "🕉️ **Vedic Horoscope for ${name}**"`;
 
     // Call Google Gemini API
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro-latest:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
