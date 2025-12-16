@@ -21,6 +21,7 @@ import {
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BackButton from '../components/ui/BackButton';
+import FAQSection from '../components/faq/FAQSection';
 
 export default function AstrologerProfile() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -126,6 +127,7 @@ export default function AstrologerProfile() {
                 <TabsTrigger value="about">About</TabsTrigger>
                 <TabsTrigger value="services">Services</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                <TabsTrigger value="faq">FAQs</TabsTrigger>
               </TabsList>
 
               <TabsContent value="about" className="space-y-6 mt-6">
@@ -267,6 +269,10 @@ export default function AstrologerProfile() {
                     No reviews yet
                   </Card>
                 )}
+              </TabsContent>
+
+              <TabsContent value="faq" className="mt-6">
+                <FAQSection entityType="astrologer" entityId={astrologerId} entityData={provider} />
               </TabsContent>
             </Tabs>
           </div>

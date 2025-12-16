@@ -48,6 +48,7 @@ import ArticlesList from '../components/temple/ArticlesList';
 import PriestArticleForm from '../components/temple/PriestArticleForm';
 import BackButton from '../components/ui/BackButton';
 import PrasadOrderModal from '../components/prasad/PrasadOrderModal';
+import FAQSection from '../components/faq/FAQSection';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -520,6 +521,9 @@ export default function TempleDetail() {
               loading={loadingArticles}
               maxArticles={maxArticles || 5}
             />
+
+            {/* FAQs */}
+            <FAQSection entityType="temple" entityId={templeId} entityData={temple} />
 
             {/* Events & Festivals */}
             {(events?.length > 0 || temple.festivals?.length > 0) && (

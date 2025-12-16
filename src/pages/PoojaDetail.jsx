@@ -17,6 +17,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BackButton from '../components/ui/BackButton';
+import FAQSection from '../components/faq/FAQSection';
 
 export default function PoojaDetail() {
   const navigate = useNavigate();
@@ -185,6 +186,9 @@ export default function PoojaDetail() {
                 </div>
               </div>
             </Card>
+
+            {/* FAQs */}
+            <FAQSection entityType="pooja" entityId={poojaId} entityData={pooja} />
           </div>
 
           {/* Sidebar */}
