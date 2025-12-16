@@ -225,35 +225,37 @@ function LayoutContent({ children, currentPageName }) {
         {children}
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="flex items-center justify-around py-2">
-          <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
-            <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">Home</span>
-          </Link>
-          <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
-            <Stars className="w-5 h-5" />
-            <span className="text-xs mt-1">Journey</span>
-          </Link>
-          <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
-            <Flame className="w-5 h-5" />
-            <span className="text-xs mt-1">Bookings</span>
-          </Link>
-          <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
-            <Heart className="w-5 h-5" />
-            <span className="text-xs mt-1">Donate</span>
-          </Link>
-          <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
-            <User className="w-5 h-5" />
-            <span className="text-xs mt-1">Profile</span>
-          </Link>
-        </div>
-      </nav>
-      </div>
-      );
-      }
+      {/* Mobile Bottom Navigation - Only show when logged in */}
+      {user && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+          <div className="flex items-center justify-around py-2">
+            <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+              <Home className="w-5 h-5" />
+              <span className="text-xs mt-1">Home</span>
+            </Link>
+            <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+              <Stars className="w-5 h-5" />
+              <span className="text-xs mt-1">Journey</span>
+            </Link>
+            <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+              <Flame className="w-5 h-5" />
+              <span className="text-xs mt-1">Bookings</span>
+            </Link>
+            <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+              <Heart className="w-5 h-5" />
+              <span className="text-xs mt-1">Donate</span>
+            </Link>
+            <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+              <User className="w-5 h-5" />
+              <span className="text-xs mt-1">Profile</span>
+            </Link>
+          </div>
+        </nav>
+      )}
+    </div>
+  );
+}
 
-      export default function Layout({ children, currentPageName }) {
-      return <LayoutContent children={children} currentPageName={currentPageName} />;
-      }
+export default function Layout({ children, currentPageName }) {
+  return <LayoutContent children={children} currentPageName={currentPageName} />;
+}
