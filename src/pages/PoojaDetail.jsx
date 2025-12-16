@@ -250,7 +250,15 @@ export default function PoojaDetail() {
               </div>
 
               <Button 
-                onClick={() => navigate(createPageUrl(`PoojaBooking?id=${service.id}`))}
+                onClick={() => {
+                  base44.auth.isAuthenticated().then(isAuth => {
+                    if (isAuth) {
+                      navigate(createPageUrl(`PoojaBooking?id=${service.id}`));
+                    } else {
+                      base44.auth.redirectToLogin();
+                    }
+                  });
+                }}
                 className="w-full bg-orange-500 hover:bg-orange-600 py-6 text-lg"
               >
                 Book This Pooja

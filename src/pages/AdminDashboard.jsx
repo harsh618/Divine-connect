@@ -24,6 +24,7 @@ import { createPageUrl } from '@/utils';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminTemples from '@/components/admin/AdminTemples';
+import AdminPoojas from '@/components/admin/AdminPoojas';
 import AdminServices from '@/components/admin/AdminServices';
 import AdminProviders from '@/components/admin/AdminProviders';
 import AdminBookings from '@/components/admin/AdminBookings';
@@ -36,6 +37,7 @@ const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'temples', label: 'Temples', icon: Building2 },
+  { id: 'poojas', label: 'Poojas', icon: Settings },
   { id: 'services', label: 'Services', icon: Settings },
   { id: 'providers', label: 'Providers', icon: UserCheck },
   { id: 'bookings', label: 'Bookings', icon: Calendar },
@@ -119,6 +121,11 @@ export default function AdminDashboard() {
           {/* Temples */}
           <TabsContent value="temples" className="mt-0">
             <AdminTemples />
+          </TabsContent>
+
+          {/* Poojas */}
+          <TabsContent value="poojas" className="mt-0">
+            <AdminPoojas />
           </TabsContent>
 
           {/* Services */}
