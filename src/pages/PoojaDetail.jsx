@@ -1,116 +1,36 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Clock, 
-  Package, 
-  Video, 
-  Calendar as CalendarIcon,
+  Clock,
+  Package,
+  Video,
   CheckCircle,
   Loader2,
   Flame,
   Users,
   Star
 } from 'lucide-react';
-import { format } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { toast } from 'sonner';
 import BackButton from '../components/ui/BackButton';
 
 export default function PoojaDetail() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
-  const serviceId = urlParams.get('id');
-  const queryClient = useQueryClient();
+  const poojaId = urlParams.get('id');
 
-  const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedMuhurat, setSelectedMuhurat] = useState('');
-  const [familyNames, setFamilyNames] = useState(['']);
-  const [gotra, setGotra] = useState('');
-  const [additionalRequests, setAdditionalRequests] = useState('');
-
-  const { data: service, isLoading } = useQuery({
-    queryKey: ['service', serviceId],
+  const { data: pooja, isLoading } = useQuery({
+    queryKey: ['pooja', poojaId],
     queryFn: async () => {
-      const services = await base44.entities.Service.filter({ id: serviceId });
-      return services[0];
+      const poojas = await base44.entities.Pooja.filter({ id: poojaId, is_deleted: false });
+      return poojas[0];
     },
-    enabled: !!serviceId
+    enabled: !!poojaId
   });
-
-  const bookingMutation = useMutation({
-    mutationFn: async (bookingData) => {
-      const user = await base44.auth.me();
-      return base44.entities.Booking.create({
-        ...bookingData,
-        user_id: user.id,
-        service_id: serviceId,
-        booking_type: 'pooja',
-        status: 'pending',
-        payment_status: 'completed',
-        total_amount: service.price
-      });
-    },
-    onSuccess: () => {
-      toast.success('Pooja booked successfully! A pandit will be assigned shortly.');
-      setShowBookingModal(false);
-      queryClient.invalidateQueries(['bookings']);
-    }
-  });
-
-  const handleBooking = () => {
-    if (!selectedDate) {
-      toast.error('Please select a date');
-      return;
-    }
-    const cleanedFamilyNames = familyNames.filter(name => name.trim());
-    if (cleanedFamilyNames.length === 0) {
-      toast.error('Please add at least one family member name');
-      return;
-    }
-    
-    bookingMutation.mutate({
-      date: format(selectedDate, 'yyyy-MM-dd'),
-      time_slot: selectedMuhurat || 'Let Pandit Decide',
-      sankalp_details: {
-        family_names: cleanedFamilyNames,
-        gotra: gotra,
-      },
-      special_requirements: additionalRequests
-    });
-  };
-
-  const addFamilyName = () => {
-    setFamilyNames([...familyNames, '']);
-  };
-
-  const updateFamilyName = (index, value) => {
-    const updated = [...familyNames];
-    updated[index] = value;
-    setFamilyNames(updated);
-  };
 
   if (isLoading) {
     return (
@@ -120,10 +40,10 @@ export default function PoojaDetail() {
     );
   }
 
-  if (!service) {
+  if (!pooja) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Service not found</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Pooja not found</h2>
         <Link to={createPageUrl('Poojas')}>
           <Button>Back to Poojas</Button>
         </Link>
@@ -143,12 +63,17 @@ export default function PoojaDetail() {
             </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-serif font-bold text-white">
-                {service.title}
+                {pooja.name}
               </h1>
-              {service.is_virtual && (
-                <Badge className="mt-2 bg-blue-500 text-white border-0">
+              {pooja.is_popular && (
+                <Badge className="mt-2 bg-yellow-500 text-white border-0">
+                  Popular
+                </Badge>
+              )}
+              {pooja.base_price_virtual > 0 && (
+                <Badge className="mt-2 ml-2 bg-blue-500 text-white border-0">
                   <Video className="w-3 h-3 mr-1" />
-                  Virtual Pooja
+                  Virtual Available
                 </Badge>
               )}
             </div>
@@ -163,55 +88,82 @@ export default function PoojaDetail() {
             {/* Description */}
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">About This Pooja</h2>
-              <p className="text-gray-600 leading-relaxed">
-                {service.description}
-              </p>
+              {pooja.description && (
+                <p className="text-gray-600 leading-relaxed mb-4">
+                  {pooja.description}
+                </p>
+              )}
+              {pooja.purpose && (
+                <div className="mt-4">
+                  <h3 className="font-semibold text-gray-800 mb-2">Purpose</h3>
+                  <p className="text-gray-600 leading-relaxed">{pooja.purpose}</p>
+                </div>
+              )}
+              {pooja.benefits?.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="font-semibold text-gray-800 mb-2">Benefits</h3>
+                  <ul className="list-disc list-inside text-gray-600 space-y-1">
+                    {pooja.benefits.map((benefit, idx) => (
+                      <li key={idx}>{benefit}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {pooja.best_time && (
+                <div className="mt-4">
+                  <h3 className="font-semibold text-gray-800 mb-2">Best Time to Perform</h3>
+                  <p className="text-gray-600">{pooja.best_time}</p>
+                </div>
+              )}
             </Card>
 
-            {/* What's Included */}
-            {service.materials_included?.length > 0 && (
+            {/* Pooja Items */}
+            {(pooja.required_items?.length > 0 || pooja.optional_items?.length > 0) && (
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4 flex items-center">
                   <Package className="w-5 h-5 mr-2 text-orange-500" />
-                  What's Included
+                  Pooja Items
                 </h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {service.materials_included.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="text-gray-700">{item}</span>
-                    </div>
-                  ))}
-                </div>
+                {pooja.required_items?.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="font-medium text-gray-800 mb-2">Required Items</h3>
+                    <ul className="list-disc list-inside text-gray-600 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                      {pooja.required_items.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {pooja.optional_items?.length > 0 && (
+                  <div>
+                    <h3 className="font-medium text-gray-800 mb-2">Optional Items</h3>
+                    <ul className="list-disc list-inside text-gray-600 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                      {pooja.optional_items.map((item, idx) => (
+                        <li key={idx}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {pooja.items_arrangement_cost > 0 && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      💡 Priest can arrange all items for an additional ₹{pooja.items_arrangement_cost}
+                    </p>
+                  </div>
+                )}
               </Card>
             )}
 
-            {/* Benefits */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Benefits</h2>
-              <ul className="space-y-3 text-gray-600">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                  <span>Performed by experienced Vedic pandits with proper rituals</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                  <span>Live streaming of the entire ceremony</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                  <span>Completion certificate with photos</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                  <span>Prasad delivered to your doorstep</span>
-                </li>
-              </ul>
-            </Card>
-
             {/* Reviews */}
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Reviews</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Reviews</h2>
+                {pooja.total_bookings > 0 && (
+                  <Badge variant="secondary">
+                    {pooja.total_bookings} bookings completed
+                  </Badge>
+                )}
+              </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
                   <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
@@ -240,11 +192,20 @@ export default function PoojaDetail() {
             {/* Pricing Card */}
             <Card className="p-6 sticky top-24">
               <div className="text-center mb-6">
-                <p className="text-3xl font-bold text-gray-900">₹{service.price}</p>
-                {service.duration_minutes && (
-                  <p className="text-sm text-gray-500 mt-1 flex items-center justify-center">
+                {pooja.base_price_virtual || pooja.base_price_in_person || pooja.base_price_temple ? (
+                  <>
+                    <p className="text-sm text-gray-500 mb-1">Starting from</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      ₹{pooja.base_price_virtual || pooja.base_price_in_person || pooja.base_price_temple}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-3xl font-bold text-gray-900">Price on Request</p>
+                )}
+                {pooja.duration_minutes && (
+                  <p className="text-sm text-gray-500 mt-2 flex items-center justify-center">
                     <Clock className="w-4 h-4 mr-1" />
-                    {service.duration_minutes} minutes
+                    Approx. {pooja.duration_minutes} minutes
                   </p>
                 )}
               </div>
@@ -253,7 +214,7 @@ export default function PoojaDetail() {
                 onClick={() => {
                   base44.auth.isAuthenticated().then(isAuth => {
                     if (isAuth) {
-                      navigate(createPageUrl(`PoojaBooking?id=${service.id}`));
+                      navigate(createPageUrl(`PoojaBooking?id=${pooja.id}`));
                     } else {
                       base44.auth.redirectToLogin();
                     }
@@ -264,124 +225,49 @@ export default function PoojaDetail() {
                 Book This Pooja
               </Button>
 
+              <div className="mt-4 space-y-2 text-sm">
+                {pooja.base_price_virtual > 0 && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>Virtual</span>
+                    <span className="font-medium">₹{pooja.base_price_virtual}</span>
+                  </div>
+                )}
+                {pooja.base_price_in_person > 0 && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>In-Person</span>
+                    <span className="font-medium">₹{pooja.base_price_in_person}</span>
+                  </div>
+                )}
+                {pooja.base_price_temple > 0 && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>At Temple</span>
+                    <span className="font-medium">₹{pooja.base_price_temple}</span>
+                  </div>
+                )}
+              </div>
+
               <div className="mt-6 pt-6 border-t space-y-3 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Verified Pandits</span>
+                  <span>Verified & Experienced Priests</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Live Streaming</span>
+                  <span>Choose Your Preferred Mode</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Prasad Delivery</span>
+                  <span>Personalized Rituals</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Completion Certificate</span>
                 </div>
               </div>
             </Card>
           </div>
         </div>
       </div>
-
-      {/* Booking Modal */}
-      <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Personalize Your Pooja</DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-6 py-4">
-            <div>
-              <Label className="mb-2 block">Select Date</Label>
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={(date) => date < new Date()}
-                className="rounded-lg border"
-              />
-            </div>
-
-            <div>
-              <Label className="mb-2 block">Preferred Muhurat</Label>
-              <Select value={selectedMuhurat} onValueChange={setSelectedMuhurat}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Let Pandit Decide" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="morning">Morning (6 AM - 10 AM)</SelectItem>
-                  <SelectItem value="afternoon">Afternoon (12 PM - 3 PM)</SelectItem>
-                  <SelectItem value="evening">Evening (5 PM - 7 PM)</SelectItem>
-                  <SelectItem value="pandit">Let Pandit Decide</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="mb-2 block">Family Names for Sankalp</Label>
-              {familyNames.map((name, index) => (
-                <div key={index} className="mb-2">
-                  <Input
-                    placeholder={`Family member ${index + 1}`}
-                    value={name}
-                    onChange={(e) => updateFamilyName(index, e.target.value)}
-                  />
-                </div>
-              ))}
-              <Button variant="outline" size="sm" onClick={addFamilyName} className="mt-2">
-                + Add Another Name
-              </Button>
-            </div>
-
-            <div>
-              <Label className="mb-2 block">Your Gotra (Optional)</Label>
-              <Input
-                placeholder="Enter your gotra"
-                value={gotra}
-                onChange={(e) => setGotra(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label className="mb-2 block">Additional Requests (Optional)</Label>
-              <Textarea
-                placeholder="Any special requirements or requests..."
-                value={additionalRequests}
-                onChange={(e) => setAdditionalRequests(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <div className="bg-orange-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-700">
-                <strong>Total Amount:</strong> ₹{service.price}
-              </p>
-              <p className="text-xs text-gray-500 mt-2">
-                After booking, a verified pandit will be assigned to perform your pooja. 
-                You'll receive the meeting link 1 hour before the scheduled time.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowBookingModal(false)} className="flex-1">
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleBooking}
-              disabled={bookingMutation.isPending}
-              className="flex-1 bg-orange-500 hover:bg-orange-600"
-            >
-              {bookingMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <CheckCircle className="w-4 h-4 mr-2" />
-              )}
-              Confirm & Pay ₹{service.price}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
