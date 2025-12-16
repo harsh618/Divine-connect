@@ -46,17 +46,23 @@ function LayoutContent({ children, currentPageName }) {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const userData = await base44.auth.me();
-        setUser(userData);
-        
-        // Check if user has a provider profile
-        const profiles = await base44.entities.ProviderProfile.filter({ 
-          user_id: userData.id, 
-          is_deleted: false,
-          profile_status: 'approved'
-        });
-        if (profiles && profiles.length > 0) {
-          setUserRole(profiles[0].provider_type);
+        const authenticated = await base44.auth.isAuthenticated();
+        if (authenticated) {
+          const userData = await base44.auth.me();
+          setUser(userData);
+          
+          // Check if user has a provider profile
+          const profiles = await base44.entities.ProviderProfile.filter({ 
+            user_id: userData.id, 
+            is_deleted: false,
+            profile_status: 'approved'
+          });
+          if (profiles && profiles.length > 0) {
+            setUserRole(profiles[0].provider_type);
+          }
+        } else {
+          setUser(null);
+          setUserRole(null);
         }
       } catch (e) {
         setUser(null);
