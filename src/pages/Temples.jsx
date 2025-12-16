@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Input } from "@/components/ui/input";
@@ -11,19 +11,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Video, X } from 'lucide-react';
+import { Search, Filter, Video, X, Sparkles } from 'lucide-react';
 import TempleCard from '../components/temple/TempleCard';
 import TempleCardSkeleton from '../components/temple/TempleCardSkeleton';
-import PageHero from '../components/shared/PageHero';
+
+const templeImages = [
+  'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/b2c47aca5_pexels-koushalya-karthikeyan-605468635-18362045.jpg',
+  'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/44b522447_WhatsAppImage2025-12-08at131011_839c7371.jpg'
+];
 
 const deities = ['All', 'Shiva', 'Vishnu', 'Ganesha', 'Hanuman', 'Durga', 'Krishna', 'Ram', 'Lakshmi'];
 const states = ['All', 'Tamil Nadu', 'Uttar Pradesh', 'Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat', 'Kerala'];
 
 export default function Temples() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDeity, setSelectedDeity] = useState('All');
   const [selectedState, setSelectedState] = useState('All');
   const [showLiveOnly, setShowLiveOnly] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % templeImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: temples, isLoading } = useQuery({
     queryKey: ['temples'],
@@ -50,7 +62,47 @@ export default function Temples() {
 
   return (
     <div className="min-h-screen bg-white pb-24 md:pb-8">
-      <PageHero page="temples" />
+      {/* Hero Section with Rotating Images */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Images with Transition */}
+        <div className="absolute inset-0 z-0">
+          {templeImages.map((image, index) => (
+            <img
+              key={image}
+              src={image}
+              alt={`Temple ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 max-w-4xl">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-orange-200 text-sm mb-8">
+            <Sparkles className="w-4 h-4" />
+            Sacred Destinations
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight" style={{ 
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 53, 0.3)' 
+          }}>
+            Discover Divine Temples
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
+            Explore sacred temples across India and book your spiritual journey
+          </p>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
+          <span className="text-xs">Explore</span>
+          <div className="w-1 h-3 bg-white/50 rounded-full" />
+        </div>
+      </section>
 
       <div className="container mx-auto px-6 py-16">
         {/* Search & Filters */}
