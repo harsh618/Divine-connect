@@ -9,10 +9,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen } from 'lucide-react';
 
 export default function ArticlesSection() {
-  const { data: articles, isLoading } = useQuery({
-    queryKey: ['general-articles'],
-    queryFn: () => base44.entities.Article.filter({ is_published: true, is_deleted: false, temple_id: null }, '-created_date', 3),
+  const { data: featuredArticles, isLoading: loadingFeatured } = useQuery({
+    queryKey: ['featured-articles'],
+    queryFn: () => base44.entities.Article.filter({ is_published: true, is_deleted: false, is_featured: true }, '-created_date', 3),
   });
+
+  const { data: recentArticles, isLoading: loadingRecent } = useQuery({
+    queryKey: ['recent-articles'],
+    queryFn: () => base44.entities.Article.filter({ is_published: true, is_deleted: false }, '-created_date', 3),
+    enabled: !loadingFeatured && (!featuredArticles || featuredArticles.length === 0)
+  });
+
+  const articles = featuredArticles?.length > 0 ? featuredArticles : recentArticles;
+  const isLoading = loadingFeatured || loadingRecent;
 
   if (isLoading) {
     return (
