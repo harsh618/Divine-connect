@@ -27,7 +27,9 @@ export default function ArticlesSection() {
     return (
       <section className="py-16 bg-white">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8 text-center">Latest Articles</h2>
+          <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8 text-center">
+            {featuredArticles?.length > 0 ? 'Featured Articles' : 'Latest Articles'}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {Array(3).fill(0).map((_, i) => (
               <Card key={i} className="overflow-hidden shadow-sm rounded-lg">
@@ -53,7 +55,9 @@ export default function ArticlesSection() {
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-6">
-        <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8 text-center">Latest Articles</h2>
+        <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8 text-center">
+          {featuredArticles?.length > 0 ? 'Featured Articles' : 'Latest Articles'}
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {articles.map(article => (
             <ArticleCard key={article.id} article={article} />
