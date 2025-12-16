@@ -56,17 +56,12 @@ const heroConfigs = {
   astrology: {
     title: "Celestial",
     subtitle: "Guidance",
-    description: "Connect with expert Vedic astrologers for personalized readings, kundli analysis, and life guidance through chat, voice, or video.",
     backgroundImage: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?w=1920",
     gradientFrom: "from-purple-900/80",
     gradientVia: "via-purple-800/50",
     primaryAction: { text: "Consult Astrologer", link: "Astrology", gradient: "from-purple-600 to-indigo-600" },
     secondaryAction: { text: "Generate Kundli", link: "KundliGenerator" },
-    stats: [
-      { value: "200+", label: "Astrologers" },
-      { value: "24/7", label: "Available" },
-      { value: "10k+", label: "Consultations" }
-    ],
+    
     badge: "Your Cosmic Journey"
   },
   priests: {
