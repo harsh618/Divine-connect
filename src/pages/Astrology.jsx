@@ -177,8 +177,10 @@ export default function Astrology() {
 
   const filteredProviders = providers?.filter(provider => {
     const matchesSearch = provider.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSpecialization = selectedSpecialization === 'all' || 
+                                  provider.specializations?.some(spec => spec.toLowerCase().includes(selectedSpecialization));
     const matchesAvailable = !showAvailableOnly || provider.is_available_now;
-    return matchesSearch && matchesAvailable;
+    return matchesSearch && matchesSpecialization && matchesAvailable;
   });
 
   const specializations = [
@@ -239,8 +241,9 @@ export default function Astrology() {
                 <SelectValue placeholder="Specialization" />
               </SelectTrigger>
               <SelectContent>
-                {specializations.map(spec => (
-                  <SelectItem key={spec} value={spec.toLowerCase().replace(' ', '_')}>{spec}</SelectItem>
+                <SelectItem value="all">All Specializations</SelectItem>
+                {specializations.slice(1).map(spec => (
+                  <SelectItem key={spec} value={spec.toLowerCase()}>{spec}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
