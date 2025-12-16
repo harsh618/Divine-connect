@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -188,7 +189,7 @@ export default function AdminServices() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={8} className="text-center">Loading...</TableCell>
               </TableRow>
             ) : filteredServices?.length > 0 ? (
               filteredServices.map((service) => (
@@ -233,7 +234,7 @@ export default function AdminServices() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">No services found</TableCell>
+                <TableCell colSpan={8} className="text-center">No services found</TableCell>
               </TableRow>
             )}
           </TableBody>
