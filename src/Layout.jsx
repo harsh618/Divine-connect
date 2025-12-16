@@ -77,29 +77,15 @@ function LayoutContent({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Desktop Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-700/80 backdrop-blur-md border-b border-white/10">
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-              <span className="text-2xl font-serif font-bold text-orange-500">
+              <span className="text-2xl font-serif font-bold text-white">
                 Divine
               </span>
             </Link>
-
-            {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link key={link.name} to={createPageUrl(link.page)}>
-                  <Button
-                    variant="ghost"
-                    className="text-gray-600 hover:text-gray-900"
-                  >
-                    {link.name}
-                  </Button>
-                </Link>
-              ))}
-            </div>
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
@@ -109,7 +95,7 @@ function LayoutContent({ children, currentPageName }) {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="rounded-full"
+                      className="rounded-full text-white hover:text-white hover:bg-white/10"
                     >
                       <User className="w-5 h-5" />
                     </Button>
@@ -178,12 +164,22 @@ function LayoutContent({ children, currentPageName }) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button
-                  onClick={() => base44.auth.redirectToLogin()}
-                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-6"
-                >
-                  Sign In
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    className="hidden md:inline-flex border-white/20 text-white hover:bg-white/10 hover:text-white"
+                  >
+                    Get Connected
+                  </Button>
+                  <Button
+                    onClick={() => base44.auth.redirectToLogin()}
+                    variant="outline"
+                    className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Login
+                  </Button>
+                </>
               )}
 
               {/* Mobile Menu */}
@@ -192,6 +188,7 @@ function LayoutContent({ children, currentPageName }) {
                   <Button 
                     variant="ghost" 
                     size="icon"
+                    className="text-white hover:bg-white/10"
                   >
                     <Menu className="w-6 h-6" />
                   </Button>
@@ -216,9 +213,20 @@ function LayoutContent({ children, currentPageName }) {
                 </SheetContent>
               </Sheet>
             </div>
-          </div>
-        </div>
-      </nav>
+            </div>
+
+            {/* Secondary Navigation Bar - Desktop Only */}
+            <div className="hidden md:flex items-center justify-center gap-6 py-3 border-t border-white/10">
+            {navLinks.map((link) => (
+              <Link key={link.name} to={createPageUrl(link.page)}>
+                <span className="text-white/90 hover:text-white text-sm transition-colors cursor-pointer">
+                  {link.name}
+                </span>
+              </Link>
+            ))}
+            </div>
+            </div>
+            </nav>
 
       {/* Page Content */}
       <main className="pt-16">
