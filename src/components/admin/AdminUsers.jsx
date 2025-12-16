@@ -53,9 +53,25 @@ export default function AdminUsers() {
     user.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ userId, newRole }) => base44.asServiceRole.entities.User.update(userId, { role: newRole }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users-list'] });
+      toast.success('User role updated successfully');
+    },
+    onError: (error) => {
+      toast.error('Failed to update user role');
+    }
+  });
+
   const handleView = (user) => {
     setSelectedUser(user);
     setShowViewModal(true);
+  };
+
+  const handleToggleAdmin = (user) => {
+    const newRole = user.role === 'admin' ? 'user' : 'admin';
+    updateRoleMutation.mutate({ userId: user.id, newRole });
   };
 
   return (
@@ -120,6 +136,10 @@ export default function AdminUsers() {
                         <DropdownMenuItem onClick={() => handleView(user)}>
                           <Eye className="w-4 h-4 mr-2" />
                           View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleAdmin(user)}>
+                          <Shield className="w-4 h-4 mr-2" />
+                          {user.role === 'admin' ? 'Remove Admin' : 'Make Admin'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
