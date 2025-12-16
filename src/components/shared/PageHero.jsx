@@ -25,7 +25,7 @@ const heroConfigs = {
     title: "Sacred",
     subtitle: "Temples",
     description: "Discover ancient temples across India. Book darshan, watch live ceremonies, order prasad, and immerse yourself in spiritual heritage.",
-    backgroundImage: "https://images.unsplash.com/photo-1548013146-72479768bada?w=1920",
+    backgroundImage: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/f6bed03a4_WhatsAppImage2025-12-08at131011_839c7371.jpg",
     gradientFrom: "from-orange-900/80",
     gradientVia: "via-orange-800/50",
     primaryAction: { text: "Explore All Temples", link: "Temples", gradient: "from-orange-500 to-amber-500" },
