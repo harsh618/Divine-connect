@@ -32,6 +32,7 @@ import {
 
 function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
@@ -47,8 +48,19 @@ function LayoutContent({ children, currentPageName }) {
       try {
         const userData = await base44.auth.me();
         setUser(userData);
+        
+        // Check if user has a provider profile
+        const profiles = await base44.entities.ProviderProfile.filter({ 
+          user_id: userData.id, 
+          is_deleted: false,
+          profile_status: 'approved'
+        });
+        if (profiles && profiles.length > 0) {
+          setUserRole(profiles[0].provider_type);
+        }
       } catch (e) {
         setUser(null);
+        setUserRole(null);
       }
     };
     loadUser();
@@ -108,18 +120,42 @@ function LayoutContent({ children, currentPageName }) {
                         Profile
                       </DropdownMenuItem>
                     </Link>
-                    <Link to={createPageUrl('AstrologyProfile')}>
-                      <DropdownMenuItem>
-                        <Stars className="w-4 h-4 mr-2" />
-                        Astrology Profile
-                      </DropdownMenuItem>
-                    </Link>
-                    <Link to={createPageUrl('MyBookings')}>
-                      <DropdownMenuItem>
-                        <Flame className="w-4 h-4 mr-2" />
-                        My Bookings
-                      </DropdownMenuItem>
-                    </Link>
+
+                    {userRole === 'priest' && (
+                      <Link to={createPageUrl('PriestDashboard')}>
+                        <DropdownMenuItem>
+                          <Flame className="w-4 h-4 mr-2" />
+                          Priest Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+
+                    {userRole === 'astrologer' && (
+                      <Link to={createPageUrl('AstrologerDashboard')}>
+                        <DropdownMenuItem>
+                          <Stars className="w-4 h-4 mr-2" />
+                          Astrologer Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+
+                    {!userRole && (
+                      <>
+                        <Link to={createPageUrl('AstrologyProfile')}>
+                          <DropdownMenuItem>
+                            <Stars className="w-4 h-4 mr-2" />
+                            Astrology Profile
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link to={createPageUrl('MyBookings')}>
+                          <DropdownMenuItem>
+                            <Flame className="w-4 h-4 mr-2" />
+                            My Bookings
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    )}
+
                     {user.role === 'admin' && (
                       <Link to={createPageUrl('AdminDashboard')}>
                         <DropdownMenuItem>

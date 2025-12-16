@@ -18,6 +18,8 @@ import PriestProfile from './pages/PriestProfile';
 import PoojaBooking from './pages/PoojaBooking';
 import OnboardPriest from './pages/OnboardPriest';
 import OnboardAstrologer from './pages/OnboardAstrologer';
+import PriestDashboard from './pages/PriestDashboard';
+import AstrologerDashboard from './pages/AstrologerDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -42,6 +44,8 @@ export const PAGES = {
     "PoojaBooking": PoojaBooking,
     "OnboardPriest": OnboardPriest,
     "OnboardAstrologer": OnboardAstrologer,
+    "PriestDashboard": PriestDashboard,
+    "AstrologerDashboard": AstrologerDashboard,
 }
 
 export const pagesConfig = {
