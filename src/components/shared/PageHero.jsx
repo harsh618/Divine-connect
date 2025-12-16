@@ -15,10 +15,10 @@ const heroConfigs = {
     primaryAction: { text: "Explore Temples", link: "Temples", gradient: "from-orange-500 to-amber-500" },
     secondaryAction: { text: "Book a Pooja", link: "Poojas" },
     stats: [
-      { value: "10,000+", label: "Devotees" },
-      { value: "500+", label: "Verified Priests" },
-      { value: "100+", label: "Temples" }
-    ],
+    { value: "10,000+", label: "Devotees" },
+    { value: "500+", label: "Verified Priests" },
+    { value: "100+", label: "Temples" }],
+
     badge: "Welcome to Divine"
   },
   temples: {
@@ -31,10 +31,10 @@ const heroConfigs = {
     primaryAction: { text: "Explore All Temples", link: "Temples", gradient: "from-orange-500 to-amber-500" },
     secondaryAction: { text: "Watch Live Darshan", link: "Temples" },
     stats: [
-      { value: "100+", label: "Temples" },
-      { value: "50+", label: "Cities" },
-      { value: "Live", label: "Darshan" }
-    ],
+    { value: "100+", label: "Temples" },
+    { value: "50+", label: "Cities" },
+    { value: "Live", label: "Darshan" }],
+
     badge: "Explore Sacred Places"
   },
   poojas: {
@@ -47,10 +47,10 @@ const heroConfigs = {
     primaryAction: { text: "Browse Poojas", link: "Poojas", gradient: "from-orange-500 to-amber-500" },
     secondaryAction: { text: "Virtual Poojas", link: "Poojas" },
     stats: [
-      { value: "50+", label: "Ritual Types" },
-      { value: "500+", label: "Verified Priests" },
-      { value: "Live", label: "Streaming" }
-    ],
+    { value: "50+", label: "Ritual Types" },
+    { value: "500+", label: "Verified Priests" },
+    { value: "Live", label: "Streaming" }],
+
     badge: "Sacred Ceremonies"
   },
   astrology: {
@@ -63,10 +63,10 @@ const heroConfigs = {
     primaryAction: { text: "Consult Astrologer", link: "Astrology", gradient: "from-purple-600 to-indigo-600" },
     secondaryAction: { text: "Generate Kundli", link: "KundliGenerator" },
     stats: [
-      { value: "200+", label: "Astrologers" },
-      { value: "24/7", label: "Available" },
-      { value: "10k+", label: "Consultations" }
-    ],
+    { value: "200+", label: "Astrologers" },
+    { value: "24/7", label: "Available" },
+    { value: "10k+", label: "Consultations" }],
+
     badge: "Your Cosmic Journey"
   },
   priests: {
@@ -79,10 +79,10 @@ const heroConfigs = {
     primaryAction: { text: "Find a Priest", link: "Priests", gradient: "from-indigo-600 to-blue-600" },
     secondaryAction: { text: "Book Ceremony", link: "Poojas" },
     stats: [
-      { value: "500+", label: "Verified Priests" },
-      { value: "15+", label: "Languages" },
-      { value: "5k+", label: "Services Done" }
-    ],
+    { value: "500+", label: "Verified Priests" },
+    { value: "15+", label: "Languages" },
+    { value: "5k+", label: "Services Done" }],
+
     badge: "Spiritual Guidance"
   },
   donate: {
@@ -95,10 +95,10 @@ const heroConfigs = {
     primaryAction: { text: "View Campaigns", link: "Donate", gradient: "from-rose-500 to-pink-500" },
     secondaryAction: { text: "Donate to Temples", link: "Temples" },
     stats: [
-      { value: "₹10L+", label: "Raised" },
-      { value: "20+", label: "Active Causes" },
-      { value: "1000+", label: "Donors" }
-    ],
+    { value: "₹10L+", label: "Raised" },
+    { value: "20+", label: "Active Causes" },
+    { value: "1000+", label: "Donors" }],
+
     badge: "Make a Difference"
   }
 };
@@ -113,9 +113,9 @@ export default function PageHero({ page = 'home' }) {
         <img
           src={config.backgroundImage}
           alt={config.title}
-          className="w-full h-full object-cover"
-        />
-        <div className={`absolute inset-0 bg-gradient-to-r ${config.gradientFrom} ${config.gradientVia} to-transparent`} />
+          className="w-full h-full object-cover" />
+
+        <div className="bg-gradient-to-r opacity-40 absolute inset-0 from-purple-900/80 via-purple-800/50 to-transparent" />
       </div>
 
       {/* Floating decorative elements */}
@@ -123,24 +123,29 @@ export default function PageHero({ page = 'home' }) {
       <div className="absolute bottom-20 left-20 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-orange-300 text-sm mb-6 mt-8">
+        <div className="mr-6 ml-40 pb-64 max-w-2xl">
+          <div className="bg-white/10 text-orange-300 mt-8 mb-6 px-4 py-2 text-sm opacity-0 rounded-full inline-flex items-center gap-2 backdrop-blur-sm">
             <Sparkles className="w-4 h-4" />
             {config.badge}
           </div>
 
-          
+          <h1 className="text-white mb-6 pb-40 text-5xl font-bold leading-tight md:text-7xl">
+            {config.title}
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+              {config.subtitle}
+            </span>
+          </h1>
 
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+          <p className="text-gray-300 mb-8 text-xl leading-relaxed opacity-0">
             {config.description}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="pt-1 flex flex-col sm:flex-row gap-4">
             <Link to={createPageUrl(config.primaryAction.link)}>
               <Button
                 size="lg"
-                className={`bg-gradient-to-r ${config.primaryAction.gradient} hover:opacity-90 text-white px-8 py-6 text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all hover:scale-105`}
-              >
+                className={`bg-gradient-to-r ${config.primaryAction.gradient} hover:opacity-90 text-white px-8 py-6 text-lg rounded-full shadow-lg shadow-orange-500/30 transition-all hover:scale-105`}>
+
                 {config.primaryAction.text}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -149,27 +154,27 @@ export default function PageHero({ page = 'home' }) {
               <Button
                 size="lg"
                 variant="outline"
-                className="bg-transparent text-white px-8 py-6 text-lg font-medium rounded-full border border-white/30 hover:bg-white/10 backdrop-blur-sm"
-              >
+                className="bg-transparent text-white px-8 py-6 text-lg font-medium rounded-full border border-white/30 hover:bg-white/10 backdrop-blur-sm">
+
                 {config.secondaryAction.text}
               </Button>
             </Link>
           </div>
 
           {/* Trust indicators */}
-          <div className="flex items-center gap-8 mt-12 text-white/70">
-            {config.stats.map((stat, idx) => (
-              <React.Fragment key={idx}>
+          <div className="text-white/70 mt-12 opacity-0 flex items-center gap-8">
+            {config.stats.map((stat, idx) =>
+            <React.Fragment key={idx}>
                 {idx > 0 && <div className="w-px h-12 bg-white/20" />}
                 <div className="text-center">
                   <p className="text-2xl font-bold text-white">{stat.value}</p>
                   <p className="text-sm">{stat.label}</p>
                 </div>
               </React.Fragment>
-            ))}
+            )}
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
