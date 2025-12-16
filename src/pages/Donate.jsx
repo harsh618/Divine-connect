@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,63 +62,68 @@ function CampaignCard({ campaign, onDonate }) {
   const defaultImage = "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800";
 
   return (
-    <Card className="overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500">
-      <div className="relative h-48 overflow-hidden">
-        <img
-          src={campaign.images?.[0] || defaultImage}
-          alt={campaign.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <Badge className={`absolute top-3 left-3 ${categoryColors[campaign.category]} border-0`}>
-          <Icon className="w-3 h-3 mr-1" />
-          {campaign.category?.replace(/_/g, ' ')}
-        </Badge>
-        {campaign.status === 'completed' && (
-          <Badge className="absolute top-3 right-3 bg-green-500 text-white border-0">
-            Completed
+    <Link to={createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)}>
+      <Card className="overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer">
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={campaign.images?.[0] || defaultImage}
+            alt={campaign.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <Badge className={`absolute top-3 left-3 ${categoryColors[campaign.category]} border-0`}>
+            <Icon className="w-3 h-3 mr-1" />
+            {campaign.category?.replace(/_/g, ' ')}
           </Badge>
-        )}
-      </div>
-      
-      <div className="p-5">
-        <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-1">
-          {campaign.title}
-        </h3>
-        {campaign.description && (
-          <p className="text-gray-500 text-sm mb-4 line-clamp-3">
-            {campaign.description}
-          </p>
-        )}
-
-        <div className="mb-4">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-600">Raised: ₹{(campaign.raised_amount || 0).toLocaleString()}</span>
-            <span className="text-gray-900 font-medium">Goal: ₹{campaign.goal_amount?.toLocaleString()}</span>
-          </div>
-          <Progress value={Math.min(progress, 100)} className="h-2" />
+          {campaign.status === 'completed' && (
+            <Badge className="absolute top-3 right-3 bg-green-500 text-white border-0">
+              Completed
+            </Badge>
+          )}
         </div>
+        
+        <div className="p-5">
+          <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-1">
+            {campaign.title}
+          </h3>
+          {campaign.description && (
+            <p className="text-gray-500 text-sm mb-4 line-clamp-3">
+              {campaign.description}
+            </p>
+          )}
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            {daysLeft !== null && daysLeft > 0 && (
-              <span className="flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                {daysLeft} days left
-              </span>
-            )}
+          <div className="mb-4">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-gray-600">Raised: ₹{(campaign.raised_amount || 0).toLocaleString()}</span>
+              <span className="text-gray-900 font-medium">Goal: ₹{campaign.goal_amount?.toLocaleString()}</span>
+            </div>
+            <Progress value={Math.min(progress, 100)} className="h-2" />
           </div>
-          <Button 
-            onClick={() => onDonate(campaign)}
-            disabled={campaign.status !== 'active'}
-            className="bg-orange-500 hover:bg-orange-600"
-          >
-            <Heart className="w-4 h-4 mr-2" />
-            Donate
-          </Button>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              {daysLeft !== null && daysLeft > 0 && (
+                <span className="flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  {daysLeft} days left
+                </span>
+              )}
+            </div>
+            <Button 
+              onClick={(e) => {
+                e.preventDefault();
+                onDonate(campaign);
+              }}
+              disabled={campaign.status !== 'active'}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Donate
+            </Button>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }
 
