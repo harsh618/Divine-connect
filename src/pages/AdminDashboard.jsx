@@ -26,7 +26,6 @@ import AdminUsers from '@/components/admin/AdminUsers';
 import AdminTemples from '@/components/admin/AdminTemples';
 import AdminPoojas from '@/components/admin/AdminPoojas';
 import AdminPoojaBookings from '@/components/admin/AdminPoojaBookings';
-import AdminServices from '@/components/admin/AdminServices';
 import AdminProviders from '@/components/admin/AdminProviders';
 import AdminBookings from '@/components/admin/AdminBookings';
 import AdminDonations from '@/components/admin/AdminDonations';
@@ -40,7 +39,6 @@ const navItems = [
   { id: 'temples', label: 'Temples', icon: Building2 },
   { id: 'poojas', label: 'Poojas', icon: Settings },
   { id: 'pooja_bookings', label: 'Pooja Bookings', icon: Calendar },
-  { id: 'services', label: 'Services', icon: Settings },
   { id: 'providers', label: 'Providers', icon: UserCheck },
   { id: 'bookings', label: 'All Bookings', icon: Calendar },
   { id: 'donations', label: 'Donations', icon: Heart },
@@ -133,11 +131,6 @@ export default function AdminDashboard() {
           {/* Pooja Bookings */}
           <TabsContent value="pooja_bookings" className="mt-0">
             <AdminPoojaBookings />
-          </TabsContent>
-
-          {/* Services */}
-          <TabsContent value="services" className="mt-0">
-            <AdminServices />
           </TabsContent>
 
           {/* Providers */}
