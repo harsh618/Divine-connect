@@ -165,7 +165,7 @@ function LayoutContent({ children, currentPageName }) {
                       </Link>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                    <DropdownMenuItem onClick={() => base44.auth.logout(createPageUrl('Home'))}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
                       </DropdownMenuItem>
