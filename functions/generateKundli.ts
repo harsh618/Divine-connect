@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name, gender, birth_date, birth_time, birth_place, language } = await req.json();
+    const { name, gender, birth_date, birth_time, birth_place, language, areas_of_interest } = await req.json();
 
     const apiKey = Deno.env.get('GOOGLE_API_KEY');
     if (!apiKey) {
@@ -18,8 +18,14 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
+    const areasText = areas_of_interest && areas_of_interest.length > 0 
+      ? `\n\n### PRIORITY AREAS OF INTEREST
+The user has specifically requested detailed predictions for: ${areas_of_interest.join(', ')}
+Please provide EXTRA DETAILED and COMPREHENSIVE analysis for these areas, going deeper into predictions, timelines, and specific guidance.`
+      : '';
+
     const prompt = `### ROLE
-You are an expert Vedic Astrologer and Senior Jyotish Acharya with over 30 years of experience. You specialize in the Parasara Light system, Lal Kitab, KP Astrology, and Jaimini Sutras. Your task is to generate a comprehensive, professional, and highly detailed "Janma Kundali" (Birth Horoscope) report that mirrors the depth and structure of premium reports like AstroSage or AstroTalk.
+You are an expert Vedic Astrologer and Senior Jyotish Acharya with over 30 years of experience. You specialize in the Parasara Light system, Lal Kitab, KP Astrology, and Jaimini Sutras. Your task is to generate a comprehensive, professional, and highly detailed "Janma Kundali" (Birth Horoscope) report that mirrors the depth and structure of premium reports like AstroSage or AstroTalk.${areasText}
 
 ### TONE & STYLE
 * **Professional & Traditional:** Use respectful, authoritative, yet empathetic language.

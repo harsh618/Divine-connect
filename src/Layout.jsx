@@ -153,6 +153,12 @@ function LayoutContent({ children, currentPageName }) {
                             Astrology Profile
                           </DropdownMenuItem>
                         </Link>
+                        <Link to={createPageUrl('MyKundalis')}>
+                          <DropdownMenuItem>
+                            <Stars className="w-4 h-4 mr-2" />
+                            My Kundalis
+                          </DropdownMenuItem>
+                        </Link>
                         <Link to={createPageUrl('MyBookings')}>
                           <DropdownMenuItem>
                             <Flame className="w-4 h-4 mr-2" />

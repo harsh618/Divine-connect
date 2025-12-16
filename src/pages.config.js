@@ -25,6 +25,7 @@ import MatchMaking from './pages/MatchMaking';
 import Articles from './pages/Articles';
 import ArticleDetail from './pages/ArticleDetail';
 import CampaignDetail from './pages/CampaignDetail';
+import MyKundalis from './pages/MyKundalis';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +57,7 @@ export const PAGES = {
     "Articles": Articles,
     "ArticleDetail": ArticleDetail,
     "CampaignDetail": CampaignDetail,
+    "MyKundalis": MyKundalis,
 }
 
 export const pagesConfig = {

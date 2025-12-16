@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Download, Sparkles, Globe } from 'lucide-react';
+import { Loader2, Download, Sparkles, Globe, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import { jsPDF } from 'jspdf';
@@ -24,7 +24,8 @@ export default function KundliGenerator() {
     birth_date: '',
     birth_time: '',
     birth_place: '',
-    language: 'english'
+    language: 'english',
+    areas_of_interest: []
   });
   const [kundali, setKundali] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -192,7 +193,8 @@ export default function KundliGenerator() {
                     birth_date: '',
                     birth_time: '',
                     birth_place: '',
-                    language: 'english'
+                    language: 'english',
+                    areas_of_interest: []
                   });
                 }}
               >
@@ -403,6 +405,43 @@ export default function KundliGenerator() {
                   <SelectItem value="hindi">हिंदी (Hindi)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div>
+              <Label className="text-base">Areas of Interest (Optional)</Label>
+              <p className="text-sm text-gray-500 mt-1 mb-3">Select areas you want detailed predictions for</p>
+              <div className="grid grid-cols-2 gap-3">
+                {['Career', 'Marriage', 'Health', 'Finances', 'Education', 'Relationships'].map((area) => {
+                  const isSelected = formData.areas_of_interest.includes(area);
+                  return (
+                    <button
+                      key={area}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setFormData({
+                            ...formData,
+                            areas_of_interest: formData.areas_of_interest.filter(a => a !== area)
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            areas_of_interest: [...formData.areas_of_interest, area]
+                          });
+                        }
+                      }}
+                      className={`p-3 rounded-lg border-2 transition-all flex items-center justify-between ${
+                        isSelected
+                          ? 'border-orange-500 bg-orange-50 text-orange-700'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <span className="font-medium">{area}</span>
+                      {isSelected && <Check className="w-5 h-5" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <Button
