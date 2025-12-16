@@ -37,9 +37,11 @@ const bookingTypeIcons = {
   consultation: Video
 };
 
-function BookingCard({ booking, temples }) {
+function BookingCard({ booking, temples, poojas, priests }) {
   const Icon = bookingTypeIcons[booking.booking_type] || Calendar;
   const temple = temples?.find(t => t.id === booking.temple_id);
+  const pooja = poojas?.find(p => p.id === booking.pooja_id);
+  const priest = priests?.find(p => p.id === booking.provider_id);
   
   return (
     <Card className="overflow-hidden border-0 shadow-sm">
@@ -51,10 +53,13 @@ function BookingCard({ booking, temples }) {
             </div>
             <div>
               <h3 className="font-semibold text-gray-900 capitalize">
-                {booking.booking_type?.replace('_', ' ')}
+                {booking.booking_type === 'pooja' && pooja ? pooja.name : booking.booking_type?.replace('_', ' ')}
               </h3>
               {temple && (
                 <p className="text-sm text-gray-500">{temple.name}</p>
+              )}
+              {priest && booking.booking_type === 'pooja' && (
+                <p className="text-xs text-gray-500 mt-1">Priest: {priest.display_name}</p>
               )}
             </div>
           </div>
@@ -72,6 +77,18 @@ function BookingCard({ booking, temples }) {
             <div className="flex items-center text-gray-600">
               <Clock className="w-4 h-4 mr-2 text-gray-400" />
               {booking.time_slot}
+            </div>
+          )}
+          {booking.service_mode && (
+            <div className="flex items-center text-gray-600">
+              <Video className="w-4 h-4 mr-2 text-gray-400" />
+              <span className="capitalize">{booking.service_mode.replace('_', ' ')}</span>
+            </div>
+          )}
+          {booking.location && (
+            <div className="flex items-center text-gray-600">
+              <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+              {booking.location}
             </div>
           )}
           {booking.num_devotees > 1 && (
@@ -159,6 +176,19 @@ export default function MyBookings() {
     queryFn: () => base44.entities.Temple.filter({ is_deleted: false }),
   });
 
+  const { data: poojas } = useQuery({
+    queryKey: ['poojas-for-bookings'],
+    queryFn: () => base44.entities.Pooja.filter({ is_deleted: false }),
+  });
+
+  const { data: priests } = useQuery({
+    queryKey: ['priests-for-bookings'],
+    queryFn: () => base44.entities.ProviderProfile.filter({ 
+      provider_type: 'priest',
+      is_deleted: false 
+    }),
+  });
+
   const upcomingBookings = bookings?.filter(b => 
     ['pending', 'confirmed'].includes(b.status) && 
     new Date(b.date) >= new Date()
@@ -217,7 +247,7 @@ export default function MyBookings() {
                 ) : upcomingBookings?.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {upcomingBookings.map((booking) => (
-                      <BookingCard key={booking.id} booking={booking} temples={temples} />
+                      <BookingCard key={booking.id} booking={booking} temples={temples} poojas={poojas} priests={priests} />
                     ))}
                   </div>
                 ) : (
@@ -240,7 +270,7 @@ export default function MyBookings() {
                 {completedBookings?.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {completedBookings.map((booking) => (
-                      <BookingCard key={booking.id} booking={booking} temples={temples} />
+                      <BookingCard key={booking.id} booking={booking} temples={temples} poojas={poojas} priests={priests} />
                     ))}
                   </div>
                 ) : (
@@ -254,7 +284,7 @@ export default function MyBookings() {
                 {cancelledBookings?.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {cancelledBookings.map((booking) => (
-                      <BookingCard key={booking.id} booking={booking} temples={temples} />
+                      <BookingCard key={booking.id} booking={booking} temples={temples} poojas={poojas} priests={priests} />
                     ))}
                   </div>
                 ) : (

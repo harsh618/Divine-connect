@@ -25,6 +25,7 @@ import AdminStats from '@/components/admin/AdminStats';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminTemples from '@/components/admin/AdminTemples';
 import AdminPoojas from '@/components/admin/AdminPoojas';
+import AdminPoojaBookings from '@/components/admin/AdminPoojaBookings';
 import AdminServices from '@/components/admin/AdminServices';
 import AdminProviders from '@/components/admin/AdminProviders';
 import AdminBookings from '@/components/admin/AdminBookings';
@@ -38,9 +39,10 @@ const navItems = [
   { id: 'users', label: 'Users', icon: Users },
   { id: 'temples', label: 'Temples', icon: Building2 },
   { id: 'poojas', label: 'Poojas', icon: Settings },
+  { id: 'pooja_bookings', label: 'Pooja Bookings', icon: Calendar },
   { id: 'services', label: 'Services', icon: Settings },
   { id: 'providers', label: 'Providers', icon: UserCheck },
-  { id: 'bookings', label: 'Bookings', icon: Calendar },
+  { id: 'bookings', label: 'All Bookings', icon: Calendar },
   { id: 'donations', label: 'Donations', icon: Heart },
   { id: 'articles', label: 'Articles', icon: TrendingUp },
   { id: 'auspicious', label: 'Auspicious Days', icon: Calendar },
@@ -95,7 +97,7 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           {/* Navigation Tabs */}
-          <TabsList className="grid grid-cols-4 lg:grid-cols-10 h-auto p-1 bg-white rounded-xl mb-8">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-12 h-auto p-1 bg-white rounded-xl mb-8">
             {navItems.map((item) => (
               <TabsTrigger
                 key={item.id}
@@ -126,6 +128,11 @@ export default function AdminDashboard() {
           {/* Poojas */}
           <TabsContent value="poojas" className="mt-0">
             <AdminPoojas />
+          </TabsContent>
+
+          {/* Pooja Bookings */}
+          <TabsContent value="pooja_bookings" className="mt-0">
+            <AdminPoojaBookings />
           </TabsContent>
 
           {/* Services */}

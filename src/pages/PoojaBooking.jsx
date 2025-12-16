@@ -161,9 +161,13 @@ export default function PoojaBooking() {
   };
 
   const availablePriests = priestMappings?.filter(mapping => {
-    if (!selectedDate || !selectedTimeSlot) return true;
+    if (!selectedDate || !selectedTimeSlot) return false;
     const dayOfWeek = format(selectedDate, 'EEEE').toLowerCase();
-    return mapping.available_days?.includes(dayOfWeek);
+    
+    const isDayAvailable = mapping.available_days?.includes(dayOfWeek);
+    const isTimeSlotAvailable = mapping.available_time_slots?.includes(selectedTimeSlot);
+
+    return isDayAvailable && isTimeSlotAvailable;
   });
 
   const getPriestDetails = (priestId) => {
@@ -341,6 +345,9 @@ export default function PoojaBooking() {
                                   {mapping.years_experience} years experience with this pooja
                                 </p>
                               )}
+                              <Badge className="mt-2 bg-green-100 text-green-700">
+                                Available
+                              </Badge>
                             </div>
                           </div>
                         </button>
