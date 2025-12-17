@@ -44,8 +44,8 @@ export default function KundliGenerator() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.birth_date || !formData.birth_time || !formData.birth_place || !formData.latitude || !formData.longitude || !formData.timezone_str) {
-      toast.error('Please fill all required fields including coordinates and timezone');
+    if (!formData.name || !formData.birth_date || !formData.birth_time || !formData.birth_place) {
+      toast.error('Please fill all required fields');
       return;
     }
 
@@ -416,49 +416,7 @@ export default function KundliGenerator() {
                 className="mt-2"
                 required
               />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="latitude" className="text-base">Latitude *</Label>
-                <Input
-                  id="latitude"
-                  type="number"
-                  step="any"
-                  value={formData.latitude}
-                  onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
-                  placeholder="e.g., 28.6139"
-                  className="mt-2"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="longitude" className="text-base">Longitude *</Label>
-                <Input
-                  id="longitude"
-                  type="number"
-                  step="any"
-                  value={formData.longitude}
-                  onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
-                  placeholder="e.g., 77.2090"
-                  className="mt-2"
-                  required
-                />
-              </div>
-              </div>
-
-              <div>
-              <Label htmlFor="timezone_str" className="text-base">Timezone *</Label>
-              <Input
-                id="timezone_str"
-                value={formData.timezone_str}
-                onChange={(e) => setFormData({ ...formData, timezone_str: e.target.value })}
-                placeholder="e.g., 5.5 for India (IST)"
-                className="mt-2"
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">Enter timezone offset in hours (e.g., 5.5 for IST, -5 for EST)</p>
-              </div>
+            </div>
 
             <div>
               <Label htmlFor="language" className="text-base">Report Language</Label>
