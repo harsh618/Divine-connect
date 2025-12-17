@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   Search, 
   Star, 
@@ -23,18 +29,28 @@ import {
   Clock,
   Languages,
   CheckCircle,
-  Sparkles
+  Sparkles,
+  Bot
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import PageHero from '../components/shared/PageHero';
+import KundliChat from '../components/kundli/KundliChat';
 
-function AstrologerCard({ provider }) {
+function AstrologerCard({ provider, onChatClick }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200";
+  const isAI = provider.id === 'ai_astrologer';
   
   return (
-    <Card className="overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500">
+    <Card className={`overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500 ${isAI ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300' : ''}`}>
       <div className="p-6">
+        {isAI && (
+          <Badge className="mb-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+            <Sparkles className="w-3 h-3 mr-1" />
+            AI Powered
+          </Badge>
+        )}
+        
         <div className="flex gap-4">
           <div className="relative">
             <img
@@ -52,12 +68,12 @@ function AstrologerCard({ provider }) {
               <div>
                 <h3 className="font-semibold text-lg text-gray-900 flex items-center gap-2">
                   {provider.display_name}
-                  {provider.is_verified && (
+                  {(provider.is_verified || isAI) && (
                     <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500" />
                   )}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  {provider.years_of_experience || 5}+ years experience
+                  {isAI ? 'Instant AI Guidance' : `${provider.years_of_experience || 5}+ years experience`}
                 </p>
               </div>
               {provider.is_available_now && (
@@ -94,38 +110,52 @@ function AstrologerCard({ provider }) {
         </div>
 
         {/* Rates */}
-        <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t">
-          <div className="text-center p-2 rounded-lg bg-gray-50">
-            <MessageCircle className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-            <p className="text-xs text-gray-500">Chat</p>
-            <p className="font-semibold text-sm">₹{provider.consultation_rate_chat || 15}/min</p>
+        {!isAI && (
+          <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t">
+            <div className="text-center p-2 rounded-lg bg-gray-50">
+              <MessageCircle className="w-4 h-4 mx-auto text-gray-400 mb-1" />
+              <p className="text-xs text-gray-500">Chat</p>
+              <p className="font-semibold text-sm">₹{provider.consultation_rate_chat || 15}/min</p>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-gray-50">
+              <Phone className="w-4 h-4 mx-auto text-gray-400 mb-1" />
+              <p className="text-xs text-gray-500">Voice</p>
+              <p className="font-semibold text-sm">₹{provider.consultation_rate_voice || 20}/min</p>
+            </div>
+            <div className="text-center p-2 rounded-lg bg-gray-50">
+              <Video className="w-4 h-4 mx-auto text-gray-400 mb-1" />
+              <p className="text-xs text-gray-500">Video</p>
+              <p className="font-semibold text-sm">₹{provider.consultation_rate_video || 30}/min</p>
+            </div>
           </div>
-          <div className="text-center p-2 rounded-lg bg-gray-50">
-            <Phone className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-            <p className="text-xs text-gray-500">Voice</p>
-            <p className="font-semibold text-sm">₹{provider.consultation_rate_voice || 20}/min</p>
+        )}
+
+        {isAI && (
+          <div className="mt-4 pt-4 border-t">
+            <div className="text-center p-3 rounded-lg bg-gradient-to-r from-purple-100 to-pink-100">
+              <p className="text-lg font-bold text-purple-700">FREE</p>
+              <p className="text-xs text-purple-600">Unlimited AI Consultations</p>
+            </div>
           </div>
-          <div className="text-center p-2 rounded-lg bg-gray-50">
-            <Video className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-            <p className="text-xs text-gray-500">Video</p>
-            <p className="font-semibold text-sm">₹{provider.consultation_rate_video || 30}/min</p>
-          </div>
-        </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-2 mt-4">
           <Button 
-            className="flex-1 bg-purple-600 hover:bg-purple-700"
-            disabled={!provider.is_available_now}
+            className={`flex-1 ${isAI ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90' : 'bg-purple-600 hover:bg-purple-700'}`}
+            disabled={!provider.is_available_now && !isAI}
+            onClick={() => onChatClick(provider)}
           >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            {provider.is_available_now ? 'Chat Now' : 'Offline'}
+            {isAI ? <Bot className="w-4 h-4 mr-2" /> : <MessageCircle className="w-4 h-4 mr-2" />}
+            {isAI ? 'Chat with AI' : (provider.is_available_now ? 'Chat Now' : 'Offline')}
           </Button>
-          <Link to={createPageUrl(`AstrologerProfile?id=${provider.id}`)} className="flex-1">
-            <Button variant="outline" className="w-full">
-              View Profile
-            </Button>
-          </Link>
+          {!isAI && (
+            <Link to={createPageUrl(`AstrologerProfile?id=${provider.id}`)} className="flex-1">
+              <Button variant="outline" className="w-full">
+                View Profile
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </Card>
@@ -164,6 +194,24 @@ export default function Astrology() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('all');
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
+          const userData = await base44.auth.me();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('Failed to load user:', error);
+      }
+    };
+    loadUser();
+  }, []);
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['astrologers'],
@@ -175,13 +223,44 @@ export default function Astrology() {
     }, '-rating_average'),
   });
 
-  const filteredProviders = providers?.filter(provider => {
+  // AI Astrologer Profile
+  const aiAstrologer = {
+    id: 'ai_astrologer',
+    display_name: 'Divine AI Astrologer',
+    avatar_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=200',
+    is_verified: true,
+    is_available_now: true,
+    years_of_experience: null,
+    rating_average: 4.9,
+    total_consultations: 10000,
+    specializations: ['Vedic Astrology', 'Kundli Analysis', 'Predictions', 'Remedies'],
+    languages: ['Hindi', 'English'],
+    bio: 'AI-powered Vedic astrologer providing instant guidance based on ancient wisdom'
+  };
+
+  const allProviders = providers ? [aiAstrologer, ...providers] : [aiAstrologer];
+
+  const filteredProviders = allProviders?.filter(provider => {
     const matchesSearch = provider.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSpecialization = selectedSpecialization === 'all' || 
                                   provider.specializations?.some(spec => spec.toLowerCase().includes(selectedSpecialization));
     const matchesAvailable = !showAvailableOnly || provider.is_available_now;
     return matchesSearch && matchesSpecialization && matchesAvailable;
   });
+
+  const handleChatClick = (provider) => {
+    if (provider.id === 'ai_astrologer') {
+      if (!user) {
+        base44.auth.redirectToLogin();
+        return;
+      }
+      setSelectedProvider(provider);
+      setChatOpen(true);
+    } else {
+      // For human astrologers, implement actual chat/consultation booking
+      console.log('Chat with human astrologer:', provider);
+    }
+  };
 
   const specializations = [
     'All', 'Vedic Astrology', 'Tarot Reading', 'Numerology', 'Palmistry', 
@@ -265,7 +344,7 @@ export default function Astrology() {
             Array(6).fill(0).map((_, i) => <AstrologerCardSkeleton key={i} />)
           ) : filteredProviders?.length > 0 ? (
             filteredProviders.map((provider) => (
-              <AstrologerCard key={provider.id} provider={provider} />
+              <AstrologerCard key={provider.id} provider={provider} onChatClick={handleChatClick} />
             ))
           ) : (
             <div className="col-span-full text-center py-16">
@@ -278,6 +357,18 @@ export default function Astrology() {
           )}
         </div>
       </div>
+
+      {/* Chat Dialog */}
+      <Dialog open={chatOpen} onOpenChange={setChatOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>Chat with {selectedProvider?.display_name}</DialogTitle>
+          </DialogHeader>
+          <div className="p-6 pt-4">
+            {user && <KundliChat userName={user.full_name} userId={user.id} />}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

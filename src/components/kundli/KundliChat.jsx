@@ -51,7 +51,7 @@ function MessageBubble({ message }) {
   );
 }
 
-export default function KundliChat({ kundliId, userName }) {
+export default function KundliChat({ userName, userId }) {
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -72,14 +72,14 @@ export default function KundliChat({ kundliId, userName }) {
         const conv = await base44.agents.createConversation({
           agent_name: 'vedic_astrologer',
           metadata: {
-            name: `Kundali Chat - ${userName}`,
-            kundli_id: kundliId
+            name: `Astrology Chat - ${userName || 'User'}`,
+            user_id: userId
           }
         });
         setConversation(conv);
         setMessages([{
           role: 'assistant',
-          content: `🕉️ Namaste! I'm your Vedic Astrologer AI assistant. I've analyzed your Kundali and I'm here to help you understand your birth chart, planetary positions, and their influence on your life.\n\nYou can ask me about:\n- Your Lagna (Ascendant) and its significance\n- Planetary positions and their effects\n- Career, marriage, health predictions\n- Doshas and remedies\n- Dasha periods and timing of events\n\nWhat would you like to know about your Kundali?`
+          content: `🕉️ Namaste! I'm your Vedic Astrologer AI assistant. I'm here to help you understand Vedic astrology, birth charts, planetary positions, and their influence on your life.\n\nYou can ask me about:\n- Kundali (Birth Chart) analysis\n- Planetary positions and their effects\n- Career, marriage, health predictions\n- Doshas and remedies\n- Dasha periods and timing of events\n- General astrological questions\n\nHow can I guide you today?`
         }]);
       } catch (error) {
         console.error('Failed to create conversation:', error);
@@ -87,7 +87,7 @@ export default function KundliChat({ kundliId, userName }) {
     };
 
     initConversation();
-  }, [kundliId, userName]);
+  }, [userId, userName]);
 
   useEffect(() => {
     if (!conversation) return;
