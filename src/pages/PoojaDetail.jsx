@@ -12,8 +12,8 @@ import {
   Loader2,
   Flame,
   Users,
-  Star
-} from 'lucide-react';
+  Star } from
+'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BackButton from '../components/ui/BackButton';
@@ -37,8 +37,8 @@ export default function PoojaDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (!pooja) {
@@ -48,8 +48,8 @@ export default function PoojaDetail() {
         <Link to={createPageUrl('Poojas')}>
           <Button>Back to Poojas</Button>
         </Link>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -66,104 +66,104 @@ export default function PoojaDetail() {
               <h1 className="text-3xl md:text-4xl font-serif font-bold text-white">
                 {pooja.name}
               </h1>
-              {pooja.is_popular && (
-                <Badge className="mt-2 bg-yellow-500 text-white border-0">
+              {pooja.is_popular &&
+              <Badge className="mt-2 bg-yellow-500 text-white border-0">
                   Popular
                 </Badge>
-              )}
-              {pooja.base_price_virtual > 0 && (
-                <Badge className="mt-2 ml-2 bg-blue-500 text-white border-0">
+              }
+              {pooja.base_price_virtual > 0 &&
+              <Badge className="mt-2 ml-2 bg-blue-500 text-white border-0">
                   <Video className="w-3 h-3 mr-1" />
                   Virtual Available
                 </Badge>
-              )}
+              }
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 -mt-8">
+      <div className="mx-16 py-20 container -mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Description */}
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4">About This Pooja</h2>
-              {pooja.description && (
-                <p className="text-gray-600 leading-relaxed mb-4">
+              {pooja.description &&
+              <p className="text-gray-600 leading-relaxed mb-4">
                   {pooja.description}
                 </p>
-              )}
-              {pooja.purpose && (
-                <div className="mt-4">
+              }
+              {pooja.purpose &&
+              <div className="mt-4">
                   <h3 className="font-semibold text-gray-800 mb-2">Purpose</h3>
                   <p className="text-gray-600 leading-relaxed">{pooja.purpose}</p>
                 </div>
-              )}
-              {pooja.benefits?.length > 0 && (
-                <div className="mt-4">
+              }
+              {pooja.benefits?.length > 0 &&
+              <div className="mt-4">
                   <h3 className="font-semibold text-gray-800 mb-2">Benefits</h3>
                   <ul className="list-disc list-inside text-gray-600 space-y-1">
-                    {pooja.benefits.map((benefit, idx) => (
-                      <li key={idx}>{benefit}</li>
-                    ))}
+                    {pooja.benefits.map((benefit, idx) =>
+                  <li key={idx}>{benefit}</li>
+                  )}
                   </ul>
                 </div>
-              )}
-              {pooja.best_time && (
-                <div className="mt-4">
+              }
+              {pooja.best_time &&
+              <div className="mt-4">
                   <h3 className="font-semibold text-gray-800 mb-2">Best Time to Perform</h3>
                   <p className="text-gray-600">{pooja.best_time}</p>
                 </div>
-              )}
+              }
             </Card>
 
             {/* Pooja Items */}
-            {(pooja.required_items?.length > 0 || pooja.optional_items?.length > 0) && (
-              <Card className="p-6">
+            {(pooja.required_items?.length > 0 || pooja.optional_items?.length > 0) &&
+            <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4 flex items-center">
                   <Package className="w-5 h-5 mr-2 text-orange-500" />
                   Pooja Items
                 </h2>
-                {pooja.required_items?.length > 0 && (
-                  <div className="mb-4">
+                {pooja.required_items?.length > 0 &&
+              <div className="mb-4">
                     <h3 className="font-medium text-gray-800 mb-2">Required Items</h3>
                     <ul className="list-disc list-inside text-gray-600 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-                      {pooja.required_items.map((item, idx) => (
-                        <li key={idx}>{item}</li>
-                      ))}
+                      {pooja.required_items.map((item, idx) =>
+                  <li key={idx}>{item}</li>
+                  )}
                     </ul>
                   </div>
-                )}
-                {pooja.optional_items?.length > 0 && (
-                  <div>
+              }
+                {pooja.optional_items?.length > 0 &&
+              <div>
                     <h3 className="font-medium text-gray-800 mb-2">Optional Items</h3>
                     <ul className="list-disc list-inside text-gray-600 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-                      {pooja.optional_items.map((item, idx) => (
-                        <li key={idx}>{item}</li>
-                      ))}
+                      {pooja.optional_items.map((item, idx) =>
+                  <li key={idx}>{item}</li>
+                  )}
                     </ul>
                   </div>
-                )}
-                {pooja.items_arrangement_cost > 0 && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              }
+                {pooja.items_arrangement_cost > 0 &&
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-700">
                       💡 Priest can arrange all items for an additional ₹{pooja.items_arrangement_cost}
                     </p>
                   </div>
-                )}
+              }
               </Card>
-            )}
+            }
 
             {/* Reviews */}
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Reviews</h2>
-                {pooja.total_bookings > 0 && (
-                  <Badge variant="secondary">
+                {pooja.total_bookings > 0 &&
+                <Badge variant="secondary">
                     {pooja.total_bookings} bookings completed
                   </Badge>
-                )}
+                }
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
@@ -174,9 +174,9 @@ export default function PoojaDetail() {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-semibold">Rajesh Kumar</span>
                       <div className="flex">
-                        {Array(5).fill(0).map((_, i) => (
-                          <Star key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        ))}
+                        {Array(5).fill(0).map((_, i) =>
+                        <Star key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        )}
                       </div>
                     </div>
                     <p className="text-sm text-gray-600">
@@ -196,27 +196,27 @@ export default function PoojaDetail() {
             {/* Pricing Card */}
             <Card className="p-6 sticky top-24">
               <div className="text-center mb-6">
-                {pooja.base_price_virtual || pooja.base_price_in_person || pooja.base_price_temple ? (
-                  <>
+                {pooja.base_price_virtual || pooja.base_price_in_person || pooja.base_price_temple ?
+                <>
                     <p className="text-sm text-gray-500 mb-1">Starting from</p>
                     <p className="text-3xl font-bold text-gray-900">
                       ₹{pooja.base_price_virtual || pooja.base_price_in_person || pooja.base_price_temple}
                     </p>
-                  </>
-                ) : (
-                  <p className="text-3xl font-bold text-gray-900">Price on Request</p>
-                )}
-                {pooja.duration_minutes && (
-                  <p className="text-sm text-gray-500 mt-2 flex items-center justify-center">
+                  </> :
+
+                <p className="text-3xl font-bold text-gray-900">Price on Request</p>
+                }
+                {pooja.duration_minutes &&
+                <p className="text-sm text-gray-500 mt-2 flex items-center justify-center">
                     <Clock className="w-4 h-4 mr-1" />
                     Approx. {pooja.duration_minutes} minutes
                   </p>
-                )}
+                }
               </div>
 
-              <Button 
+              <Button
                 onClick={() => {
-                  base44.auth.isAuthenticated().then(isAuth => {
+                  base44.auth.isAuthenticated().then((isAuth) => {
                     if (isAuth) {
                       navigate(createPageUrl(`PoojaBooking?id=${pooja.id}`));
                     } else {
@@ -224,30 +224,30 @@ export default function PoojaDetail() {
                     }
                   });
                 }}
-                className="w-full bg-orange-500 hover:bg-orange-600 py-6 text-lg"
-              >
+                className="w-full bg-orange-500 hover:bg-orange-600 py-6 text-lg">
+
                 Book This Pooja
               </Button>
 
               <div className="mt-4 space-y-2 text-sm">
-                {pooja.base_price_virtual > 0 && (
-                  <div className="flex justify-between text-gray-600">
+                {pooja.base_price_virtual > 0 &&
+                <div className="flex justify-between text-gray-600">
                     <span>Virtual</span>
                     <span className="font-medium">₹{pooja.base_price_virtual}</span>
                   </div>
-                )}
-                {pooja.base_price_in_person > 0 && (
-                  <div className="flex justify-between text-gray-600">
+                }
+                {pooja.base_price_in_person > 0 &&
+                <div className="flex justify-between text-gray-600">
                     <span>In-Person</span>
                     <span className="font-medium">₹{pooja.base_price_in_person}</span>
                   </div>
-                )}
-                {pooja.base_price_temple > 0 && (
-                  <div className="flex justify-between text-gray-600">
+                }
+                {pooja.base_price_temple > 0 &&
+                <div className="flex justify-between text-gray-600">
                     <span>At Temple</span>
                     <span className="font-medium">₹{pooja.base_price_temple}</span>
                   </div>
-                )}
+                }
               </div>
 
               <div className="mt-6 pt-6 border-t space-y-3 text-sm text-gray-600">
@@ -272,6 +272,6 @@ export default function PoojaDetail() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
