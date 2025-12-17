@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function KundliGenerator() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     gender: 'male',
@@ -41,6 +44,41 @@ export default function KundliGenerator() {
   const [kundali, setKundali] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const fetchLocationData = async (place) => {
+    try {
+      // Geocoding API
+      const geocodeResponse = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(place)}&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
+      );
+      const geocodeData = await geocodeResponse.json();
+
+      if (geocodeData.status !== 'OK' || !geocodeData.results.length) {
+        throw new Error('Location not found. Please enter a valid place.');
+      }
+
+      const location = geocodeData.results[0].geometry.location;
+      const latitude = location.lat;
+      const longitude = location.lng;
+
+      // Timezone API
+      const timestamp = Math.floor(new Date().getTime() / 1000);
+      const timezoneResponse = await fetch(
+        `https://maps.googleapis.com/maps/api/timezone/json?location=${latitude},${longitude}&timestamp=${timestamp}&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
+      );
+      const timezoneData = await timezoneResponse.json();
+
+      if (timezoneData.status !== 'OK') {
+        throw new Error('Failed to fetch timezone data.');
+      }
+
+      const timezoneOffset = (timezoneData.rawOffset + timezoneData.dstOffset) / 3600;
+
+      return { latitude, longitude, timezone_str: timezoneOffset.toString() };
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -52,15 +90,25 @@ export default function KundliGenerator() {
     setIsGenerating(true);
 
     try {
-      const response = await base44.functions.invoke('generateKundli', formData);
+      // Fetch location data (lat, lng, timezone)
+      toast.info('Fetching location details...');
+      const locationData = await fetchLocationData(formData.birth_place);
+
+      const completeFormData = {
+        ...formData,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        timezone_str: locationData.timezone_str
+      };
+
+      // Generate Kundali
+      toast.info('Generating your Kundali...');
+      const response = await base44.functions.invoke('generateKundli', completeFormData);
       
       if (response.data.success) {
-        setKundali({
-          ...formData,
-          content: response.data.content,
-          kundli_id: response.data.kundli_id
-        });
         toast.success('Kundali generated successfully! 🕉️');
+        // Redirect to MyKundalis page
+        navigate(createPageUrl('MyKundalis'));
       } else {
         toast.error(response.data.error || 'Failed to generate Kundali');
       }
