@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table";
 import { Pencil, Trash2, Plus, Search, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
-import ImageUpload from './ImageUpload';
+import ImageCropUpload from './ImageCropUpload';
 
 const categoryOptions = [
   'graha_shanti', 'satyanarayan', 'ganesh', 'lakshmi', 'durga',
@@ -358,14 +358,11 @@ export default function AdminPoojas() {
               </div>
             </div>
 
-            <div>
-              <Label>Image URL</Label>
-              <Input
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder="Image URL"
-              />
-            </div>
+            <ImageCropUpload
+              value={formData.image_url}
+              onChange={(url) => setFormData({ ...formData, image_url: url })}
+              label="Pooja Image"
+            />
 
             <div className="flex items-center gap-2">
               <input
