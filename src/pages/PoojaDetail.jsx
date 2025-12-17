@@ -52,57 +52,31 @@ export default function PoojaDetail() {
     );
   }
 
-  const defaultImage = "https://images.unsplash.com/photo-1604608672516-f1e3c1f9f6e6?w=800";
-  const poojaImage = pooja.image_url || defaultImage;
-
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
-      {/* Back Button - Fixed Top Left */}
-      <div className="fixed top-20 left-4 z-50">
-        <BackButton label="Back" />
-      </div>
-
-      {/* Hero Image */}
-      <div className="relative h-[50vh] md:h-[60vh] bg-black">
-        <img
-          src={poojaImage}
-          alt={pooja.name}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
-        
-        {/* Badges */}
-        <div className="absolute top-20 right-4 flex gap-2">
-          {pooja.is_popular && (
-            <Badge className="bg-orange-500 text-white border-0">
-              Popular
-            </Badge>
-          )}
-          {pooja.base_price_virtual > 0 && (
-            <Badge className="bg-blue-500 text-white border-0">
-              <Video className="w-3 h-3 mr-1" />
-              Virtual Available
-            </Badge>
-          )}
-        </div>
-
-        {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-          <div className="container mx-auto">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Flame className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-serif font-bold text-white">
-                  {pooja.name}
-                </h1>
-                {pooja.category && (
-                  <Badge variant="secondary" className="mt-2 bg-white/20 text-white border-0 capitalize">
-                    {pooja.category.replace('_', ' ')}
-                  </Badge>
-                )}
-              </div>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-16 px-6">
+        <div className="container mx-auto">
+          <BackButton label="Back" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+              <Flame className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-white">
+                {pooja.name}
+              </h1>
+              {pooja.is_popular && (
+                <Badge className="mt-2 bg-yellow-500 text-white border-0">
+                  Popular
+                </Badge>
+              )}
+              {pooja.base_price_virtual > 0 && (
+                <Badge className="mt-2 ml-2 bg-blue-500 text-white border-0">
+                  <Video className="w-3 h-3 mr-1" />
+                  Virtual Available
+                </Badge>
+              )}
             </div>
           </div>
         </div>
