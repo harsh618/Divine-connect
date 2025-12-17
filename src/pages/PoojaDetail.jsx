@@ -63,7 +63,7 @@ export default function PoojaDetail() {
       </div>
 
       {/* Hero Image */}
-      <div className="relative h-[50vh] md:h-[60vh] bg-black">
+      <div className="relative h-[40vh] md:h-[50vh] bg-black">
         <img
           src={poojaImage}
           alt={pooja.name}
@@ -108,7 +108,7 @@ export default function PoojaDetail() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 -mt-8">
+      <div className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
