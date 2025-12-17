@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
     const [hours, minutes] = birth_time.split(':').map(Number);
 
     // Get astrological data from freeastrologyapi.com
-    const astrologyApiResponse = await fetch('https://api.freeastrologyapi.com/v1/horoscope/planets', {
+    const astrologyApiResponse = await fetch('https://json.freeastrologyapi.com/planets', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,12 +39,17 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         year: year,
         month: month,
-        day: day,
-        hour: hours,
-        min: minutes,
-        lat: latitude,
-        lon: longitude,
-        tzone: timezone_str
+        date: day,
+        hours: hours,
+        minutes: minutes,
+        seconds: 0,
+        latitude: latitude,
+        longitude: longitude,
+        timezone: parseFloat(timezone_str),
+        settings: {
+          observation_point: "topocentric",
+          ayanamsha: "lahiri"
+        }
       })
     });
 
