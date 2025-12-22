@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
@@ -37,11 +36,14 @@ const categoryConfig = {
 };
 
 export default function CampaignDetail() {
-  const { campaignId } = useParams();
   const queryClient = useQueryClient();
   const [donationAmount, setDonationAmount] = useState('');
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
+
+  // Get campaignId from URL query params
+  const urlParams = new URLSearchParams(window.location.search);
+  const campaignId = urlParams.get('campaignId');
 
   const { data: campaign, isLoading } = useQuery({
     queryKey: ['campaign', campaignId],
@@ -51,7 +53,8 @@ export default function CampaignDetail() {
         is_deleted: false 
       });
       return campaigns[0];
-    }
+    },
+    enabled: !!campaignId
   });
 
   const donateMutation = useMutation({
