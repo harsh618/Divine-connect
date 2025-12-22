@@ -85,7 +85,6 @@ export default function TempleDetail() {
   const [rating, setRating] = useState(0);
   const [reviewComment, setReviewComment] = useState('');
   const [showPrasadOrderModal, setShowPrasadOrderModal] = useState(false);
-  const [selectedPrasadItems, setSelectedPrasadItems] = useState([]);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -454,7 +453,6 @@ export default function TempleDetail() {
                 className="flex-col h-auto py-4"
                 onClick={() => {
                   if (prasadItems?.length > 0) {
-                    setSelectedPrasadItems(prasadItems);
                     setShowPrasadOrderModal(true);
                   } else {
                     toast.error('No prasad items available at this temple');
@@ -677,7 +675,6 @@ export default function TempleDetail() {
                     size="sm" 
                     className="text-orange-600"
                     onClick={() => {
-                      setSelectedPrasadItems(prasadItems);
                       setShowPrasadOrderModal(true);
                     }}
                   >
