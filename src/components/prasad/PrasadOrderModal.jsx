@@ -177,21 +177,9 @@ export default function PrasadOrderModal({ open, onClose, templeId, prasadItems:
                   idx < currentStage ? 'bg-orange-500' : 'bg-gray-200'
                 }`} />
               </div>
-              )))
-              ) : (
-              <div className="text-center py-8">
-                <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No prasad items available at this temple</p>
-                <Button 
-                  onClick={handleClose}
-                  className="mt-4 bg-orange-500 hover:bg-orange-600"
-                >
-                  Close
-                </Button>
-              </div>
-              )}
-              </div>
-              )}
+            ))}
+          </div>
+        )}
 
         <div className="py-4">
           {currentStage === PRASAD_STAGES.SELECT_ITEMS && (
