@@ -191,37 +191,49 @@ export default function PrasadOrderModal({ open, onClose, templeId, prasadItems:
                 </div>
               ) : prasadItems?.length > 0 ? (
                 prasadItems.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                  {item.image_url && (
-                    <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded" />
-                  )}
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-sm text-gray-600">{item.description}</p>
-                    <p className="text-orange-600 font-bold mt-1">₹{item.price}</p>
+                  <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                    {item.image_url && (
+                      <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                    )}
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{item.name}</h3>
+                      <p className="text-sm text-gray-600">{item.description}</p>
+                      <p className="text-orange-600 font-bold mt-1">₹{item.price}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => updateQuantity(item.id, -1)}
+                        disabled={!selectedItems[item.id]}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </Button>
+                      <span className="w-12 text-center font-semibold">
+                        {selectedItems[item.id] || 0}
+                      </span>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => updateQuantity(item.id, 1)}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => updateQuantity(item.id, -1)}
-                      disabled={!selectedItems[item.id]}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-12 text-center font-semibold">
-                      {selectedItems[item.id] || 0}
-                    </span>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => updateQuantity(item.id, 1)}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">No prasad items available at this temple</p>
+                  <Button 
+                    onClick={handleClose}
+                    className="mt-4 bg-orange-500 hover:bg-orange-600"
+                  >
+                    Close
+                  </Button>
                 </div>
-              ))}
+              )}
             </div>
           )}
 
