@@ -451,13 +451,7 @@ export default function TempleDetail() {
               <Button
                 variant="outline"
                 className="flex-col h-auto py-4"
-                onClick={() => {
-                  if (prasadItems?.length > 0) {
-                    setShowPrasadOrderModal(true);
-                  } else {
-                    toast.error('No prasad items available at this temple');
-                  }
-                }}
+                onClick={() => setShowPrasadOrderModal(true)}
               >
                 <Package className="w-6 h-6 mb-2" />
                 <span className="text-sm">Order Prasad</span>
