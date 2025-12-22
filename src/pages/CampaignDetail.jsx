@@ -23,8 +23,12 @@ import {
   Calendar,
   Info,
   Loader2,
-  PieChart
+  PieChart,
+  FileText,
+  Award,
+  DollarSign
 } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 import { toast } from 'sonner';
 import moment from 'moment';
 
@@ -213,9 +217,9 @@ export default function CampaignDetail() {
 
             {/* Description - Short Overview */}
             {campaign.description && (
-              <Card className="p-6">
+              <Card className="p-6 bg-white border-l-4 border-l-blue-500">
                 <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <Info className="w-6 h-6 text-blue-500" />
+                  <FileText className="w-6 h-6 text-blue-500" />
                   Campaign Overview
                 </h2>
                 <p className="text-gray-700 text-lg leading-relaxed">
@@ -224,26 +228,56 @@ export default function CampaignDetail() {
               </Card>
             )}
 
+            {/* Impact Breakdown - What Your Donation Achieves */}
+            {campaign.impact_breakdown && campaign.impact_breakdown.length > 0 && (
+              <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <DollarSign className="w-6 h-6 text-green-600" />
+                  Your Impact
+                </h2>
+                <div className="space-y-3">
+                  {campaign.impact_breakdown.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-white rounded-lg">
+                      <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <Award className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-green-900">₹{item.amount.toLocaleString()}</p>
+                        <p className="text-sm text-gray-700">{item.impact}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
             {/* Purpose */}
             {campaign.purpose && (
-              <Card className="p-6">
+              <Card className="p-6 bg-white border-l-4 border-l-purple-500">
                 <div className="flex items-center gap-2 mb-4">
-                  <Info className="w-6 h-6 text-blue-500" />
+                  <Info className="w-6 h-6 text-purple-500" />
                   <h2 className="text-2xl font-bold">Why This Campaign?</h2>
                 </div>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {campaign.purpose}
-                </p>
+                <div className="prose max-w-none">
+                  <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-line">
+                    {campaign.purpose}
+                  </p>
+                </div>
               </Card>
             )}
 
             {/* Detailed Description */}
             {campaign.detailed_description && (
-              <Card className="p-6">
-                <h2 className="text-2xl font-bold mb-4">About This Campaign</h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {campaign.detailed_description}
-                </p>
+              <Card className="p-6 bg-white">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <FileText className="w-6 h-6 text-gray-700" />
+                  About This Campaign
+                </h2>
+                <div className="prose max-w-none">
+                  <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-line">
+                    {campaign.detailed_description}
+                  </p>
+                </div>
               </Card>
             )}
 
@@ -306,14 +340,39 @@ export default function CampaignDetail() {
                   <Users className="w-6 h-6 text-blue-600" />
                   <h2 className="text-xl font-bold text-blue-900">Beneficiary Organization</h2>
                 </div>
-                <p className="text-blue-900 font-medium mb-2">
-                  {campaign.beneficiary_organization}
-                </p>
-                {campaign.beneficiary_contact && (
-                  <p className="text-blue-700 text-sm">
-                    Contact: {campaign.beneficiary_contact}
-                  </p>
-                )}
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-blue-600 mb-1">Organization Name</p>
+                    <p className="text-blue-900 font-semibold text-lg">
+                      {campaign.beneficiary_organization}
+                      {campaign.is_fcra_registered && (
+                        <Badge className="ml-2 bg-green-500 text-white">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          FCRA Registered
+                        </Badge>
+                      )}
+                    </p>
+                  </div>
+                  {campaign.beneficiary_contact && (
+                    <div>
+                      <p className="text-sm text-blue-600 mb-1">Contact Information</p>
+                      <p className="text-blue-800 font-medium">
+                        {campaign.beneficiary_contact}
+                      </p>
+                    </div>
+                  )}
+                  {campaign.beneficiary_count > 0 && (
+                    <div className="mt-4 p-3 bg-white rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="text-2xl font-bold text-blue-900">{campaign.beneficiary_count.toLocaleString()}+</p>
+                          <p className="text-sm text-blue-600">People/Families Helped</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </Card>
             )}
           </div>
