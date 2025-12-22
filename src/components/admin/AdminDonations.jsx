@@ -52,12 +52,18 @@ const categoryColors = {
 export default function AdminDonations() {
   const queryClient = useQueryClient();
   const [showCampaignModal, setShowCampaignModal] = useState(false);
+  const [editingCampaign, setEditingCampaign] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    detailed_description: '',
+    purpose: '',
+    seva_details: '',
+    location: '',
     goal_amount: '',
     category: 'temple_renovation',
     beneficiary_organization: '',
+    deadline: '',
     images: [],
     thumbnail_url: ''
   });
@@ -77,18 +83,37 @@ export default function AdminDonations() {
     onSuccess: () => {
       toast.success('Campaign created successfully!');
       queryClient.invalidateQueries(['admin-campaigns-list']);
-      setShowCampaignModal(false);
-      setFormData({
-        title: '',
-        description: '',
-        goal_amount: '',
-        category: 'temple_renovation',
-        beneficiary_organization: '',
-        images: [],
-        thumbnail_url: ''
-      });
+      resetForm();
     }
   });
+
+  const updateCampaignMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.DonationCampaign.update(id, data),
+    onSuccess: () => {
+      toast.success('Campaign updated successfully!');
+      queryClient.invalidateQueries(['admin-campaigns-list']);
+      resetForm();
+    }
+  });
+
+  const resetForm = () => {
+    setShowCampaignModal(false);
+    setEditingCampaign(null);
+    setFormData({
+      title: '',
+      description: '',
+      detailed_description: '',
+      purpose: '',
+      seva_details: '',
+      location: '',
+      goal_amount: '',
+      category: 'temple_renovation',
+      beneficiary_organization: '',
+      deadline: '',
+      images: [],
+      thumbnail_url: ''
+    });
+  };
 
   const toggleCampaignVisibilityMutation = useMutation({
     mutationFn: ({ id, is_hidden }) => base44.entities.DonationCampaign.update(id, { is_hidden }),
@@ -98,17 +123,42 @@ export default function AdminDonations() {
     }
   });
 
-  const handleCreateCampaign = () => {
+  const handleEditCampaign = (campaign) => {
+    setEditingCampaign(campaign);
+    setFormData({
+      title: campaign.title || '',
+      description: campaign.description || '',
+      detailed_description: campaign.detailed_description || '',
+      purpose: campaign.purpose || '',
+      seva_details: campaign.seva_details || '',
+      location: campaign.location || '',
+      goal_amount: campaign.goal_amount?.toString() || '',
+      category: campaign.category || 'temple_renovation',
+      beneficiary_organization: campaign.beneficiary_organization || '',
+      deadline: campaign.deadline || '',
+      images: campaign.images || [],
+      thumbnail_url: campaign.thumbnail_url || ''
+    });
+    setShowCampaignModal(true);
+  };
+
+  const handleSaveCampaign = () => {
     if (!formData.title || !formData.goal_amount) {
       toast.error('Please fill all required fields');
       return;
     }
-    createCampaignMutation.mutate({
+    
+    const campaignData = {
       ...formData,
       goal_amount: Number(formData.goal_amount),
-      raised_amount: 0,
       status: 'active'
-    });
+    };
+
+    if (editingCampaign) {
+      updateCampaignMutation.mutate({ id: editingCampaign.id, data: campaignData });
+    } else {
+      createCampaignMutation.mutate({ ...campaignData, raised_amount: 0 });
+    }
   };
 
   const totalRaised = donations?.reduce((sum, d) => sum + (d.amount || 0), 0) || 0;
@@ -177,7 +227,7 @@ export default function AdminDonations() {
           <TableBody>
             {loadingCampaigns ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin mx-auto" />
                 </TableCell>
               </TableRow>
@@ -206,19 +256,28 @@ export default function AdminDonations() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => toggleCampaignVisibilityMutation.mutate({ id: campaign.id, is_hidden: !campaign.is_hidden })}
-                    >
-                      {campaign.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditCampaign(campaign)}
+                      >
+                        Edit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => toggleCampaignVisibilityMutation.mutate({ id: campaign.id, is_hidden: !campaign.is_hidden })}
+                      >
+                        {campaign.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                   No campaigns yet
                 </TableCell>
               </TableRow>
@@ -277,10 +336,10 @@ export default function AdminDonations() {
       </Card>
 
       {/* Create Campaign Modal */}
-      <Dialog open={showCampaignModal} onOpenChange={setShowCampaignModal}>
-        <DialogContent>
+      <Dialog open={showCampaignModal} onOpenChange={(open) => !open && resetForm()}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New Campaign</DialogTitle>
+            <DialogTitle>{editingCampaign ? 'Edit Campaign' : 'Create New Campaign'}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
@@ -299,15 +358,47 @@ export default function AdminDonations() {
                 placeholder="Campaign title"
               />
             </div>
+
             <div>
-              <Label>Description</Label>
+              <Label>Short Description (for cards)</Label>
               <Textarea
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-                placeholder="About this campaign..."
+                placeholder="Brief overview shown on campaign cards..."
+                rows={2}
+              />
+            </div>
+
+            <div>
+              <Label>Detailed Description</Label>
+              <Textarea
+                value={formData.detailed_description}
+                onChange={(e) => setFormData({...formData, detailed_description: e.target.value})}
+                placeholder="Complete details about the campaign..."
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <Label>Purpose / Why This Campaign</Label>
+              <Textarea
+                value={formData.purpose}
+                onChange={(e) => setFormData({...formData, purpose: e.target.value})}
+                placeholder="Explain why this campaign exists..."
                 rows={3}
               />
             </div>
+
+            <div>
+              <Label>Seva Details</Label>
+              <Textarea
+                value={formData.seva_details}
+                onChange={(e) => setFormData({...formData, seva_details: e.target.value})}
+                placeholder="Details about the seva/service provided..."
+                rows={3}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Goal Amount (₹) *</Label>
@@ -337,6 +428,26 @@ export default function AdminDonations() {
                 </Select>
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Location</Label>
+                <Input
+                  value={formData.location}
+                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  placeholder="e.g., Mumbai, Maharashtra"
+                />
+              </div>
+              <div>
+                <Label>Deadline</Label>
+                <Input
+                  type="date"
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({...formData, deadline: e.target.value})}
+                />
+              </div>
+            </div>
+
             <div>
               <Label>Beneficiary Organization</Label>
               <Input
@@ -348,18 +459,18 @@ export default function AdminDonations() {
           </div>
 
           <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={() => setShowCampaignModal(false)}>
+            <Button variant="outline" onClick={resetForm}>
               Cancel
             </Button>
             <Button 
-              onClick={handleCreateCampaign}
-              disabled={createCampaignMutation.isPending}
+              onClick={handleSaveCampaign}
+              disabled={createCampaignMutation.isPending || updateCampaignMutation.isPending}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              {createCampaignMutation.isPending && (
+              {(createCampaignMutation.isPending || updateCampaignMutation.isPending) && (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               )}
-              Create Campaign
+              {editingCampaign ? 'Update Campaign' : 'Create Campaign'}
             </Button>
           </div>
         </DialogContent>
