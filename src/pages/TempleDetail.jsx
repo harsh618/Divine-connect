@@ -780,66 +780,278 @@ export default function TempleDetail() {
 
       {/* Donation Modal */}
       <Dialog open={showDonationModal} onOpenChange={setShowDonationModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Donate to {temple?.name}</DialogTitle>
             <DialogDescription>
-              Your contribution helps maintain the temple and support religious activities.
+              Support the temple through official donation channels
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-4 gap-2">
-              {[100, 500, 1000, 5000].map((amount) => (
-                <Button
-                  key={amount}
-                  variant={donationAmount === String(amount) ? "default" : "outline"}
-                  onClick={() => setDonationAmount(String(amount))}
-                  className={donationAmount === String(amount) ? 'bg-orange-500 hover:bg-orange-600' : ''}
-                >
-                  ₹{amount}
-                </Button>
-              ))}
-            </div>
+            {/* Official Donation Details for Ram Janmbhoomi */}
+            {temple.name === "Shri Ram Janmbhoomi" && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-lg border border-orange-200">
+                  <h3 className="text-xl font-bold text-orange-900 mb-4">Official Bank Details - Indian Citizens</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* SBI */}
+                    <Card className="p-4">
+                      <h4 className="font-bold text-gray-900 mb-3">State Bank of India</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">A/c Name:</span> Shri Ram Janmbhoomi Teerth Kshetra</div>
+                        <div><span className="font-medium">A/C No:</span> 39161495808</div>
+                        <div><span className="font-medium">IFSC Code:</span> SBIN0002510</div>
+                        <div><span className="font-medium">Branch:</span> Naya Ghat, Ayodhya, UP</div>
+                        <div className="pt-2"><span className="font-medium">UPI ID:</span> <code className="bg-gray-100 px-2 py-1 rounded">shriramjanmbhoomi@sbi</code></div>
+                      </div>
+                    </Card>
 
-            <div>
-              <Label className="mb-2 block">Custom Amount</Label>
-              <Input
-                type="number"
-                placeholder="Enter amount"
-                value={donationAmount}
-                onChange={(e) => setDonationAmount(e.target.value)}
-              />
-            </div>
+                    {/* Bank of Baroda */}
+                    <Card className="p-4">
+                      <h4 className="font-bold text-gray-900 mb-3">Bank of Baroda</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">A/c Name:</span> Shri Ram Janmbhoomi Teerth Kshetra</div>
+                        <div><span className="font-medium">A/C No:</span> 05820100021211</div>
+                        <div><span className="font-medium">IFSC Code:</span> BARB0AYODHY</div>
+                        <div><span className="font-medium">Branch:</span> Naya Ghat, Ayodhya, UP</div>
+                        <div className="pt-2"><span className="font-medium">UPI ID:</span> <code className="bg-gray-100 px-2 py-1 rounded">shriramjanmbhoomi@bob</code></div>
+                      </div>
+                    </Card>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="anonymous"
-                checked={isAnonymous}
-                onChange={(e) => setIsAnonymous(e.target.checked)}
-                className="rounded border-gray-300"
-              />
-              <Label htmlFor="anonymous" className="cursor-pointer">Make this donation anonymous</Label>
-            </div>
-          </div>
+                    {/* PNB */}
+                    <Card className="p-4">
+                      <h4 className="font-bold text-gray-900 mb-3">Punjab National Bank</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">A/c Name:</span> Shri Ram Janmbhoomi Teerth Kshetra</div>
+                        <div><span className="font-medium">A/C No:</span> 3865-000-1001-39999</div>
+                        <div><span className="font-medium">IFSC Code:</span> PUNB0386500</div>
+                        <div><span className="font-medium">Branch:</span> Naya Ghat, Ayodhya U.P.</div>
+                      </div>
+                    </Card>
+                  </div>
 
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowDonationModal(false)} className="flex-1">
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleDonate}
-              disabled={donationMutation.isPending}
-              className="flex-1 bg-orange-500 hover:bg-orange-600"
-            >
-              {donationMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <Heart className="w-4 h-4 mr-2" />
-              )}
-              Donate ₹{donationAmount || '0'}
-            </Button>
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-900"><strong>Trust PAN:</strong> AAZTS6197B</p>
+                    <p className="text-sm text-blue-900 mt-2"><strong>Tax Benefit:</strong> 50% of donation eligible for deduction u/s 80G(2)(b)</p>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+                  <h3 className="text-xl font-bold text-green-900 mb-4">For Non-Indian Passport Holders (FCRA)</h3>
+                  <Card className="p-4">
+                    <h4 className="font-bold text-gray-900 mb-3">State Bank of India - FCRA Account</h4>
+                    <div className="space-y-2 text-sm">
+                      <div><span className="font-medium">A/c Name:</span> Shri Ram Janmbhoomi Teerth Kshetra</div>
+                      <div><span className="font-medium">A/C No:</span> 42162875158</div>
+                      <div><span className="font-medium">IFSC Code:</span> SBIN0000691</div>
+                      <div><span className="font-medium">SWIFT Code:</span> SBININBB104</div>
+                      <div><span className="font-medium">Branch:</span> New Delhi Main Branch, FCRA Cell</div>
+                      <div><span className="font-medium">FCRA Registration:</span> 231661997</div>
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="text-center">
+                  <a href="https://srjbtkshetra.org/donation-options/" target="_blank" rel="noopener noreferrer">
+                    <Button className="bg-orange-500 hover:bg-orange-600">
+                      Visit Official Donation Page
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* Official Donation Details for Kashi Vishwanath */}
+            {temple.name === "Shri Kashi Vishwanath Mandir" && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-lg border border-orange-200">
+                  <h3 className="text-xl font-bold text-orange-900 mb-4">Official Bank Details</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* HDFC Main Account */}
+                    <Card className="p-4">
+                      <h4 className="font-bold text-gray-900 mb-3">HDFC Bank - Main Account</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">A/c Name:</span> Shri Kashi Vishwanath Mandir Fund</div>
+                        <div><span className="font-medium">A/C No:</span> 50100176347450</div>
+                        <div><span className="font-medium">IFSC Code:</span> HDFC0000220</div>
+                        <div><span className="font-medium">Branch Code:</span> 0220</div>
+                        <div><span className="font-medium">Branch:</span> Rathayatra, Varanasi</div>
+                      </div>
+                      <div className="mt-3 pt-3 border-t">
+                        <p className="text-xs text-gray-600">For RTGS/NEFT transfers</p>
+                      </div>
+                    </Card>
+
+                    {/* HDFC Anna Kshetram */}
+                    <Card className="p-4">
+                      <h4 className="font-bold text-gray-900 mb-3">HDFC - Anna Kshetram Account</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">A/C No:</span> 50100079361871</div>
+                        <div><span className="font-medium">IFSC Code:</span> HDFC0001465</div>
+                        <div><span className="font-medium">Purpose:</span> Core Banking donations</div>
+                      </div>
+                    </Card>
+
+                    {/* SBI */}
+                    <Card className="p-4">
+                      <h4 className="font-bold text-gray-900 mb-3">State Bank of India</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">A/c Name:</span> Shri Kashi Vishwanath Mandir Fund</div>
+                        <div><span className="font-medium">A/C No:</span> 10389243027</div>
+                        <div><span className="font-medium">IFSC Code:</span> SBIN0009017</div>
+                        <div className="mt-2 text-xs text-gray-600">Donations via SBI ATM using "Trust Donation" option (Min ₹51)</div>
+                      </div>
+                    </Card>
+
+                    {/* FCRA Account */}
+                    <Card className="p-4 bg-green-50">
+                      <h4 className="font-bold text-green-900 mb-3">FCRA Account (Foreign Currency)</h4>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">A/C No:</span> 50100264738596</div>
+                        <div><span className="font-medium">IFSC Code:</span> HDFC0000220</div>
+                        <div><span className="font-medium">SWIFT Code:</span> HDFCINBB</div>
+                        <div><span className="font-medium">Branch Code:</span> 0220</div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-900"><strong>Tax Exemption:</strong> Donations exempted from tax u/s 80G</p>
+                    <p className="text-sm text-blue-900 mt-2"><strong>Cheque/DD Payable to:</strong> "Shri Kashi Vishwanath Mandir Fund"</p>
+                    <p className="text-xs text-gray-600 mt-2">Send to: Chief Executive Officer, Shri Kashi Vishwanath Temple Trust, Vishwanath Gali, Varanasi 221001</p>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <a href="https://shrikashivishwanath.org/general/donate" target="_blank" rel="noopener noreferrer">
+                    <Button className="bg-orange-500 hover:bg-orange-600">
+                      Visit Official Donation Page
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* Official Donation Details for Krishna Janmabhoomi */}
+            {temple.name === "Shri Krishna Janmabhoomi" && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg border border-purple-200">
+                  <h3 className="text-xl font-bold text-purple-900 mb-4">Official Bank Details - Indian Citizens Only</h3>
+                  
+                  <Card className="p-6">
+                    <h4 className="font-bold text-gray-900 mb-4">Axis Bank</h4>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-600">Account Name:</span>
+                          <p className="text-gray-900">Shri Krishna Janmabhoomi Teerth Kshetra</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-600">Account No:</span>
+                          <p className="text-gray-900">922020055152357</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-600">IFSC Code:</span>
+                          <p className="text-gray-900">UTIB0000053</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-600">Bank Name:</span>
+                          <p className="text-gray-900">Axis Bank</p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t">
+                        <p className="font-medium text-gray-600 mb-2">Donate via Mobile / UPI / PayTm</p>
+                        <p className="text-sm text-gray-700">Scan the QR code available on the official website</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <div className="mt-4 p-4 bg-purple-50 rounded-lg">
+                    <p className="text-sm text-purple-900 font-medium mb-2">Donation Options Available:</p>
+                    <ul className="text-sm text-purple-800 space-y-1">
+                      <li>• Daily Annadaan (Food Donation)</li>
+                      <li>• Gau Seva Daan (Cow Service)</li>
+                      <li>• Sadhu Bhojan (Meals for Saints)</li>
+                      <li>• Radha Rani Krishna Seva</li>
+                      <li>• Vidya Daan (Education)</li>
+                      <li>• Vriddha Asaram Daan (Old Age Home)</li>
+                      <li>• Recurring Donations</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <a href="https://skjbtkshetra.org/welcome/all_donation" target="_blank" rel="noopener noreferrer">
+                    <Button className="bg-purple-500 hover:bg-purple-600">
+                      Visit Official Donation Page & View QR Code
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* Generic donation for other temples */}
+            {temple.name !== "Shri Ram Janmbhoomi" && 
+             temple.name !== "Shri Kashi Vishwanath Mandir" && 
+             temple.name !== "Shri Krishna Janmabhoomi" && (
+              <>
+                <div className="grid grid-cols-4 gap-2">
+                  {[100, 500, 1000, 5000].map((amount) => (
+                    <Button
+                      key={amount}
+                      variant={donationAmount === String(amount) ? "default" : "outline"}
+                      onClick={() => setDonationAmount(String(amount))}
+                      className={donationAmount === String(amount) ? 'bg-orange-500 hover:bg-orange-600' : ''}
+                    >
+                      ₹{amount}
+                    </Button>
+                  ))}
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">Custom Amount</Label>
+                  <Input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={donationAmount}
+                    onChange={(e) => setDonationAmount(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="anonymous"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="anonymous" className="cursor-pointer">Make this donation anonymous</Label>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setShowDonationModal(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleDonate}
+                    disabled={donationMutation.isPending}
+                    className="flex-1 bg-orange-500 hover:bg-orange-600"
+                  >
+                    {donationMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <Heart className="w-4 h-4 mr-2" />
+                    )}
+                    Donate ₹{donationAmount || '0'}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
