@@ -38,7 +38,11 @@ import {
   BookOpen,
   Share2,
   Navigation,
-  CalendarDays
+  CalendarDays,
+  Building2,
+  Globe,
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -780,67 +784,223 @@ export default function TempleDetail() {
 
       {/* Donation Modal */}
       <Dialog open={showDonationModal} onOpenChange={setShowDonationModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Donate to {temple?.name}</DialogTitle>
+            <DialogTitle className="text-2xl">Donate to {temple?.name}</DialogTitle>
             <DialogDescription>
               Your contribution helps maintain the temple and support religious activities.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
-            <div className="grid grid-cols-4 gap-2">
-              {[100, 500, 1000, 5000].map((amount) => (
-                <Button
-                  key={amount}
-                  variant={donationAmount === String(amount) ? "default" : "outline"}
-                  onClick={() => setDonationAmount(String(amount))}
-                  className={donationAmount === String(amount) ? 'bg-orange-500 hover:bg-orange-600' : ''}
-                >
-                  ₹{amount}
-                </Button>
-              ))}
-            </div>
-
-            <div>
-              <Label className="mb-2 block">Custom Amount</Label>
-              <Input
-                type="number"
-                placeholder="Enter amount"
-                value={donationAmount}
-                onChange={(e) => setDonationAmount(e.target.value)}
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="anonymous"
-                checked={isAnonymous}
-                onChange={(e) => setIsAnonymous(e.target.checked)}
-                className="rounded border-gray-300"
-              />
-              <Label htmlFor="anonymous" className="cursor-pointer">Make this donation anonymous</Label>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowDonationModal(false)} className="flex-1">
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleDonate}
-              disabled={donationMutation.isPending}
-              className="flex-1 bg-orange-500 hover:bg-orange-600"
-            >
-              {donationMutation.isPending ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              ) : (
-                <Heart className="w-4 h-4 mr-2" />
+          {temple?.donation_details ? (
+            <div className="space-y-6 py-4">
+              {/* UPI Details */}
+              {temple.donation_details.upi_id && (
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-orange-600" />
+                    Donate Using UPI
+                  </h3>
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">UPI ID</p>
+                    <p className="font-mono text-lg font-semibold text-gray-900">
+                      {temple.donation_details.upi_id}
+                    </p>
+                  </div>
+                  {temple.donation_details.qr_code_url && (
+                    <div className="mt-3 text-center">
+                      <img 
+                        src={temple.donation_details.qr_code_url} 
+                        alt="UPI QR Code" 
+                        className="w-48 h-48 mx-auto border-2 border-orange-200 rounded-lg"
+                      />
+                      <p className="text-xs text-gray-600 mt-2">Scan to pay</p>
+                    </div>
+                  )}
+                </div>
               )}
-              Donate ₹{donationAmount || '0'}
-            </Button>
-          </div>
+
+              {/* Bank Account Details */}
+              {temple.donation_details.bank_accounts && temple.donation_details.bank_accounts.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-blue-600" />
+                    Bank Transfer (NEFT/RTGS/IMPS)
+                  </h3>
+                  {temple.donation_details.bank_accounts.map((account, idx) => (
+                    <Card key={idx} className="p-4 bg-blue-50 border-blue-200">
+                      <h4 className="font-semibold text-blue-900 mb-3">{account.bank_name}</h4>
+                      <div className="space-y-2 text-sm">
+                        {account.account_name && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Account Name:</span>
+                            <span className="font-semibold text-gray-900">{account.account_name}</span>
+                          </div>
+                        )}
+                        {account.account_number && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Account Number:</span>
+                            <span className="font-mono font-semibold text-gray-900">{account.account_number}</span>
+                          </div>
+                        )}
+                        {account.ifsc_code && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">IFSC Code:</span>
+                            <span className="font-mono font-semibold text-gray-900">{account.ifsc_code}</span>
+                          </div>
+                        )}
+                        {account.swift_code && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">SWIFT Code:</span>
+                            <span className="font-mono font-semibold text-gray-900">{account.swift_code}</span>
+                          </div>
+                        )}
+                        {account.branch && (
+                          <div>
+                            <p className="text-gray-600 mb-1">Branch:</p>
+                            <p className="font-medium text-gray-900">{account.branch}</p>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* FCRA Account for Foreign Donations */}
+              {temple.donation_details.fcra_account && (
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-green-900">
+                    <Globe className="w-5 h-5 text-green-600" />
+                    For Non-Indian Passport Holders (FCRA Account)
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    {temple.donation_details.fcra_account.account_name && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Account Name:</span>
+                        <span className="font-semibold text-gray-900">{temple.donation_details.fcra_account.account_name}</span>
+                      </div>
+                    )}
+                    {temple.donation_details.fcra_account.account_number && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Account Number:</span>
+                        <span className="font-mono font-semibold text-gray-900">{temple.donation_details.fcra_account.account_number}</span>
+                      </div>
+                    )}
+                    {temple.donation_details.fcra_account.ifsc_code && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">IFSC Code:</span>
+                        <span className="font-mono font-semibold text-gray-900">{temple.donation_details.fcra_account.ifsc_code}</span>
+                      </div>
+                    )}
+                    {temple.donation_details.fcra_account.swift_code && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">SWIFT Code:</span>
+                        <span className="font-mono font-semibold text-gray-900">{temple.donation_details.fcra_account.swift_code}</span>
+                      </div>
+                    )}
+                    {temple.donation_details.fcra_account.branch && (
+                      <div>
+                        <p className="text-gray-600 mb-1">Branch:</p>
+                        <p className="font-medium text-gray-900">{temple.donation_details.fcra_account.branch}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tax Exemption Details */}
+              {temple.donation_details.tax_exemption_details && (
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                  <h4 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Tax Benefits
+                  </h4>
+                  <p className="text-sm text-yellow-900 whitespace-pre-line">
+                    {temple.donation_details.tax_exemption_details}
+                  </p>
+                </div>
+              )}
+
+              {/* Donation Note */}
+              {temple.donation_details.donation_note && (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-900 whitespace-pre-line">
+                    {temple.donation_details.donation_note}
+                  </p>
+                </div>
+              )}
+
+              {/* Official Donation Link */}
+              {temple.donation_details.official_donation_url && (
+                <div className="text-center pt-4 border-t">
+                  <a
+                    href={temple.donation_details.official_donation_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Visit Official Donation Page
+                  </a>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-4 gap-2">
+                {[100, 500, 1000, 5000].map((amount) => (
+                  <Button
+                    key={amount}
+                    variant={donationAmount === String(amount) ? "default" : "outline"}
+                    onClick={() => setDonationAmount(String(amount))}
+                    className={donationAmount === String(amount) ? 'bg-orange-500 hover:bg-orange-600' : ''}
+                  >
+                    ₹{amount}
+                  </Button>
+                ))}
+              </div>
+
+              <div>
+                <Label className="mb-2 block">Custom Amount</Label>
+                <Input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={donationAmount}
+                  onChange={(e) => setDonationAmount(e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="anonymous"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="anonymous" className="cursor-pointer">Make this donation anonymous</Label>
+              </div>
+
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setShowDonationModal(false)} className="flex-1">
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleDonate}
+                  disabled={donationMutation.isPending}
+                  className="flex-1 bg-orange-500 hover:bg-orange-600"
+                >
+                  {donationMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Heart className="w-4 h-4 mr-2" />
+                  )}
+                  Donate ₹{donationAmount || '0'}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
