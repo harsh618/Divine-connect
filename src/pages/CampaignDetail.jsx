@@ -36,6 +36,14 @@ const categoryConfig = {
   medical: { icon: '⚕️', color: 'red', label: 'Medical' }
 };
 
+const categoryColors = {
+  temple_renovation: 'bg-orange-100 text-orange-700',
+  gaushala: 'bg-green-100 text-green-700',
+  anna_daan: 'bg-pink-100 text-pink-700',
+  education: 'bg-blue-100 text-blue-700',
+  medical: 'bg-purple-100 text-purple-700'
+};
+
 export default function CampaignDetail() {
   const queryClient = useQueryClient();
   const [donationAmount, setDonationAmount] = useState('');
@@ -132,72 +140,89 @@ export default function CampaignDetail() {
         <div className="grid md:grid-cols-3 gap-8 mt-6">
           {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
-            {/* Hero Image */}
-            <Card className="overflow-hidden">
-              <img
-                src={campaign.images?.[0] || campaign.thumbnail_url || 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800'}
-                alt={campaign.title}
-                className="w-full h-96 object-cover"
-              />
-            </Card>
-
-            {/* Campaign Info */}
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-3xl">{config.icon}</span>
-                <span className={`text-sm font-medium text-${config.color}-600 bg-${config.color}-50 px-3 py-1 rounded-full`}>
-                  {config.label}
-                </span>
+            {/* Campaign Overview Card */}
+            <Card className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-3xl">
+                  {config.icon}
+                </div>
+                <div className="flex-1">
+                  <Badge className={`${categoryColors[campaign.category] || 'bg-orange-100 text-orange-700'} mb-2`}>
+                    {config.label}
+                  </Badge>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    {campaign.title}
+                  </h1>
+                  {campaign.location && (
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm">{campaign.location}</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                {campaign.title}
-              </h1>
-
-              <p className="text-gray-600 mb-6 text-lg">
-                {campaign.description}
-              </p>
-
-              {/* Progress */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-2xl font-bold text-gray-900">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-3 gap-4 p-4 bg-white/60 rounded-lg">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-orange-600">
                     ₹{(campaign.raised_amount || 0).toLocaleString('en-IN')}
-                  </span>
-                  <span className="text-gray-500">
-                    of ₹{campaign.goal_amount.toLocaleString('en-IN')}
-                  </span>
+                  </p>
+                  <p className="text-xs text-gray-600">Raised</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-gray-900">
+                    {progress.toFixed(0)}%
+                  </p>
+                  <p className="text-xs text-gray-600">Funded</p>
+                </div>
+                {daysLeft !== null && daysLeft > 0 && (
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">
+                      {daysLeft}
+                    </p>
+                    <p className="text-xs text-gray-600">Days Left</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-gray-600">Goal: ₹{campaign.goal_amount.toLocaleString('en-IN')}</span>
+                  <span className="text-orange-600 font-semibold">{progress.toFixed(1)}%</span>
                 </div>
                 <Progress value={progress} className="h-3" />
-                <p className="text-sm text-gray-500 mt-2">
-                  {progress.toFixed(0)}% funded
-                </p>
               </div>
-
-              {/* Meta Info */}
-              <div className="grid grid-cols-2 gap-4 py-4 border-t border-b">
-                {daysLeft !== null && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-500">Time Left</p>
-                      <p className="font-semibold text-gray-900">
-                        {daysLeft > 0 ? `${daysLeft} days` : 'Ended'}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {campaign.location && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-gray-400" />
-                    <div>
-                      <p className="text-sm text-gray-500">Location</p>
-                      <p className="font-semibold text-gray-900">{campaign.location}</p>
-                    </div>
-                  </div>
+            </Card>
+            {/* Hero Image Gallery */}
+            <Card className="overflow-hidden">
+              <div className="relative">
+                <img
+                  src={campaign.images?.[0] || campaign.thumbnail_url || 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800'}
+                  alt={campaign.title}
+                  className="w-full h-96 object-cover"
+                />
+                {campaign.status === 'completed' && (
+                  <Badge className="absolute top-4 right-4 bg-green-500 text-white">
+                    Campaign Completed ✓
+                  </Badge>
                 )}
               </div>
             </Card>
+
+            {/* Description - Short Overview */}
+            {campaign.description && (
+              <Card className="p-6">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Info className="w-6 h-6 text-blue-500" />
+                  Campaign Overview
+                </h2>
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  {campaign.description}
+                </p>
+              </Card>
+            )}
 
             {/* Purpose */}
             {campaign.purpose && (
