@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -126,7 +127,7 @@ export default function CampaignDetail() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <BackButton to="/donate" label="Back to Campaigns" />
+        <BackButton to={createPageUrl('Donate') + '#campaigns'} label="Back to Campaigns" />
 
         <div className="grid md:grid-cols-3 gap-8 mt-6">
           {/* Main Content */}

@@ -357,42 +357,11 @@ export default function Donate() {
     <div className="min-h-screen bg-white pb-24 md:pb-8">
       <PageHero page="donate" />
 
-      <div className="container mx-auto px-6 py-16">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="p-6 bg-white shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-orange-100">
-                <Target className="w-6 h-6 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">₹{totalRaised.toLocaleString()}</p>
-                <p className="text-sm text-gray-500">Total Raised</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6 bg-white shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-green-100">
-                <Heart className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{campaigns?.length || 0}</p>
-                <p className="text-sm text-gray-500">Active Campaigns</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6 bg-white shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-purple-100">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">5,000+</p>
-                <p className="text-sm text-gray-500">Generous Donors</p>
-              </div>
-            </div>
-          </Card>
+      <div className="container mx-auto px-6 py-16" id="campaigns">
+        {/* Campaigns Section Header */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Active Campaigns</h2>
+          <p className="text-gray-600">Support causes that matter to you</p>
         </div>
 
         {/* Filters */}
