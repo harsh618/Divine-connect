@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import {
   Dialog,
@@ -34,7 +34,7 @@ const PRASAD_STAGES = {
   CONFIRMATION: 4
 };
 
-export default function PrasadOrderModal({ open, onClose, templeId, prasadItems: initialPrasadItems }) {
+export default function PrasadOrderModal({ open, onClose, templeId, prasadItems }) {
   const queryClient = useQueryClient();
   const [currentStage, setCurrentStage] = useState(PRASAD_STAGES.SELECT_ITEMS);
   const [selectedItems, setSelectedItems] = useState({});
@@ -49,12 +49,6 @@ export default function PrasadOrderModal({ open, onClose, templeId, prasadItems:
   });
   const [deliveryDate, setDeliveryDate] = useState(null);
   const [specialInstructions, setSpecialInstructions] = useState('');
-
-  const { data: prasadItems, isLoading: loadingPrasad } = useQuery({
-    queryKey: ['prasad-modal', templeId],
-    queryFn: () => base44.entities.PrasadItem.filter({ temple_id: templeId, is_deleted: false }),
-    enabled: open && !!templeId
-  });
 
   const orderMutation = useMutation({
     mutationFn: async (orderData) => {
@@ -185,55 +179,38 @@ export default function PrasadOrderModal({ open, onClose, templeId, prasadItems:
           {currentStage === PRASAD_STAGES.SELECT_ITEMS && (
             <div className="space-y-4">
               <p className="text-gray-600 mb-4">Select prasad items and quantities</p>
-              {loadingPrasad ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
-                </div>
-              ) : prasadItems?.length > 0 ? (
-                prasadItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                    {item.image_url && (
-                      <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded" />
-                    )}
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{item.name}</h3>
-                      <p className="text-sm text-gray-600">{item.description}</p>
-                      <p className="text-orange-600 font-bold mt-1">₹{item.price}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => updateQuantity(item.id, -1)}
-                        disabled={!selectedItems[item.id]}
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                      <span className="w-12 text-center font-semibold">
-                        {selectedItems[item.id] || 0}
-                      </span>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => updateQuantity(item.id, 1)}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
+              {prasadItems?.map((item) => (
+                <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                  {item.image_url && (
+                    <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{item.name}</h3>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                    <p className="text-orange-600 font-bold mt-1">₹{item.price}</p>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No prasad items available at this temple</p>
-                  <Button 
-                    onClick={handleClose}
-                    className="mt-4 bg-orange-500 hover:bg-orange-600"
-                  >
-                    Close
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => updateQuantity(item.id, -1)}
+                      disabled={!selectedItems[item.id]}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-12 text-center font-semibold">
+                      {selectedItems[item.id] || 0}
+                    </span>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => updateQuantity(item.id, 1)}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
           )}
 
