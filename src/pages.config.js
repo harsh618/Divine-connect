@@ -24,8 +24,9 @@ import PriestDashboard from './pages/PriestDashboard';
 import PriestProfile from './pages/PriestProfile';
 import Priests from './pages/Priests';
 import Profile from './pages/Profile';
-import Temples from './pages/Temples';
 import TempleDetail from './pages/TempleDetail';
+import Temples from './pages/Temples';
+import EnhancedPoojaBooking from './pages/EnhancedPoojaBooking';
 import __Layout from './Layout.jsx';
 
 
@@ -56,8 +57,9 @@ export const PAGES = {
     "PriestProfile": PriestProfile,
     "Priests": Priests,
     "Profile": Profile,
-    "Temples": Temples,
     "TempleDetail": TempleDetail,
+    "Temples": Temples,
+    "EnhancedPoojaBooking": EnhancedPoojaBooking,
 }
 
 export const pagesConfig = {
