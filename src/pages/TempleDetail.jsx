@@ -1014,12 +1014,15 @@ export default function TempleDetail() {
       )}
 
       {/* Prasad Order Modal */}
-      <PrasadOrderModal
-        open={showPrasadOrderModal}
-        onClose={() => setShowPrasadOrderModal(false)}
-        templeId={templeId}
-        prasadItems={prasadItems || []}
-      />
+      {showPrasadOrderModal && (
+        <PrasadOrderModal
+          isOpen={showPrasadOrderModal}
+          onClose={() => setShowPrasadOrderModal(false)}
+          templeId={templeId}
+          templeName={temple?.name}
+          initialItems={selectedPrasadItems}
+        />
+      )}
 
       {/* Review Modal */}
       <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
