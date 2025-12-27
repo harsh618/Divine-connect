@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import ReactMarkdown from 'react-markdown';
+import FAQSection from '../components/faq/FAQSection';
 
 export default function ArticleDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -36,7 +37,7 @@ export default function ArticleDetail() {
       is_published: true, 
       is_deleted: false,
       temple_id: article.temple_id || null
-    }, '-created_date', 3),
+    }, '-created_date', 6),
     enabled: !!article
   });
 
@@ -156,16 +157,20 @@ export default function ArticleDetail() {
           </div>
         </div>
 
-        {/* Related Articles */}
+        {/* FAQ Section */}
+        <div className="py-16 border-t border-border">
+          <FAQSection entityType="article" entityId={articleId} entityData={article} />
+        </div>
+
+        {/* Read More Articles */}
         {relatedArticles && relatedArticles.length > 1 && (
           <div className="py-16 border-t border-border">
             <h2 className="text-2xl font-normal text-foreground mb-8 tracking-wide">
-              {article.temple_id ? 'More from this Temple' : 'Related Stories'}
+              Read More
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {relatedArticles
                 .filter(a => a.id !== article.id)
-                .slice(0, 3)
                 .map(relatedArticle => (
                   <Link key={relatedArticle.id} to={createPageUrl(`ArticleDetail?id=${relatedArticle.id}`)}>
                     <div className="group cursor-pointer">
