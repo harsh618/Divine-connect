@@ -492,11 +492,11 @@ export default function TempleDetail() {
       </div>
 
       {/* Floating Ritual Dock */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden md:flex h-20 px-8 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-full items-center gap-6 shadow-[0_0_50px_rgba(217,119,6,0.2)]">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/10 shadow-2xl">
         <Button
           onClick={() => setShowBookingModal(true)}
           disabled={!temple.visit_booking_enabled}
-          className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-6 rounded-full hover:scale-110 transition-all"
+          className="rounded-full bg-amber-500 hover:bg-amber-600 text-black font-bold px-6 h-12"
         >
           <CalendarIcon className="w-4 h-4 mr-2" />
           Book Darshan
@@ -504,11 +504,20 @@ export default function TempleDetail() {
         <Button
           variant="ghost"
           onClick={() => setShowDonationTypeModal(true)}
-          className="border border-white/30 text-white hover:bg-white/10 px-6 rounded-full"
+          className="rounded-full text-white border border-white/20 hover:bg-white/10 px-6 h-12"
         >
           <Heart className="w-4 h-4 mr-2" />
           Donate
         </Button>
+        <Button
+          variant="ghost"
+          onClick={() => setShowItineraryModal(true)}
+          className="rounded-full text-white hover:text-amber-400 hover:bg-white/5 px-4 h-12"
+        >
+          <MapPin className="w-4 h-4 mr-2" />
+          Plan Trip
+        </Button>
+        <div className="h-8 w-[1px] bg-white/20 mx-1" />
         <Button
           variant="ghost"
           onClick={() => {
@@ -520,17 +529,19 @@ export default function TempleDetail() {
             }
           }}
           size="icon"
-          className="text-white hover:bg-white/10 rounded-full w-12 h-12"
+          className="rounded-full text-white hover:bg-white/10 h-12 w-12"
           title="Order Prasad"
         >
           <Package className="w-5 h-5" />
         </Button>
       </div>
 
-      <div className="container mx-auto px-8 max-w-7xl mt-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+      {/* Light Mode Body Content */}
+      <div className="bg-[#FAFAF9] py-16">
+        <div className="container mx-auto px-8 max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Left Column - Narrative (2/3) */}
+            <div className="lg:col-span-2 space-y-12">
 
             {/* Priest Article Seva */}
             {isPriest && (
@@ -555,52 +566,36 @@ export default function TempleDetail() {
               </Card>
             )}
 
-            {/* About - Split Screen Scroller */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-screen">
-              {/* Left: Sticky Visual */}
-              <div className="sticky top-0 h-screen hidden lg:flex items-center justify-center bg-gradient-to-br from-amber-500/10 to-orange-500/10 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,6,0.3),transparent)]" />
-                </div>
-                <img
-                  src={images[1] || images[0]}
-                  alt={temple.primary_deity}
-                  className="relative w-4/5 h-4/5 object-cover rounded-3xl shadow-2xl mix-blend-overlay"
-                />
-              </div>
-
-              {/* Right: Scrolling Content */}
-              <div className="bg-[#09090b] p-12 space-y-12">
-                <div>
-                  <h2 className="text-3xl text-amber-500 font-serif italic mb-6">About This Temple</h2>
-                  <div className="prose prose-lg max-w-none text-white/70 font-light">
-                    <ReactMarkdown
-                      components={{
-                        p: ({ children }) => {
-                          const text = String(children);
-                          const firstLetter = text.charAt(0);
-                          const rest = text.slice(1);
-                          return (
-                            <p className="mb-6 leading-relaxed">
-                              <span className="float-left text-7xl font-serif text-amber-400 leading-none mr-3 mt-2">
-                                {firstLetter}
-                              </span>
-                              {rest}
-                            </p>
-                          );
-                        },
-                        strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-                      }}
-                    >
-                      {temple.description || 'A sacred place of worship and spiritual significance.'}
-                    </ReactMarkdown>
-                  </div>
+              {/* About Section */}
+              <Card className="p-10 bg-white shadow-sm border-gray-100">
+                <h2 className="text-3xl font-serif text-amber-600 mb-6">About This Temple</h2>
+                <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => {
+                        const text = String(children);
+                        const firstLetter = text.charAt(0);
+                        const rest = text.slice(1);
+                        return (
+                          <p className="mb-6 leading-relaxed">
+                            <span className="float-left text-6xl font-serif text-amber-600 leading-none mr-3 mt-1">
+                              {firstLetter}
+                            </span>
+                            {rest}
+                          </p>
+                        );
+                      },
+                      strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                    }}
+                  >
+                    {temple.description || 'A sacred place of worship and spiritual significance.'}
+                  </ReactMarkdown>
                 </div>
 
                 {temple.significance && (
-                  <div className="pt-12 border-t border-white/10">
-                    <h3 className="text-3xl text-amber-500 font-serif italic mb-6">Significance</h3>
-                    <div className="prose max-w-none text-white/70 font-light">
+                  <div className="mt-10 pt-8 border-t border-gray-200">
+                    <h3 className="text-2xl font-serif text-amber-600 mb-4">Significance</h3>
+                    <div className="prose max-w-none text-gray-700 leading-relaxed">
                       <ReactMarkdown>
                         {temple.significance}
                       </ReactMarkdown>
@@ -609,54 +604,53 @@ export default function TempleDetail() {
                 )}
 
                 {temple.history && (
-                  <div className="pt-12 border-t border-white/10">
-                    <h3 className="text-3xl text-amber-500 font-serif italic mb-6">History</h3>
-                    <div className="prose max-w-none text-white/70 font-light">
+                  <div className="mt-10 pt-8 border-t border-gray-200">
+                    <h3 className="text-2xl font-serif text-amber-600 mb-4">History</h3>
+                    <div className="prose max-w-none text-gray-700 leading-relaxed">
                       <ReactMarkdown>
                         {temple.history}
                       </ReactMarkdown>
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+              </Card>
 
-            {/* Upcoming Festivals - Constellation Timeline */}
-            <Card className="p-12 bg-[#09090b] border border-white/10">
-              <h2 className="text-3xl font-serif mb-12 text-white">The Cosmic Calendar</h2>
-              {loadingFestivals ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
-                </div>
-              ) : upcomingFestivals?.length > 0 ? (
-                <div className="relative pl-8">
-                  {/* Vertical Glowing Line */}
-                  <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-amber-500/0 via-amber-500 to-amber-500/0" />
-                  
-                  <div className="space-y-12">
-                    {upcomingFestivals.map((festival, idx) => (
-                      <div key={idx} className="relative group cursor-pointer">
-                        {/* Star Node */}
-                        <div className="absolute -left-8 top-3 w-4 h-4 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(217,119,6,0.8)] group-hover:shadow-[0_0_25px_rgba(217,119,6,1)] transition-all" />
-                        
-                        {/* Card */}
-                        <div className="bg-transparent group-hover:bg-white/5 p-6 rounded-xl transition-all border border-transparent group-hover:border-white/10">
-                          <h3 className="text-2xl font-serif text-white mb-2">{festival.name}</h3>
-                          <p className="font-mono text-xs tracking-widest uppercase text-amber-400 mb-3">{festival.date}</p>
-                          <p className="text-sm text-white/60 leading-relaxed">{festival.description}</p>
-                          {festival.significance && (
-                            <p className="text-xs text-white/40 mt-3 italic">
-                              {festival.significance}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+              {/* Upcoming Festivals - Timeline */}
+              <Card className="p-10 bg-white shadow-sm border-gray-100">
+                <h2 className="text-3xl font-serif text-amber-600 mb-8">Upcoming Festivals</h2>
+                {loadingFestivals ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-amber-600" />
                   </div>
-                </div>
-              ) : (
-                <p className="text-white/40 text-center py-8">Loading cosmic events...</p>
-              )}
+                ) : upcomingFestivals?.length > 0 ? (
+                  <div className="relative pl-8">
+                    {/* Vertical Line */}
+                    <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-gray-300/0 via-gray-300 to-gray-300/0" />
+                    
+                    <div className="space-y-8">
+                      {upcomingFestivals.map((festival, idx) => (
+                        <div key={idx} className="relative group">
+                          {/* Timeline Dot */}
+                          <div className="absolute -left-8 top-2 w-4 h-4 bg-amber-500 rounded-full shadow-md group-hover:scale-125 transition-all" />
+                          
+                          {/* Festival Card */}
+                          <div className="group-hover:bg-amber-50/50 p-5 rounded-lg transition-all">
+                            <h3 className="text-xl font-serif text-gray-900 mb-2">{festival.name}</h3>
+                            <p className="font-mono text-xs tracking-widest uppercase text-amber-600 mb-3">{festival.date}</p>
+                            <p className="text-sm text-gray-600 leading-relaxed">{festival.description}</p>
+                            {festival.significance && (
+                              <p className="text-xs text-gray-500 mt-2 italic">
+                                {festival.significance}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-center py-8">Loading festival information...</p>
+                )}
 
               {/* Static Festivals */}
               {temple.festivals?.length > 0 && (
@@ -750,50 +744,56 @@ export default function TempleDetail() {
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            {/* Info Card */}
-            <Card className="p-6 border-0 shadow-sm">
-              <h3 className="font-normal text-lg text-foreground mb-6 tracking-wide">Temple Information</h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-orange-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-gray-900">Opening Hours</p>
-                    <p className="text-sm text-gray-600">{temple.opening_hours || '5:00 AM - 9:00 PM'}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-orange-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-gray-900">Location</p>
-                    <p className="text-sm text-gray-600">{temple.location || `${temple.city}, ${temple.state}`}</p>
-                  </div>
-                </div>
-                {temple.dress_code && (
-                  <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-orange-500 mt-0.5" />
+            {/* Right Column - Sticky Sidebar (1/3) */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Quick Info Card - Sticky */}
+              <Card className="p-8 bg-white shadow-xl border-gray-100 lg:sticky lg:top-24">
+                <h3 className="text-xl font-serif text-amber-600 mb-6">Temple Information</h3>
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-5 h-5 text-amber-600" />
+                    </div>
                     <div>
-                      <p className="font-medium text-gray-900">Dress Code</p>
-                      <p className="text-sm text-gray-600">{temple.dress_code}</p>
+                      <p className="font-semibold text-gray-900 mb-1">Opening Hours</p>
+                      <p className="text-sm text-gray-600">{temple.opening_hours || '5:00 AM - 9:00 PM'}</p>
                     </div>
                   </div>
-                )}
-              </div>
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 mb-1">Location</p>
+                      <p className="text-sm text-gray-600">{temple.location || `${temple.city}, ${temple.state}`}</p>
+                    </div>
+                  </div>
+                  {temple.dress_code && (
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+                        <Users className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900 mb-1">Dress Code</p>
+                        <p className="text-sm text-gray-600">{temple.dress_code}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-              <Button 
-                onClick={handleGetDirections}
-                className="w-full mt-4 bg-orange-500 hover:bg-orange-600"
-              >
-                <Navigation className="w-4 h-4 mr-2" />
-                Get Directions
-              </Button>
-            </Card>
+                <Button 
+                  onClick={handleGetDirections}
+                  className="w-full mt-6 bg-amber-600 hover:bg-amber-700 text-white h-12 rounded-lg"
+                >
+                  <Navigation className="w-4 h-4 mr-2" />
+                  Get Directions
+                </Button>
+              </Card>
 
-            {/* Saved Itineraries */}
-            {savedItineraries?.length > 0 && (
-              <Card className="p-6 border-0 shadow-sm">
-                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Planned Trips</h3>
+              {/* Saved Itineraries */}
+              {savedItineraries?.length > 0 && (
+                <Card className="p-6 bg-white shadow-xl border-gray-100">
+                  <h3 className="font-semibold text-gray-900 mb-4">Planned Trips</h3>
                 <div className="space-y-3">
                   {savedItineraries.map((itinerary) => (
                     <div key={itinerary.id} className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
@@ -816,10 +816,10 @@ export default function TempleDetail() {
               </Card>
             )}
 
-            {/* Upcoming Bookings */}
-            {templeBookings?.length > 0 && (
-              <Card className="p-6 border-0 shadow-sm">
-                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Upcoming Visits</h3>
+              {/* Upcoming Bookings */}
+              {templeBookings?.length > 0 && (
+                <Card className="p-6 bg-white shadow-xl border-gray-100">
+                  <h3 className="font-semibold text-gray-900 mb-4">Upcoming Visits</h3>
                 <div className="space-y-3">
                   {templeBookings.map((booking) => (
                     <Link key={booking.id} to={createPageUrl('MyBookings')}>
@@ -853,11 +853,11 @@ export default function TempleDetail() {
               </Card>
             )}
 
-            {/* Prasad Preview */}
-            {prasadItems?.length > 0 && (
-              <Card className="p-6 border-0 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-normal text-lg text-foreground tracking-wide">Prasad Available</h3>
+              {/* Prasad Preview */}
+              {prasadItems?.length > 0 && (
+                <Card className="p-6 bg-white shadow-xl border-gray-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Prasad Available</h3>
                   <Button 
                     variant="ghost" 
                     size="sm" 
