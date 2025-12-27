@@ -91,8 +91,10 @@ function LayoutContent({ children, currentPageName }) {
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
                 <Link key={link.name} to={createPageUrl(link.page)}>
-                  <span className={`text-xs hover:text-foreground transition-colors cursor-pointer uppercase tracking-widest font-light ${
-                    currentPageName === link.page ? 'text-foreground font-normal' : 'text-muted-foreground'
+                  <span className={`text-xs hover:text-gray-900 transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
+                    currentPageName === link.page 
+                      ? 'text-[#D97706] border-[#D97706] font-semibold' 
+                      : 'text-gray-600 border-transparent hover:border-[#D97706]'
                   }`}>
                     {link.name}
                   </span>
@@ -185,8 +187,7 @@ function LayoutContent({ children, currentPageName }) {
               ) : (
                 <Button
                   onClick={() => base44.auth.redirectToLogin()}
-                  variant="outline"
-                  className="border-border hover:bg-muted text-foreground rounded-none px-6 text-sm uppercase tracking-wider"
+                  className="bg-white border-[1.5px] border-[#D97706] text-[#D97706] hover:bg-[#D97706] hover:text-white rounded-md px-5 text-xs uppercase tracking-wider font-semibold transition-all"
                 >
                   Sign In
                 </Button>
