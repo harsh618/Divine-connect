@@ -39,43 +39,43 @@ const categories = [
 
 function PoojaCard({ pooja }) {
   const defaultImage = "https://images.unsplash.com/photo-1604608672516-f1e3c1f9f6e6?w=800";
-  
+
   return (
     <Link to={createPageUrl(`PoojaDetail?id=${pooja.id}`)}>
-      <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer">
-        <div className="relative h-48 overflow-hidden">
+      <Card className="group overflow-hidden border border-border hover:border-primary/30 transition-all duration-300 cursor-pointer bg-card">
+        <div className="relative h-56 overflow-hidden">
           <img 
             src={pooja.image_url || defaultImage} 
             alt={pooja.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           {pooja.is_popular && (
-            <Badge className="absolute top-3 right-3 bg-orange-500 text-white border-0">
+            <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground border-0 text-xs uppercase tracking-wider">
               Popular
             </Badge>
           )}
-          <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="font-semibold text-lg text-white mb-1">
+          <div className="absolute bottom-4 left-4 right-4">
+            <h3 className="font-normal text-base text-white">
               {pooja.name}
             </h3>
           </div>
         </div>
-        <div className="p-5">
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <div className="p-6">
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-2 font-light">
             {pooja.purpose || pooja.description}
           </p>
-          
-          <div className="flex items-center justify-between mb-3">
+
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <p className="text-xs text-gray-500 mb-1">Starting from</p>
-              <p className="text-2xl font-bold text-orange-600">
+              <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-light">Starting from</p>
+              <p className="text-xl font-normal text-primary">
                 ₹{pooja.base_price_virtual || pooja.base_price_temple || pooja.base_price_in_person}
               </p>
             </div>
             {pooja.duration_minutes && (
               <div className="text-right">
-                <p className="text-xs text-gray-500 flex items-center justify-end">
+                <p className="text-xs text-muted-foreground flex items-center justify-end font-light">
                   <Clock className="w-3 h-3 mr-1" />
                   {pooja.duration_minutes} mins
                 </p>
@@ -83,14 +83,14 @@ function PoojaCard({ pooja }) {
             )}
           </div>
 
-          <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600">
+          <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs uppercase tracking-wider">
             Book Now
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <ArrowRight className="w-3 h-3 ml-2" />
           </Button>
 
           {pooja.required_items?.length > 0 && (
-            <div className="mt-3 pt-3 border-t">
-              <p className="text-xs text-gray-500 flex items-start">
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-xs text-muted-foreground flex items-start font-light">
                 <Package className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
                 <span className="line-clamp-1">{pooja.required_items.slice(0, 3).join(', ')}</span>
               </p>
@@ -146,7 +146,7 @@ export default function Poojas() {
   });
 
   return (
-    <div className="min-h-screen bg-white pb-24 md:pb-8">
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
       {/* Hero Section with Rotating Images */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Background Images with Transition */}
@@ -166,45 +166,45 @@ export default function Poojas() {
 
         {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-4xl">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-orange-200 text-sm mb-8">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md px-5 py-2 border border-white/20 text-white text-xs mb-12 uppercase tracking-widest">
+            <Sparkles className="w-3 h-3" />
             Sacred Rituals
           </div>
-          
-          <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight" style={{ 
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 53, 0.3)' 
+
+          <h1 className="text-5xl md:text-7xl font-light text-white mb-8 leading-tight tracking-wide" style={{ 
+            textShadow: '0 4px 20px rgba(0, 0, 0, 0.5)' 
           }}>
             Book Sacred Poojas
           </h1>
-          
-          <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
+
+          <p className="text-lg md:text-xl text-white/80 mb-8 font-light max-w-2xl mx-auto">
             Connect with experienced priests for authentic Hindu rituals
           </p>
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
-          <span className="text-xs">Explore</span>
-          <div className="w-1 h-3 bg-white/50 rounded-full" />
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50">
+          <span className="text-xs uppercase tracking-widest font-light">Explore</span>
+          <div className="w-px h-8 bg-white/30" />
         </div>
       </section>
 
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-8 py-20 max-w-7xl">
         {/* Search & Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-card border border-border p-8 mb-12">
+          <div className="flex flex-col md:flex-row gap-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search poojas..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12"
+                className="pl-12 h-14 border-border bg-background text-sm"
               />
             </div>
-            
+
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full md:w-48 h-12">
+              <SelectTrigger className="w-full md:w-56 h-14 border-border text-sm">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -217,7 +217,7 @@ export default function Poojas() {
             <Button
               variant={showVirtualOnly ? "default" : "outline"}
               onClick={() => setShowVirtualOnly(!showVirtualOnly)}
-              className={`h-12 ${showVirtualOnly ? 'bg-blue-500 hover:bg-blue-600' : ''}`}
+              className={`h-14 border-border text-sm uppercase tracking-wider ${showVirtualOnly ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
             >
               <Video className="w-4 h-4 mr-2" />
               Virtual Only
@@ -226,7 +226,7 @@ export default function Poojas() {
         </div>
 
         {/* Poojas Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => <PoojaCardSkeleton key={i} />)
           ) : filteredPoojas?.length > 0 ? (
