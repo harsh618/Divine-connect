@@ -110,7 +110,7 @@ function LayoutContent({ children, currentPageName }) {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="rounded-full hover:bg-muted"
+                      className="rounded-full bg-white hover:bg-white/90 text-black"
                     >
                       <User className="w-4 h-4" />
                     </Button>
