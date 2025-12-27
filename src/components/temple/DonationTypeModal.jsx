@@ -94,46 +94,34 @@ export default function DonationTypeModal({ isOpen, onClose, templeId, templeNam
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : campaigns?.length > 0 ? (
-            <div className="space-y-4">
-            {campaigns.map((campaign) => (
-              <Link key={campaign.id} to={createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)} onClick={onClose}>
-                <Card className="p-6 hover:border-primary transition-all cursor-pointer">
-                  <div className="flex gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {campaigns.map((campaign) => (
+                <Link key={campaign.id} to={createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)} onClick={onClose}>
+                  <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all cursor-pointer h-full">
                     {campaign.thumbnail_url && (
-                      <img
-                        src={campaign.thumbnail_url}
-                        alt={campaign.title}
-                        className="w-24 h-24 rounded-lg object-cover"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-lg mb-2">{campaign.title}</h4>
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                        {campaign.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 mr-4">
-                          <p className="text-sm text-muted-foreground mb-1">
-                            ₹{campaign.raised_amount?.toLocaleString() || 0} raised of ₹{campaign.goal_amount?.toLocaleString()}
-                          </p>
-                          <div className="w-full bg-muted h-2 rounded-full">
-                            <div
-                              className="bg-primary h-2 rounded-full transition-all"
-                              style={{
-                                width: `${Math.min(((campaign.raised_amount || 0) / campaign.goal_amount) * 100, 100)}%`
-                              }}
-                            />
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img
+                          src={campaign.thumbnail_url}
+                          alt={campaign.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <h4 className="font-normal text-base text-white line-clamp-2 mb-2">
+                            {campaign.title}
+                          </h4>
+                          <div className="flex items-center justify-between text-white/90 text-xs">
+                            <span>₹{campaign.raised_amount?.toLocaleString() || 0} raised</span>
+                            <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded">
+                              {Math.round(((campaign.raised_amount || 0) / campaign.goal_amount) * 100)}%
+                            </span>
                           </div>
                         </div>
-                        <Button size="sm" className="bg-primary hover:bg-primary/90">
-                          Donate Now
-                        </Button>
                       </div>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
+                    )}
+                  </Card>
+                </Link>
+              ))}
               </div>
             ) : (
               <div className="text-center py-12">

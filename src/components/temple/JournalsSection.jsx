@@ -58,56 +58,25 @@ export default function JournalsSection({ templeId, templeName, primaryDeity }) 
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {articles.map((article) => (
           <Link key={article.id} to={createPageUrl(`ArticleDetail?id=${article.id}`)}>
-            <Card className="group overflow-hidden border border-border hover:border-primary/30 transition-all duration-300 cursor-pointer h-full">
+            <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer h-full">
               {article.images?.[0] && (
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden">
                   <img
                     src={article.images[0]}
                     alt={article.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  {article.scripture_reference && (
-                    <Badge className="absolute top-3 right-3 bg-primary/90 text-primary-foreground border-0 text-xs">
-                      {article.scripture_reference}
-                    </Badge>
-                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="font-normal text-base text-white line-clamp-2">
+                      {article.title}
+                    </h3>
+                  </div>
                 </div>
               )}
-              
-              <div className="p-6">
-                <h3 className="font-normal text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
-                  {article.title}
-                </h3>
-                
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-3 font-light leading-relaxed">
-                  {article.content.replace(/[#*_`]/g, '').substring(0, 150)}...
-                </p>
-
-                <div className="flex items-center gap-4 text-xs text-muted-foreground font-light">
-                  {article.author_name && (
-                    <div className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      <span>{article.author_name}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>{format(new Date(article.created_date), 'MMM d, yyyy')}</span>
-                  </div>
-                </div>
-
-                {article.quote && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-xs italic text-muted-foreground font-light line-clamp-2">
-                      "{article.quote}"
-                    </p>
-                  </div>
-                )}
-              </div>
             </Card>
           </Link>
         ))}
