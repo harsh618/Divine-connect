@@ -887,6 +887,7 @@ export default function TempleDetail() {
                 </div>
               </Card>
             )}
+            </div>
           </div>
         </div>
       </div>
