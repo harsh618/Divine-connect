@@ -74,19 +74,19 @@ export default function FeaturedProvidersCarousel() {
   }
 
   return (
-    <div className="py-20 bg-foreground">
+    <div className="py-20 bg-stone-100">
       <div className="container mx-auto px-8 max-w-7xl">
         <div className="flex items-center justify-between mb-12">
           <div>
-            <h2 className="text-3xl font-normal text-background tracking-wide mb-2">Featured Providers</h2>
-            <p className="text-background/70 font-light">Top priests and astrologers on our platform</p>
+            <h2 className="text-3xl font-serif font-semibold text-[#1C1917] tracking-tight mb-2">Featured Providers</h2>
+            <p className="text-stone-600">Trusted spiritual guides and experts</p>
           </div>
           <div className="flex gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={scrollPrev}
-              className="bg-gray-800 hover:bg-gray-700 text-white rounded-full w-10 h-10 shadow-lg"
+              className="bg-white border border-stone-200/60 hover:bg-stone-50 text-stone-800 rounded-full w-10 h-10 shadow-sm"
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
@@ -94,7 +94,7 @@ export default function FeaturedProvidersCarousel() {
               variant="ghost"
               size="icon"
               onClick={scrollNext}
-              className="bg-gray-800 hover:bg-gray-700 text-white rounded-full w-10 h-10 shadow-lg"
+              className="bg-white border border-stone-200/60 hover:bg-stone-50 text-stone-800 rounded-full w-10 h-10 shadow-sm"
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
@@ -125,33 +125,30 @@ export default function FeaturedProvidersCarousel() {
                   )}
                 >
                   <Link to={createPageUrl(profileUrl)}>
-                    <div className="relative group cursor-pointer h-[400px] overflow-hidden rounded-lg shadow-xl">
+                    <div className="bg-white rounded-2xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-xl transition-all border border-stone-200/60 relative">
                       <img
                         src={provider.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600'}
                         alt={provider.display_name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-md mx-auto -mt-12"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      
-                      <Badge className="absolute top-4 left-4 bg-red-500 text-white border-0 shadow-md">
-                        {badgeText}
-                      </Badge>
-
-                      <div className="absolute bottom-0 left-0 right-0 p-6 text-background">
-                        <h3 className="text-xl font-normal mb-1">{provider.display_name}</h3>
-                        <p className="text-sm text-background/80 mb-2">
-                          {specialization} | {provider.years_of_experience || 0}+ years exp
+                      <div className="text-center mt-4">
+                        <h3 className="text-lg font-serif font-semibold text-stone-900 mb-1">{provider.display_name}</h3>
+                        <p className="text-sm text-stone-600 mb-3">
+                          {specialization}
                         </p>
+                        <div className="inline-flex px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold tracking-wide uppercase border border-amber-100 mb-3">
+                          {provider.years_of_experience || 0}+ Years
+                        </div>
                         {provider.rating_average > 0 && (
-                          <div className="flex items-center gap-1 text-sm">
-                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                            <span>{provider.rating_average.toFixed(1)}</span>
+                          <div className="flex items-center justify-center gap-1 text-sm text-stone-600 mb-4">
+                            <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                            <span className="font-medium">{provider.rating_average.toFixed(1)}</span>
                           </div>
                         )}
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="mt-4 bg-background text-foreground hover:bg-background/90 border-0"
+                          className="w-full bg-stone-900 hover:bg-black text-white border-0"
                         >
                           View Profile
                         </Button>

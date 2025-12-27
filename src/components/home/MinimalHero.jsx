@@ -37,7 +37,7 @@ export default function MinimalHero() {
           } />
 
         )}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#FAFAF9]" />
       </div>
 
       {/* Content */}
@@ -47,11 +47,11 @@ export default function MinimalHero() {
           Welcome to Divine
         </div>
         
-        <h1 className="text-6xl md:text-8xl font-serif font-bold text-white mb-6 tracking-tight">
+        <h1 className="text-5xl md:text-7xl font-serif font-medium text-white mb-6 tracking-tight leading-tight drop-shadow-lg">
           Divine
         </h1>
         
-        <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
+        <p className="text-lg md:text-xl text-white/90 mb-8 font-light tracking-wide">
           Your spiritual journey, simplified
         </p>
 
