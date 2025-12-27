@@ -423,56 +423,26 @@ export default function TempleDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24 md:pb-8">
-      {/* Hero - Slideable Image Gallery */}
-      <div className="relative w-full h-[70vh] overflow-hidden bg-gray-100">
-        {/* Image Carousel */}
-        <div className="relative w-full h-full">
-          <img
-            src={images[currentImageIndex]}
-            alt={temple.name}
-            className="w-full h-full object-cover"
-          />
-          
-          {/* Carousel Navigation */}
-          {images.length > 1 && (
-            <>
-              <button
-                onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center text-gray-800 z-10"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center text-gray-800 z-10"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              
-              {/* Dot Indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      idx === currentImageIndex ? 'bg-white w-6' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+    <div className="min-h-screen bg-[#09090b] pb-24 md:pb-8">
+      {/* Hero - The Sanctum Sanctorum */}
+      <div className="relative w-full h-[90vh] overflow-hidden">
+        {/* Slow Zoom Background */}
+        <img
+          src={images[0]}
+          alt={temple.name}
+          className="absolute inset-0 w-full h-full object-cover animate-[zoomSlow_20s_ease-in-out_infinite]"
+        />
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-        {/* Top Action Bar */}
-        <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
+        {/* Sticky Action Bar Overlay */}
+        <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg text-gray-800"
+            className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/20 shadow-xl"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back
@@ -482,7 +452,7 @@ export default function TempleDetail() {
               variant="ghost"
               size="icon"
               onClick={handleShare}
-              className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg text-gray-800"
+              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/20 shadow-xl"
             >
               <Share2 className="w-5 h-5" />
             </Button>
@@ -490,75 +460,74 @@ export default function TempleDetail() {
               variant="ghost"
               size="icon"
               onClick={() => toggleFavoriteMutation.mutate()}
-              className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
+              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/20 shadow-xl"
             >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-800'}`} />
+              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
           </div>
         </div>
 
-        {/* Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-2">
+        {/* Play Video Button (if live darshan available) */}
+        {temple.live_darshan_url && (
+          <button
+            onClick={() => window.open(temple.live_darshan_url, '_blank')}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-red-500/20 backdrop-blur-md border-2 border-red-500 flex items-center justify-center text-white hover:scale-110 transition-all animate-ping shadow-2xl z-10"
+          >
+            <Video className="w-10 h-10 ml-1" />
+          </button>
+        )}
+
+        {/* Title at Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-12 z-10">
+          <h1 className="text-6xl md:text-8xl font-serif font-bold text-white mb-4 tracking-tight leading-none drop-shadow-2xl">
             {temple.name}
           </h1>
-          <div className="flex items-center gap-3 text-white/90 text-sm">
-            <MapPin className="w-4 h-4" />
-            <span>{temple.city}, {temple.state}</span>
-            <span>•</span>
-            <span>{temple.primary_deity}</span>
+          <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full">
+            <MapPin className="w-4 h-4 text-amber-400" />
+            <span className="font-mono text-sm text-white/90 tracking-wider">{temple.city}, {temple.state}</span>
+            <span className="text-white/40">•</span>
+            <span className="font-mono text-sm text-amber-400 tracking-wider uppercase">{temple.primary_deity}</span>
           </div>
         </div>
       </div>
 
-      {/* Floating Action Bar (Bottom, Fixed) */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl">
-        <div className="container mx-auto px-4 py-3">
-          <div className="grid grid-cols-4 gap-2 max-w-4xl mx-auto">
-            <Button
-              onClick={() => setShowBookingModal(true)}
-              disabled={!temple.visit_booking_enabled}
-              className="flex flex-col items-center justify-center h-16 bg-[#ff9900] hover:bg-[#e68a00] text-white gap-1"
-            >
-              <CalendarIcon className="w-5 h-5" />
-              <span className="text-xs font-medium">Book Darshan</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (prasadItems?.length > 0) {
-                  setSelectedPrasadItems(prasadItems);
-                  setShowPrasadOrderModal(true);
-                } else {
-                  toast.error('No prasad items available');
-                }
-              }}
-              className="flex flex-col items-center justify-center h-16 bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-300 gap-1"
-            >
-              <Package className="w-5 h-5" />
-              <span className="text-xs font-medium">Order Prasad</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowDonationTypeModal(true)}
-              className="flex flex-col items-center justify-center h-16 bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-300 gap-1"
-            >
-              <Heart className="w-5 h-5" />
-              <span className="text-xs font-medium">Donate</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowItineraryModal(true)}
-              className="flex flex-col items-center justify-center h-16 bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-300 gap-1"
-            >
-              <MapPin className="w-5 h-5" />
-              <span className="text-xs font-medium">Add to Itinerary</span>
-            </Button>
-          </div>
-        </div>
+      {/* Floating Ritual Dock */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden md:flex h-20 px-8 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-full items-center gap-6 shadow-[0_0_50px_rgba(217,119,6,0.2)]">
+        <Button
+          onClick={() => setShowBookingModal(true)}
+          disabled={!temple.visit_booking_enabled}
+          className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-6 rounded-full hover:scale-110 transition-all"
+        >
+          <CalendarIcon className="w-4 h-4 mr-2" />
+          Book Darshan
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => setShowDonationTypeModal(true)}
+          className="border border-white/30 text-white hover:bg-white/10 px-6 rounded-full"
+        >
+          <Heart className="w-4 h-4 mr-2" />
+          Donate
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            if (prasadItems?.length > 0) {
+              setSelectedPrasadItems(prasadItems);
+              setShowPrasadOrderModal(true);
+            } else {
+              toast.error('No prasad items available');
+            }
+          }}
+          size="icon"
+          className="text-white hover:bg-white/10 rounded-full w-12 h-12"
+          title="Order Prasad"
+        >
+          <Package className="w-5 h-5" />
+        </Button>
       </div>
 
-      <div className="container mx-auto px-8 max-w-7xl mt-8">
+      <div className="container mx-auto px-8 max-w-7xl mt-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
@@ -586,91 +555,107 @@ export default function TempleDetail() {
               </Card>
             )}
 
-            {/* About This Temple */}
-            <Card className="p-8 border border-gray-200 shadow-sm bg-white">
-              <h2 className="text-3xl font-serif mb-6 text-gray-900">About This Temple</h2>
-              <div className="prose prose-lg max-w-none text-gray-700">
-                <ReactMarkdown
-                  components={{
-                    p: ({ children }) => {
-                      const text = String(children);
-                      if (!text) return <p className="mb-4 leading-relaxed">{children}</p>;
-                      const firstLetter = text.charAt(0);
-                      const rest = text.slice(1);
-                      return (
-                        <p className="mb-4 leading-relaxed">
-                          <span className="float-left text-7xl font-serif text-[#ff9900] leading-none mr-3 mt-1">
-                            {firstLetter}
-                          </span>
-                          {rest}
-                        </p>
-                      );
-                    },
-                    strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                    em: ({ children }) => <em className="italic">{children}</em>,
-                  }}
-                >
-                  {temple.description || 'A sacred place of worship and spiritual significance.'}
-                </ReactMarkdown>
+            {/* About - Split Screen Scroller */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 min-h-screen">
+              {/* Left: Sticky Visual */}
+              <div className="sticky top-0 h-screen hidden lg:flex items-center justify-center bg-gradient-to-br from-amber-500/10 to-orange-500/10 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(217,119,6,0.3),transparent)]" />
+                </div>
+                <img
+                  src={images[1] || images[0]}
+                  alt={temple.primary_deity}
+                  className="relative w-4/5 h-4/5 object-cover rounded-3xl shadow-2xl mix-blend-overlay"
+                />
               </div>
-              
-              {temple.significance && (
-                <div className="mt-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-2xl font-serif mb-4 text-gray-900">Significance</h3>
-                  <div className="prose max-w-none text-gray-700">
-                    <ReactMarkdown>
-                      {temple.significance}
+
+              {/* Right: Scrolling Content */}
+              <div className="bg-[#09090b] p-12 space-y-12">
+                <div>
+                  <h2 className="text-3xl text-amber-500 font-serif italic mb-6">About This Temple</h2>
+                  <div className="prose prose-lg max-w-none text-white/70 font-light">
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => {
+                          const text = String(children);
+                          const firstLetter = text.charAt(0);
+                          const rest = text.slice(1);
+                          return (
+                            <p className="mb-6 leading-relaxed">
+                              <span className="float-left text-7xl font-serif text-amber-400 leading-none mr-3 mt-2">
+                                {firstLetter}
+                              </span>
+                              {rest}
+                            </p>
+                          );
+                        },
+                        strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                      }}
+                    >
+                      {temple.description || 'A sacred place of worship and spiritual significance.'}
                     </ReactMarkdown>
                   </div>
                 </div>
-              )}
 
-              {temple.history && (
-                <div className="mt-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-2xl font-serif mb-4 text-gray-900">History</h3>
-                  <div className="prose max-w-none text-gray-700">
-                    <ReactMarkdown>
-                      {temple.history}
-                    </ReactMarkdown>
+                {temple.significance && (
+                  <div className="pt-12 border-t border-white/10">
+                    <h3 className="text-3xl text-amber-500 font-serif italic mb-6">Significance</h3>
+                    <div className="prose max-w-none text-white/70 font-light">
+                      <ReactMarkdown>
+                        {temple.significance}
+                      </ReactMarkdown>
+                    </div>
                   </div>
-                </div>
-              )}
-            </Card>
+                )}
 
-            {/* Upcoming Festivals */}
-            <Card className="p-8 border border-gray-200 shadow-sm bg-white">
-              <h2 className="text-2xl font-serif mb-6 text-gray-900 flex items-center">
-                <CalendarDays className="w-5 h-5 mr-3 text-[#ff9900]" />
-                Upcoming Festivals
-              </h2>
+                {temple.history && (
+                  <div className="pt-12 border-t border-white/10">
+                    <h3 className="text-3xl text-amber-500 font-serif italic mb-6">History</h3>
+                    <div className="prose max-w-none text-white/70 font-light">
+                      <ReactMarkdown>
+                        {temple.history}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Upcoming Festivals - Constellation Timeline */}
+            <Card className="p-12 bg-[#09090b] border border-white/10">
+              <h2 className="text-3xl font-serif mb-12 text-white">The Cosmic Calendar</h2>
               {loadingFestivals ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#ff9900]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
                 </div>
               ) : upcomingFestivals?.length > 0 ? (
-                <div className="space-y-4">
-                  {upcomingFestivals.map((festival, idx) => (
-                    <div key={idx} className="p-5 bg-gray-50 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 w-14 h-14 bg-[#ff9900]/10 flex items-center justify-center text-2xl rounded-lg">
-                          🪔
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg text-gray-900 mb-1">{festival.name}</h3>
-                          <p className="text-sm text-gray-600 mb-2">{festival.date}</p>
-                          <p className="text-sm text-gray-700">{festival.description}</p>
+                <div className="relative pl-8">
+                  {/* Vertical Glowing Line */}
+                  <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-amber-500/0 via-amber-500 to-amber-500/0" />
+                  
+                  <div className="space-y-12">
+                    {upcomingFestivals.map((festival, idx) => (
+                      <div key={idx} className="relative group cursor-pointer">
+                        {/* Star Node */}
+                        <div className="absolute -left-8 top-3 w-4 h-4 bg-amber-500 rounded-full shadow-[0_0_15px_rgba(217,119,6,0.8)] group-hover:shadow-[0_0_25px_rgba(217,119,6,1)] transition-all" />
+                        
+                        {/* Card */}
+                        <div className="bg-transparent group-hover:bg-white/5 p-6 rounded-xl transition-all border border-transparent group-hover:border-white/10">
+                          <h3 className="text-2xl font-serif text-white mb-2">{festival.name}</h3>
+                          <p className="font-mono text-xs tracking-widest uppercase text-amber-400 mb-3">{festival.date}</p>
+                          <p className="text-sm text-white/60 leading-relaxed">{festival.description}</p>
                           {festival.significance && (
-                            <p className="text-xs text-gray-500 mt-2 italic">
+                            <p className="text-xs text-white/40 mt-3 italic">
                               {festival.significance}
                             </p>
                           )}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">Loading festival information...</p>
+                <p className="text-white/40 text-center py-8">Loading cosmic events...</p>
               )}
 
               {/* Static Festivals */}
@@ -765,31 +750,32 @@ export default function TempleDetail() {
             )}
           </div>
 
-          {/* Sidebar - Information Card */}
+          {/* Sidebar */}
           <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <Card className="p-6 border border-gray-200 shadow-lg bg-white">
-              <h3 className="text-xl font-serif text-gray-900 mb-6">Temple Information</h3>
-              <div className="space-y-5">
+            {/* Info Card */}
+            <Card className="p-6 border-0 shadow-sm">
+              <h3 className="font-normal text-lg text-foreground mb-6 tracking-wide">Temple Information</h3>
+              <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-gray-700 mt-0.5" />
+                  <Clock className="w-5 h-5 text-orange-500 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">Opening Hours</p>
-                    <p className="text-sm text-gray-600 mt-1">{temple.opening_hours || '5:00 AM - 9:00 PM'}</p>
+                    <p className="font-medium text-gray-900">Opening Hours</p>
+                    <p className="text-sm text-gray-600">{temple.opening_hours || '5:00 AM - 9:00 PM'}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-gray-700 mt-0.5" />
+                  <MapPin className="w-5 h-5 text-orange-500 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">Location</p>
-                    <p className="text-sm text-gray-600 mt-1">{temple.location || `${temple.city}, ${temple.state}`}</p>
+                    <p className="font-medium text-gray-900">Location</p>
+                    <p className="text-sm text-gray-600">{temple.location || `${temple.city}, ${temple.state}`}</p>
                   </div>
                 </div>
                 {temple.dress_code && (
                   <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-gray-700 mt-0.5" />
+                    <Users className="w-5 h-5 text-orange-500 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-gray-900 text-sm">Dress Code</p>
-                      <p className="text-sm text-gray-600 mt-1">{temple.dress_code}</p>
+                      <p className="font-medium text-gray-900">Dress Code</p>
+                      <p className="text-sm text-gray-600">{temple.dress_code}</p>
                     </div>
                   </div>
                 )}
@@ -797,7 +783,7 @@ export default function TempleDetail() {
 
               <Button 
                 onClick={handleGetDirections}
-                className="w-full mt-6 bg-[#ff9900] hover:bg-[#e68a00] text-white"
+                className="w-full mt-4 bg-orange-500 hover:bg-orange-600"
               >
                 <Navigation className="w-4 h-4 mr-2" />
                 Get Directions
@@ -1012,15 +998,15 @@ export default function TempleDetail() {
         </DialogContent>
       </Dialog>
 
-      {/* Donation Modal */}
+      {/* Donation Modal - The Karmic Card */}
       <Dialog open={showDonationModal} onOpenChange={setShowDonationModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-zinc-900 border border-amber-500/30">
           <DialogHeader>
-            <DialogTitle className="text-2xl text-gray-900">
-              Donate to {temple?.name}
+            <DialogTitle className="text-2xl bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+              Make an Offering
             </DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Your contribution helps maintain the temple and support religious activities
+            <DialogDescription className="text-white/60">
+              Your offering supports {temple?.name}'s sacred activities
             </DialogDescription>
           </DialogHeader>
 
@@ -1180,29 +1166,48 @@ export default function TempleDetail() {
             </div>
           ) : (
             <div className="space-y-6 py-4">
-              <div className="grid grid-cols-4 gap-2">
+              {/* Gold Coin Amounts */}
+              <div className="grid grid-cols-4 gap-3">
                 {[100, 500, 1000, 5000].map((amount) => (
-                  <Button
+                  <button
                     key={amount}
-                    variant={donationAmount === String(amount) ? "default" : "outline"}
                     onClick={() => setDonationAmount(String(amount))}
-                    className={donationAmount === String(amount) ? 'bg-[#ff9900] hover:bg-[#e68a00] text-white' : 'text-gray-800 border-gray-300'}
+                    className={`relative h-20 rounded-full border-2 transition-all ${
+                      donationAmount === String(amount)
+                        ? 'bg-amber-500 border-amber-400 scale-110 shadow-[0_0_30px_rgba(217,119,6,0.5)]'
+                        : 'bg-white/5 border-white/10 hover:border-amber-500/50'
+                    }`}
                   >
-                    ₹{amount}
-                  </Button>
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className={`text-2xl font-bold ${
+                        donationAmount === String(amount) ? 'text-black' : 'text-white'
+                      }`}>
+                        ₹{amount}
+                      </span>
+                    </div>
+                  </button>
                 ))}
               </div>
 
               <div>
-                <Label className="mb-2 block text-gray-900">Custom Amount</Label>
+                <Label className="mb-2 block text-white/70">Custom Amount</Label>
                 <Input
                   type="number"
                   placeholder="Enter amount"
                   value={donationAmount}
                   onChange={(e) => setDonationAmount(e.target.value)}
-                  className="border-gray-300"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
                 />
               </div>
+
+              {/* Dynamic Impact Text */}
+              {donationAmount && Number(donationAmount) > 0 && (
+                <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                  <p className="text-sm text-amber-400">
+                    Your ₹{donationAmount} offering will support {temple?.name}'s sacred rituals and community service
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center gap-2">
                 <input
@@ -1210,26 +1215,31 @@ export default function TempleDetail() {
                   id="anonymous"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="rounded border-gray-300"
+                  className="rounded border-white/20 bg-white/5"
                 />
-                <Label htmlFor="anonymous" className="cursor-pointer text-gray-700">Make this donation anonymous</Label>
+                <Label htmlFor="anonymous" className="cursor-pointer text-white/70">Make this offering anonymous</Label>
               </div>
 
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setShowDonationModal(false)} className="flex-1 text-gray-800 border-gray-300">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowDonationModal(false)} 
+                  className="flex-1 border-white/20 text-white hover:bg-white/5"
+                >
                   Cancel
                 </Button>
                 <Button 
                   onClick={handleDonate}
                   disabled={donationMutation.isPending}
-                  className="flex-1 bg-[#ff9900] hover:bg-[#e68a00] text-white"
+                  className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-bold relative overflow-hidden group"
                 >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
                   {donationMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
                     <Heart className="w-4 h-4 mr-2" />
                   )}
-                  Donate ₹{donationAmount || '0'}
+                  <span className="relative">Offer Now</span>
                 </Button>
               </div>
             </div>
