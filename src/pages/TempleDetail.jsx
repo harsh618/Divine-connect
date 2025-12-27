@@ -1367,7 +1367,7 @@ export default function TempleDetail() {
             </div>
           </div>
         </DialogContent>
-        </Dialog>
-        </div>
-        );
-        }
+      </Dialog>
+    </div>
+  );
+}
