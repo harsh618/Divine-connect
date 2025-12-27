@@ -1,9 +1,27 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar as CalendarComp } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Clock,
   Package,
@@ -16,17 +34,42 @@ import {
   ChevronLeft,
   ShieldCheck,
   Calendar,
-  Flame
+  Flame,
+  Check,
+  MapPin
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import FAQSection from '../components/faq/FAQSection';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+
+const timeSlots = [
+  '6:00 AM - 8:00 AM',
+  '8:00 AM - 10:00 AM',
+  '10:00 AM - 12:00 PM',
+  '12:00 PM - 2:00 PM',
+  '2:00 PM - 4:00 PM',
+  '4:00 PM - 6:00 PM',
+  '6:00 PM - 8:00 PM'
+];
 
 export default function PoojaDetail() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const poojaId = urlParams.get('id');
   const [activeTab, setActiveTab] = useState('about');
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [selectedMode, setSelectedMode] = useState('temple');
+  const [selectedPriest, setSelectedPriest] = useState(null);
+  const [availablePriests, setAvailablePriests] = useState([]);
+  const [numDevotees, setNumDevotees] = useState(1);
+  const [specialRequirements, setSpecialRequirements] = useState('');
+  const [itemsArrangedBy, setItemsArrangedBy] = useState('priest');
+  const [location, setLocation] = useState('');
 
   const { data: pooja, isLoading } = useQuery({
     queryKey: ['pooja', poojaId],
@@ -36,6 +79,110 @@ export default function PoojaDetail() {
     },
     enabled: !!poojaId
   });
+
+  const checkPriestAvailability = async (date, timeSlot) => {
+    if (!date || !timeSlot) return;
+
+    try {
+      const priests = await base44.entities.ProviderProfile.filter({
+        provider_type: 'priest',
+        is_deleted: false,
+        is_verified: true,
+        is_hidden: false
+      });
+
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const bookingsOnDate = await base44.entities.Booking.filter({
+        date: dateStr,
+        time_slot: timeSlot,
+        status: ['confirmed', 'in_progress']
+      });
+
+      const bookedPriestIds = bookingsOnDate.map(b => b.provider_id);
+      const available = priests.filter(p => !bookedPriestIds.includes(p.id));
+
+      setAvailablePriests(available);
+      
+      if (available.length > 0) {
+        setSelectedPriest(available[0].id);
+      } else {
+        setSelectedPriest(null);
+        toast.info('No priests available for this slot. We will assign one upon confirmation.');
+      }
+    } catch (error) {
+      console.error('Error checking availability:', error);
+      setAvailablePriests([]);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDate && selectedTimeSlot) {
+      checkPriestAvailability(selectedDate, selectedTimeSlot);
+    }
+  }, [selectedDate, selectedTimeSlot]);
+
+  const bookingMutation = useMutation({
+    mutationFn: async (bookingData) => {
+      const user = await base44.auth.me();
+      return base44.entities.Booking.create({
+        ...bookingData,
+        user_id: user.id,
+        pooja_id: poojaId,
+        booking_type: 'pooja',
+        status: 'confirmed',
+        payment_status: 'completed'
+      });
+    },
+    onSuccess: () => {
+      toast.success('Pooja booked successfully!');
+      setShowBookingModal(false);
+      queryClient.invalidateQueries(['bookings']);
+    }
+  });
+
+  const handleBookPooja = async () => {
+    if (!selectedDate || !selectedTimeSlot) {
+      toast.error('Please select a date and time slot');
+      return;
+    }
+
+    if (selectedMode === 'in_person' && !location) {
+      toast.error('Please enter your location for in-person pooja');
+      return;
+    }
+
+    const priceMap = {
+      virtual: pooja.base_price_virtual,
+      in_person: pooja.base_price_in_person,
+      temple: pooja.base_price_temple
+    };
+
+    let totalAmount = priceMap[selectedMode] || 0;
+    if (itemsArrangedBy === 'priest') {
+      totalAmount += pooja.items_arrangement_cost || 0;
+    }
+
+    bookingMutation.mutate({
+      date: format(selectedDate, 'yyyy-MM-dd'),
+      time_slot: selectedTimeSlot,
+      service_mode: selectedMode,
+      provider_id: selectedPriest,
+      num_devotees: numDevotees,
+      special_requirements: specialRequirements,
+      items_arranged_by: itemsArrangedBy,
+      location: selectedMode === 'in_person' ? location : null,
+      total_amount: totalAmount
+    });
+  };
+
+  const openBookingModal = async () => {
+    const isAuth = await base44.auth.isAuthenticated();
+    if (!isAuth) {
+      base44.auth.redirectToLogin();
+      return;
+    }
+    setShowBookingModal(true);
+  };
 
   if (isLoading) {
     return (
@@ -315,15 +462,7 @@ export default function PoojaDetail() {
 
                      {/* Action Button */}
                      <Button 
-                        onClick={() => {
-                           base44.auth.isAuthenticated().then(isAuth => {
-                           if (isAuth) {
-                              navigate(createPageUrl(`PoojaBooking?id=${pooja.id}`));
-                           } else {
-                              base44.auth.redirectToLogin();
-                           }
-                           });
-                        }}
+                        onClick={openBookingModal}
                         className="w-full h-14 bg-black hover:bg-stone-800 text-white rounded-xl text-lg font-medium shadow-lg shadow-stone-300 transition-transform active:scale-95"
                      >
                         Book Now
@@ -367,12 +506,203 @@ export default function PoojaDetail() {
             <p className="text-2xl font-serif font-bold text-gray-900">₹{pooja.base_price_temple || pooja.base_price_virtual}</p>
          </div>
          <Button 
-            onClick={() => navigate(createPageUrl(`PoojaBooking?id=${pooja.id}`))}
+            onClick={openBookingModal}
             className="bg-black text-white rounded-xl px-8 h-12"
          >
             Book Now
          </Button>
       </div>
+
+      {/* Booking Modal */}
+      <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-serif">Book {pooja.name}</DialogTitle>
+            <DialogDescription>
+              Select your preferred date, time, and service mode
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Service Mode Selection */}
+            <div>
+              <Label className="mb-3 block text-sm font-medium">Service Mode</Label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {pooja.base_price_virtual > 0 && (
+                  <button
+                    onClick={() => setSelectedMode('virtual')}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      selectedMode === 'virtual'
+                        ? 'border-amber-500 bg-amber-50'
+                        : 'border-gray-200 hover:border-amber-300'
+                    }`}
+                  >
+                    <Video className="w-5 h-5 mx-auto mb-2 text-amber-600" />
+                    <p className="text-sm font-medium">Virtual</p>
+                    <p className="text-xs text-gray-500">₹{pooja.base_price_virtual}</p>
+                  </button>
+                )}
+                {pooja.base_price_in_person > 0 && (
+                  <button
+                    onClick={() => setSelectedMode('in_person')}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      selectedMode === 'in_person'
+                        ? 'border-amber-500 bg-amber-50'
+                        : 'border-gray-200 hover:border-amber-300'
+                    }`}
+                  >
+                    <Users className="w-5 h-5 mx-auto mb-2 text-amber-600" />
+                    <p className="text-sm font-medium">In-Person</p>
+                    <p className="text-xs text-gray-500">₹{pooja.base_price_in_person}</p>
+                  </button>
+                )}
+                {pooja.base_price_temple > 0 && (
+                  <button
+                    onClick={() => setSelectedMode('temple')}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      selectedMode === 'temple'
+                        ? 'border-amber-500 bg-amber-50'
+                        : 'border-gray-200 hover:border-amber-300'
+                    }`}
+                  >
+                    <Flame className="w-5 h-5 mx-auto mb-2 text-amber-600" />
+                    <p className="text-sm font-medium">At Temple</p>
+                    <p className="text-xs text-gray-500">₹{pooja.base_price_temple}</p>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Date Selection */}
+            <div>
+              <Label className="mb-2 block text-sm font-medium">Select Date</Label>
+              <CalendarComp
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                disabled={(date) => date < new Date()}
+                className="rounded-lg border w-full"
+              />
+            </div>
+
+            {/* Time Slot Selection */}
+            <div>
+              <Label className="mb-2 block text-sm font-medium">Select Time Slot</Label>
+              <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a time slot" />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeSlots.map((slot) => (
+                    <SelectItem key={slot} value={slot}>{slot}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Available Priest */}
+            {availablePriests.length > 0 && selectedDate && selectedTimeSlot && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <Label className="mb-2 block text-sm font-medium">Available Priest</Label>
+                <Select value={selectedPriest} onValueChange={setSelectedPriest}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a priest" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePriests.map((priest) => (
+                      <SelectItem key={priest.id} value={priest.id}>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>{priest.display_name}</span>
+                          {priest.years_of_experience && (
+                            <span className="text-xs text-muted-foreground">
+                              ({priest.years_of_experience} yrs exp)
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-green-700 mt-2">
+                  {availablePriests.length} priest{availablePriests.length > 1 ? 's' : ''} available
+                </p>
+              </div>
+            )}
+
+            {/* Location (for in-person) */}
+            {selectedMode === 'in_person' && (
+              <div>
+                <Label className="mb-2 block text-sm font-medium">Your Location</Label>
+                <Input
+                  placeholder="Enter your address"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+            )}
+
+            {/* Number of Devotees */}
+            <div>
+              <Label className="mb-2 block text-sm font-medium">Number of Devotees</Label>
+              <Input
+                type="number"
+                min="1"
+                max="10"
+                value={numDevotees}
+                onChange={(e) => setNumDevotees(Number(e.target.value))}
+              />
+            </div>
+
+            {/* Items Arrangement */}
+            {pooja.items_arrangement_cost > 0 && (
+              <div>
+                <Label className="mb-2 block text-sm font-medium">Pooja Items</Label>
+                <Select value={itemsArrangedBy} onValueChange={setItemsArrangedBy}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">I will arrange items</SelectItem>
+                    <SelectItem value="priest">
+                      Priest will arrange (+ ₹{pooja.items_arrangement_cost})
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Special Requirements */}
+            <div>
+              <Label className="mb-2 block text-sm font-medium">Special Requirements (Optional)</Label>
+              <Textarea
+                placeholder="Any special requests or requirements..."
+                value={specialRequirements}
+                onChange={(e) => setSpecialRequirements(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setShowBookingModal(false)} className="flex-1">
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleBookPooja} 
+              disabled={bookingMutation.isPending}
+              className="flex-1 bg-black hover:bg-stone-800"
+            >
+              {bookingMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Check className="w-4 h-4 mr-2" />
+              )}
+              Confirm Booking
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
