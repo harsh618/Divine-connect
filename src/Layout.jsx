@@ -87,8 +87,13 @@ function LayoutContent({ children, currentPageName }) {
               </span>
             </Link>
 
-            {/* Desktop Links */}
+            {/* Desktop Links with contextual breadcrumb */}
             <div className="hidden md:flex items-center gap-8">
+              {currentPageName === 'Temples' && (
+                <div className="text-xs text-muted-foreground uppercase tracking-widest font-light">
+                  Temples
+                </div>
+              )}
               {navLinks.map((link) => (
                 <Link key={link.name} to={createPageUrl(link.page)}>
                   <span className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase tracking-widest font-light">

@@ -370,8 +370,8 @@ export default function TempleDetail() {
         </div>
       </div>
 
-      {/* Hero Image Gallery */}
-      <div className="relative h-[65vh] md:h-[75vh] bg-black mt-14">
+      {/* Hero Image Gallery - 16:9 Aspect Ratio */}
+      <div className="relative w-full aspect-video bg-black mt-14">
         <img
           src={images[currentImageIndex]}
           alt={temple.name}
