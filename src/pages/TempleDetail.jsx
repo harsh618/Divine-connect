@@ -94,6 +94,8 @@ export default function TempleDetail() {
   const [showItineraryModal, setShowItineraryModal] = useState(false);
   const [showImageViewer, setShowImageViewer] = useState(false);
   const [viewerImageIndex, setViewerImageIndex] = useState(0);
+  const [selectedPriest, setSelectedPriest] = useState(null);
+  const [availablePriests, setAvailablePriests] = useState([]);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -218,11 +220,8 @@ export default function TempleDetail() {
     }
   });
 
-  const handleBookVisit = async () => {
-    if (!selectedDate || !selectedTimeSlot) {
-      toast.error('Please select a date and time slot');
-      return;
-    }
+  const checkPriestAvailability = async (date, timeSlot) => {
+    if (!date || !timeSlot) return;
 
     try {
       // Find priests associated with this temple
@@ -230,54 +229,62 @@ export default function TempleDetail() {
         provider_type: 'priest',
         is_deleted: false,
         is_verified: true,
-        is_hidden: false,
-        'associated_temples.temple_id': templeId
+        is_hidden: false
       });
 
-      let assignedPriest = null;
+      // Filter priests who serve this temple
+      const eligiblePriests = templePriests.filter(priest => {
+        const templeMatch = priest.associated_temples?.some(t => t.temple_id === templeId);
+        const cityMatch = priest.city === temple.city;
+        return templeMatch || cityMatch;
+      });
 
-      // Check if temple has priests available
-      if (templePriests && templePriests.length > 0) {
-        // Assign first available priest from temple
-        assignedPriest = templePriests[0].id;
-        toast.success(`Priest ${templePriests[0].display_name} assigned from temple`);
+      // Check their bookings for this date/time
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const bookingsOnDate = await base44.entities.Booking.filter({
+        date: dateStr,
+        time_slot: timeSlot,
+        status: ['confirmed', 'in_progress']
+      });
+
+      // Find available priests
+      const bookedPriestIds = bookingsOnDate.map(b => b.provider_id);
+      const available = eligiblePriests.filter(p => !bookedPriestIds.includes(p.id));
+
+      setAvailablePriests(available);
+      
+      if (available.length > 0) {
+        setSelectedPriest(available[0].id);
       } else {
-        // Fallback: Find nearby priests based on city/state
-        const nearbyPriests = await base44.entities.ProviderProfile.filter({
-          provider_type: 'priest',
-          is_deleted: false,
-          is_verified: true,
-          is_hidden: false,
-          city: temple.city
-        });
-
-        if (nearbyPriests && nearbyPriests.length > 0) {
-          assignedPriest = nearbyPriests[0].id;
-          toast.success(`Nearby priest ${nearbyPriests[0].display_name} assigned`);
-        } else {
-          toast.info('Booking confirmed - temple will assign a priest');
-        }
+        setSelectedPriest(null);
+        toast.info('No priests available for this slot. We will assign one upon confirmation.');
       }
-
-      bookingMutation.mutate({
-        date: format(selectedDate, 'yyyy-MM-dd'),
-        time_slot: selectedTimeSlot,
-        num_devotees: numDevotees,
-        special_requirements: specialRequirements,
-        provider_id: assignedPriest,
-        total_amount: 0
-      });
     } catch (error) {
-      console.error('Error finding priests:', error);
-      // Continue with booking even if priest assignment fails
-      bookingMutation.mutate({
-        date: format(selectedDate, 'yyyy-MM-dd'),
-        time_slot: selectedTimeSlot,
-        num_devotees: numDevotees,
-        special_requirements: specialRequirements,
-        total_amount: 0
-      });
+      console.error('Error checking availability:', error);
+      setAvailablePriests([]);
     }
+  };
+
+  React.useEffect(() => {
+    if (selectedDate && selectedTimeSlot) {
+      checkPriestAvailability(selectedDate, selectedTimeSlot);
+    }
+  }, [selectedDate, selectedTimeSlot]);
+
+  const handleBookVisit = async () => {
+    if (!selectedDate || !selectedTimeSlot) {
+      toast.error('Please select a date and time slot');
+      return;
+    }
+
+    bookingMutation.mutate({
+      date: format(selectedDate, 'yyyy-MM-dd'),
+      time_slot: selectedTimeSlot,
+      num_devotees: numDevotees,
+      special_requirements: specialRequirements,
+      provider_id: selectedPriest,
+      total_amount: 0
+    });
   };
 
   const handleDonate = () => {
@@ -826,7 +833,7 @@ export default function TempleDetail() {
 
       {/* Booking Modal */}
       <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>Schedule Your Visit</DialogTitle>
             <DialogDescription>
@@ -834,20 +841,20 @@ export default function TempleDetail() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
+          <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
             <div>
-              <Label className="mb-2 block">Select Date</Label>
+              <Label className="mb-2 block text-sm font-medium">Select Date</Label>
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 disabled={(date) => date < new Date()}
-                className="rounded-lg border"
+                className="rounded-lg border w-full"
               />
             </div>
 
             <div>
-              <Label className="mb-2 block">Select Time Slot</Label>
+              <Label className="mb-2 block text-sm font-medium">Select Time Slot</Label>
               <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a time slot" />
@@ -860,8 +867,37 @@ export default function TempleDetail() {
               </Select>
             </div>
 
+            {availablePriests.length > 0 && selectedDate && selectedTimeSlot && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <Label className="mb-2 block text-sm font-medium">Available Priest</Label>
+                <Select value={selectedPriest} onValueChange={setSelectedPriest}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a priest" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePriests.map((priest) => (
+                      <SelectItem key={priest.id} value={priest.id}>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>{priest.display_name}</span>
+                          {priest.years_of_experience && (
+                            <span className="text-xs text-muted-foreground">
+                              ({priest.years_of_experience} yrs exp)
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-green-700 mt-2">
+                  {availablePriests.length} priest{availablePriests.length > 1 ? 's' : ''} available for this slot
+                </p>
+              </div>
+            )}
+
             <div>
-              <Label className="mb-2 block">Number of Devotees</Label>
+              <Label className="mb-2 block text-sm font-medium">Number of Devotees</Label>
               <Input
                 type="number"
                 min="1"
@@ -872,16 +908,17 @@ export default function TempleDetail() {
             </div>
 
             <div>
-              <Label className="mb-2 block">Special Requirements (Optional)</Label>
+              <Label className="mb-2 block text-sm font-medium">Special Requirements (Optional)</Label>
               <Textarea
                 placeholder="Wheelchair access, elderly assistance, etc."
                 value={specialRequirements}
                 onChange={(e) => setSpecialRequirements(e.target.value)}
+                rows={3}
               />
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 pt-4 border-t">
             <Button variant="outline" onClick={() => setShowBookingModal(false)} className="flex-1">
               Cancel
             </Button>
