@@ -10,31 +10,35 @@ function TempleCard({ temple }) {
   return (
     <div className="group cursor-pointer">
       <Link to={createPageUrl('TempleDetail', { templeId: temple.id })}>
-        <div className="relative overflow-hidden rounded-2xl aspect-[4/5] mb-4 shadow-md hover:shadow-xl transition-all">
-          <img
-            src={temple.images?.[0] || temple.thumbnail_url || defaultImage}
-            alt={temple.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="flex items-center gap-2 text-white/90 text-sm mb-2">
-              <MapPin className="w-3.5 h-3.5" />
-              <span>{temple.city}</span>
+        <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12),0_12px_24px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300">
+          <div className="relative overflow-hidden aspect-video h-[200px] bg-gradient-to-br from-gray-100 to-gray-200">
+            <img
+              src={temple.images?.[0] || temple.thumbnail_url || defaultImage}
+              alt={temple.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute bottom-3 left-3 bg-black/70 text-white px-2.5 py-1 rounded text-xs backdrop-blur-md">
+              <div className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                <span>{temple.city}</span>
+              </div>
             </div>
+          </div>
+          <div className="p-4">
+            <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-1">
+              {temple.name}
+            </h3>
+            <p className="text-xs text-gray-600 mb-3 flex gap-2">
+              <span>{temple.city}</span>
+              <span>•</span>
+              <span>{temple.primary_deity}</span>
+            </p>
+            <button className="w-full bg-[#D97706] hover:bg-[#B45309] text-white px-4 py-3 rounded-md text-xs font-semibold uppercase tracking-wide hover:-translate-y-0.5 active:scale-98 transition-all">
+              View Temple
+            </button>
           </div>
         </div>
       </Link>
-      <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-gray-900">{temple.name}</h3>
-        <p className="text-sm text-gray-600">{temple.city} · {temple.primary_deity}</p>
-        <Link to={createPageUrl('TempleDetail', { templeId: temple.id })}>
-          <button className="text-sm text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1 mt-2">
-            View Temple
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </Link>
-      </div>
     </div>
   );
 }

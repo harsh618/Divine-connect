@@ -117,14 +117,14 @@ export default function FeaturedPoojasCarousel() {
                     )}
                   >
                     <Link to={createPageUrl(`PoojaDetail?id=${pooja.id}`)}>
-                      <div className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200">
-                        <div className="relative h-48 overflow-hidden">
+                      <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12),0_12px_24px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 cursor-pointer group">
+                        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                           <img
                             src={pooja.image_url || 'https://images.unsplash.com/photo-1604608672516-f1e3e4c3d72c?w=600'}
                             alt={pooja.name}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
-                          <Badge className="absolute top-3 left-3 bg-orange-500 text-white border-0 shadow-sm text-xs">
+                          <Badge className="absolute top-3 left-3 bg-[#D97706] text-white border-0 shadow-sm text-xs uppercase tracking-wider">
                             {pooja.category?.replace('_', ' ')}
                           </Badge>
                           {pooja.is_popular && (
@@ -136,17 +136,18 @@ export default function FeaturedPoojasCarousel() {
                         
                         <div className="p-4">
                           <div className="mb-3">
-                            <div className="text-xl font-semibold text-gray-900 mb-1">
+                            <div className="text-sm text-gray-500 mb-1">Starting from</div>
+                            <div className="text-2xl font-bold text-gray-900 mb-1">
                               ₹{(pooja.base_price_virtual || pooja.base_price_in_person || 0).toLocaleString()}
                             </div>
-                            <h3 className="text-base font-normal text-gray-800 line-clamp-1">
+                            <h3 className="text-base font-semibold text-gray-800 line-clamp-1">
                               {pooja.name}
                             </h3>
                           </div>
 
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3 pb-3 border-b border-gray-100">
+                            <div className="flex items-center gap-1 font-medium">
+                              <Clock className="w-4 h-4 text-[#D97706]" />
                               <span>{pooja.duration_minutes} min</span>
                             </div>
                             {pooja.total_bookings > 0 && (
@@ -157,10 +158,14 @@ export default function FeaturedPoojasCarousel() {
                           </div>
 
                           {pooja.purpose && (
-                            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                            <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
                               {pooja.purpose}
                             </p>
                           )}
+
+                          <button className="w-full bg-[#D97706] hover:bg-[#B45309] text-white px-4 py-2.5 rounded-md text-xs font-semibold uppercase tracking-wide transition-all hover:-translate-y-0.5 active:scale-98">
+                            Book Now
+                          </button>
                         </div>
                       </div>
                     </Link>
