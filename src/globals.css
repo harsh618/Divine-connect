@@ -166,3 +166,13 @@ input:focus-visible {
 .animate-shimmer {
   animation: shimmer 2s infinite;
 }
+
+/* Slow zoom for temple hero */
+@keyframes zoomSlow {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
