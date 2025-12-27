@@ -6,32 +6,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function TimelineCard({ event }) {
   return (
-    <div className="flex-shrink-0 w-80">
-      <div className="bg-white rounded-2xl border border-gray-100 hover:shadow-xl transition-all overflow-hidden group hover:scale-[1.02]">
-        {event.image_url &&
-        <div className="h-40 overflow-hidden">
-            <img
-            src={event.image_url}
-            alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-
-          </div>
-        }
-        <div className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 flex flex-col items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-xl px-3 py-2 min-w-[60px]">
-              <span className="text-2xl font-bold leading-none">{event.date.split(' ')[1]}</span>
-              <span className="text-xs font-medium uppercase mt-1">{event.date.split(' ')[0]}</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-900 mb-2 leading-snug">{event.title}</h3>
-              <p className="text-sm text-gray-600 leading-relaxed line-clamp-2">{event.description}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>);
-
+    <div className="min-w-[80px] h-[120px] flex flex-col items-center justify-center rounded-2xl border border-stone-200 bg-white hover:border-amber-500 hover:bg-amber-50 transition-colors cursor-pointer snap-start group flex-shrink-0">
+      <span className="text-xs text-stone-400 uppercase tracking-wider mb-1">{event.date.split(' ')[0]}</span>
+      <span className="text-2xl font-bold text-stone-800 mb-1">{event.date.split(' ')[1]}</span>
+      <span className="text-[10px] text-amber-600 font-medium text-center px-2 line-clamp-2">{event.title}</span>
+    </div>
+  );
 }
 
 export default function AuspiciousTimeline() {
@@ -55,44 +35,44 @@ export default function AuspiciousTimeline() {
   const isLoading = !adminDays;
 
   return (
-    <section className="bg-gradient-to-b pt-8 pr-6 pb-12 pl-6 from-orange-50/30 to-white">
-      <div className="container mx-auto max-w-7xl mb-12">
+    <section className="bg-[#FAFAF9] py-16 px-6">
+      <div className="container mx-auto max-w-7xl mb-8">
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-3 mb-3">
-              <Sparkles className="w-6 h-6 text-orange-500" />
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900">
+            <div className="flex items-center gap-3 mb-2">
+              <Sparkles className="w-5 h-5 text-amber-500" />
+              <h2 className="text-3xl font-serif font-semibold text-[#1C1917] tracking-tight">
                 Auspicious Days
               </h2>
             </div>
-            <p className="text-gray-600">Upcoming sacred moments and festivals this month</p>
+            <p className="text-stone-600 text-sm">Check daily for sacred moments</p>
           </div>
         </div>
       </div>
 
       <div
         ref={scrollRef}
-        className="overflow-x-auto scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0"
+        className="overflow-x-auto snap-x no-scrollbar pb-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
 
         <div className="container mx-auto max-w-7xl">
-          <div className="flex gap-6">
+          <div className="flex gap-4 px-1">
             {isLoading ?
-            Array(3).fill(0).map((_, i) =>
-            <div key={i} className="flex-shrink-0 w-80">
-                  <Skeleton className="w-full h-64 rounded-2xl" />
+            Array(8).fill(0).map((_, i) =>
+            <div key={i} className="flex-shrink-0">
+                  <Skeleton className="w-[80px] h-[120px] rounded-2xl" />
                 </div>
             ) :
             displayEvents?.length > 0 ?
-            displayEvents.slice(0, 5).map((event, idx) =>
+            displayEvents.slice(0, 12).map((event, idx) =>
             <TimelineCard key={idx} event={event} />
             ) :
 
-            <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 p-12 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-orange-500" />
+            <div className="min-w-[200px] bg-white rounded-2xl border border-stone-200 p-8 text-center flex-shrink-0">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-amber-500" />
                 </div>
-                <p className="text-gray-500">No auspicious days scheduled yet</p>
+                <p className="text-stone-500 text-sm">No days scheduled</p>
               </div>
             }
           </div>

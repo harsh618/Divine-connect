@@ -20,47 +20,45 @@ function CampaignCard({ campaign }) {
   };
   
   return (
-    <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
+    <div className="flex-shrink-0 w-80 bg-white rounded-2xl border border-stone-200/60 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
       <div className="relative h-48 overflow-hidden">
         <img
           src={campaign.images?.[0] || campaign.thumbnail_url || defaultImage}
           alt={`${campaign.title} - ${campaign.category}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg animate-bounce" style={{ animationDuration: '2s' }}>
+        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-lg">
           <TrendingUp className="w-3.5 h-3.5 text-green-600" />
-          <span className="text-xs font-bold">{Math.round(progress)}%</span>
+          <span className="text-xs font-bold text-stone-900">{Math.round(progress)}%</span>
         </div>
       </div>
       <div className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2">{campaign.title}</h3>
+        <h3 className="text-lg font-serif font-semibold text-stone-900 mb-3 line-clamp-2 leading-snug">{campaign.title}</h3>
         
         <div className="mb-4">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${categoryColors[campaign.category] || 'bg-gray-100 text-gray-700'}`}>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${categoryColors[campaign.category] || 'bg-stone-100 text-stone-700'}`}>
             {campaign.category?.replace(/_/g, ' ')}
           </span>
         </div>
         
         <div className="space-y-3 mb-4">
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-2 w-full bg-stone-200 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full relative overflow-hidden transition-all duration-1000 ease-out"
+              className="h-full bg-green-500 rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${Math.min(progress, 100)}%` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-            </div>
+            />
           </div>
           <div className="text-sm">
-            <span className="text-gray-900 font-bold">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
-            <span className="text-gray-500"> raised of </span>
-            <span className="text-gray-900 font-bold">₹{campaign.goal_amount?.toLocaleString()}</span>
+            <span className="text-stone-900 font-bold">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
+            <span className="text-stone-500"> raised of </span>
+            <span className="text-stone-900 font-bold">₹{campaign.goal_amount?.toLocaleString()}</span>
           </div>
         </div>
 
         <Link to={createPageUrl('Donate')}>
-          <button className="w-full bg-orange-500 hover:bg-orange-600 hover:scale-105 text-white py-3 rounded-xl font-medium transition-all hover:shadow-lg focus:ring-4 focus:ring-orange-500/50 flex items-center justify-center gap-2">
+          <button className="w-full py-3 rounded-xl font-medium bg-stone-900 text-white hover:bg-black transition-colors flex justify-between px-4 items-center">
+            <span>Donate</span>
             <Heart className="w-4 h-4" />
-            Donate Now
           </button>
         </Link>
       </div>
@@ -81,17 +79,17 @@ export default function DonationCampaignsMinimal() {
   });
 
   return (
-    <section className="py-24 px-6 bg-gradient-to-b from-orange-50/30 to-white">
+    <section className="py-24 px-6 bg-stone-50">
       <div className="container mx-auto max-w-7xl mb-12">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-3">
+            <h2 className="text-4xl md:text-5xl font-serif font-semibold text-[#1C1917] mb-3 tracking-tight">
               Support Causes
             </h2>
-            <p className="text-gray-600">Help maintain sacred traditions and support communities</p>
+            <p className="text-stone-600">Make a difference with your contribution</p>
           </div>
           <Link to={createPageUrl('Donate')}>
-            <button className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100 hover:border-orange-300 font-medium text-sm hover:gap-3 transition-all">
+            <button className="hidden md:flex items-center gap-2 text-amber-600 hover:text-amber-700 font-medium text-sm hover:gap-3 transition-all">
               View all
               <ArrowRight className="w-4 h-4" />
             </button>
