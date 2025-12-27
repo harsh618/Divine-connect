@@ -8,7 +8,6 @@ import FeaturedTemplesMinimal from '../components/home/FeaturedTemplesMinimal';
 import AuspiciousTimeline from '../components/home/AuspiciousTimeline';
 import UpcomingEvents from '../components/home/UpcomingEvents';
 import DonationCampaignsMinimal from '../components/home/DonationCampaignsMinimal';
-import PriestsMinimal from '../components/home/PriestsMinimal';
 import JoinUsSection from '../components/home/JoinUsSection';
 import ArticlesSection from '../components/articles/ArticlesSection';
 import FeaturedProvidersCarousel from '../components/home/FeaturedProvidersCarousel';
@@ -40,7 +39,6 @@ export default function Home() {
       <div className="bg-muted/30">
         <DonationCampaignsMinimal />
       </div>
-      <PriestsMinimal />
       <ArticlesSection />
       <JoinUsSection />
       
