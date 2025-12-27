@@ -55,6 +55,7 @@ import PrasadOrderModal from '../components/prasad/PrasadOrderModal';
 import FAQSection from '../components/faq/FAQSection';
 import DonationTypeModal from '../components/temple/DonationTypeModal';
 import ItineraryPlannerModal from '../components/temple/ItineraryPlannerModal';
+import JournalsSection from '../components/temple/JournalsSection';
 import ReactMarkdown from 'react-markdown';
 
 const timeSlots = [
@@ -215,18 +216,66 @@ export default function TempleDetail() {
     }
   });
 
-  const handleBookVisit = () => {
+  const handleBookVisit = async () => {
     if (!selectedDate || !selectedTimeSlot) {
       toast.error('Please select a date and time slot');
       return;
     }
-    bookingMutation.mutate({
-      date: format(selectedDate, 'yyyy-MM-dd'),
-      time_slot: selectedTimeSlot,
-      num_devotees: numDevotees,
-      special_requirements: specialRequirements,
-      total_amount: 0
-    });
+
+    try {
+      // Find priests associated with this temple
+      const templePriests = await base44.entities.ProviderProfile.filter({
+        provider_type: 'priest',
+        is_deleted: false,
+        is_verified: true,
+        is_hidden: false,
+        'associated_temples.temple_id': templeId
+      });
+
+      let assignedPriest = null;
+
+      // Check if temple has priests available
+      if (templePriests && templePriests.length > 0) {
+        // Assign first available priest from temple
+        assignedPriest = templePriests[0].id;
+        toast.success(`Priest ${templePriests[0].display_name} assigned from temple`);
+      } else {
+        // Fallback: Find nearby priests based on city/state
+        const nearbyPriests = await base44.entities.ProviderProfile.filter({
+          provider_type: 'priest',
+          is_deleted: false,
+          is_verified: true,
+          is_hidden: false,
+          city: temple.city
+        });
+
+        if (nearbyPriests && nearbyPriests.length > 0) {
+          assignedPriest = nearbyPriests[0].id;
+          toast.success(`Nearby priest ${nearbyPriests[0].display_name} assigned`);
+        } else {
+          toast.info('Booking confirmed - temple will assign a priest');
+        }
+      }
+
+      bookingMutation.mutate({
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        time_slot: selectedTimeSlot,
+        num_devotees: numDevotees,
+        special_requirements: specialRequirements,
+        provider_id: assignedPriest,
+        total_amount: 0
+      });
+    } catch (error) {
+      console.error('Error finding priests:', error);
+      // Continue with booking even if priest assignment fails
+      bookingMutation.mutate({
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        time_slot: selectedTimeSlot,
+        num_devotees: numDevotees,
+        special_requirements: specialRequirements,
+        total_amount: 0
+      });
+    }
   };
 
   const handleDonate = () => {
@@ -679,8 +728,8 @@ export default function TempleDetail() {
 
             {/* Live Darshan */}
             {temple.live_darshan_url && (
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <Card className="p-6 border-0 shadow-sm">
+                <h2 className="text-xl font-normal mb-4 flex items-center tracking-wide">
                   <Video className="w-5 h-5 mr-2 text-red-500" />
                   Live Darshan
                 </h2>
@@ -693,6 +742,13 @@ export default function TempleDetail() {
                 </div>
               </Card>
             )}
+
+            {/* Journals & Stories */}
+            <JournalsSection 
+              templeId={templeId} 
+              templeName={temple.name}
+              primaryDeity={temple.primary_deity}
+            />
           </div>
 
           {/* Sidebar */}

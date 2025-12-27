@@ -9,12 +9,12 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 const donationTypes = [
-  { id: 'food', label: 'Anna Daan', icon: '🍚', description: 'Provide meals to devotees' },
-  { id: 'maintenance', label: 'Temple Maintenance', icon: '🏛️', description: 'Support temple upkeep' },
-  { id: 'puja', label: 'Puja & Rituals', icon: '🪔', description: 'Sponsor religious ceremonies' },
-  { id: 'education', label: 'Education', icon: '📚', description: 'Support learning initiatives' },
-  { id: 'medical', label: 'Medical Aid', icon: '⚕️', description: 'Healthcare for devotees' },
-  { id: 'general', label: 'General Donation', icon: '💝', description: 'Support overall activities' }
+  { id: 'anna_daan', label: 'Anna Daan', icon: '🍚', description: 'Provide meals to devotees', category: 'anna_daan' },
+  { id: 'temple_renovation', label: 'Temple Maintenance', icon: '🏛️', description: 'Support temple upkeep', category: 'temple_renovation' },
+  { id: 'gaushala', label: 'Gaushala', icon: '🐄', description: 'Support cow protection', category: 'gaushala' },
+  { id: 'education', label: 'Education', icon: '📚', description: 'Support learning initiatives', category: 'education' },
+  { id: 'medical', label: 'Medical Aid', icon: '⚕️', description: 'Healthcare for devotees', category: 'medical' },
+  { id: 'general', label: 'General Donation', icon: '💝', description: 'Support overall activities', category: null }
 ];
 
 export default function DonationTypeModal({ isOpen, onClose, templeId, templeName }) {
@@ -23,12 +23,23 @@ export default function DonationTypeModal({ isOpen, onClose, templeId, templeNam
 
   const { data: campaigns, isLoading } = useQuery({
     queryKey: ['donation-campaigns', selectedType],
-    queryFn: () => base44.entities.DonationCampaign.filter({ 
-      status: 'active',
-      is_deleted: false,
-      is_hidden: false,
-      category: selectedType 
-    }),
+    queryFn: async () => {
+      const type = donationTypes.find(t => t.id === selectedType);
+      if (!type?.category) {
+        // For general donations, fetch all active campaigns
+        return base44.entities.DonationCampaign.filter({ 
+          status: 'active',
+          is_deleted: false,
+          is_hidden: false
+        }, '-raised_amount');
+      }
+      return base44.entities.DonationCampaign.filter({ 
+        status: 'active',
+        is_deleted: false,
+        is_hidden: false,
+        category: type.category 
+      }, '-raised_amount');
+    },
     enabled: showCampaigns && !!selectedType
   });
 
@@ -83,46 +94,46 @@ export default function DonationTypeModal({ isOpen, onClose, templeId, templeNam
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : campaigns?.length > 0 ? (
-              <div className="space-y-4">
-                {campaigns.map((campaign) => (
-                  <Link key={campaign.id} to={createPageUrl(`CampaignDetail?id=${campaign.id}`)}>
-                    <Card className="p-6 hover:border-primary transition-all cursor-pointer">
-                      <div className="flex gap-4">
-                        {campaign.thumbnail_url && (
-                          <img
-                            src={campaign.thumbnail_url}
-                            alt={campaign.title}
-                            className="w-24 h-24 rounded-lg object-cover"
-                          />
-                        )}
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-lg mb-2">{campaign.title}</h4>
-                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                            {campaign.description}
+            <div className="space-y-4">
+            {campaigns.map((campaign) => (
+              <Link key={campaign.id} to={createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)} onClick={onClose}>
+                <Card className="p-6 hover:border-primary transition-all cursor-pointer">
+                  <div className="flex gap-4">
+                    {campaign.thumbnail_url && (
+                      <img
+                        src={campaign.thumbnail_url}
+                        alt={campaign.title}
+                        className="w-24 h-24 rounded-lg object-cover"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg mb-2">{campaign.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        {campaign.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 mr-4">
+                          <p className="text-sm text-muted-foreground mb-1">
+                            ₹{campaign.raised_amount?.toLocaleString() || 0} raised of ₹{campaign.goal_amount?.toLocaleString()}
                           </p>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-muted-foreground">
-                                Raised: ₹{campaign.raised_amount?.toLocaleString() || 0} of ₹{campaign.goal_amount?.toLocaleString()}
-                              </p>
-                              <div className="w-full bg-muted h-2 rounded-full mt-1">
-                                <div
-                                  className="bg-primary h-2 rounded-full"
-                                  style={{
-                                    width: `${Math.min((campaign.raised_amount / campaign.goal_amount) * 100, 100)}%`
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            <Button size="sm" className="ml-4">
-                              Donate
-                            </Button>
+                          <div className="w-full bg-muted h-2 rounded-full">
+                            <div
+                              className="bg-primary h-2 rounded-full transition-all"
+                              style={{
+                                width: `${Math.min(((campaign.raised_amount || 0) / campaign.goal_amount) * 100, 100)}%`
+                              }}
+                            />
                           </div>
                         </div>
+                        <Button size="sm" className="bg-primary hover:bg-primary/90">
+                          Donate Now
+                        </Button>
                       </div>
-                    </Card>
-                  </Link>
-                ))}
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
               </div>
             ) : (
               <div className="text-center py-12">
