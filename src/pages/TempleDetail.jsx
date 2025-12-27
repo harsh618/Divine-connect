@@ -492,7 +492,7 @@ export default function TempleDetail() {
       </div>
 
       {/* Floating Ritual Dock */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/10 shadow-2xl">
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/10 shadow-2xl">
         <Button
           onClick={() => setShowBookingModal(true)}
           disabled={!temple.visit_booking_enabled}
