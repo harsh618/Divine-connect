@@ -13,7 +13,7 @@ export default function TempleCard({ temple }) {
       <Card className="group overflow-hidden border-0 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white cursor-pointer rounded-2xl">
         <div className="relative aspect-[3/2] overflow-hidden">
           <img
-            src={temple.images?.[0] || defaultImage}
+            src={temple.thumbnail_url || temple.images?.[0] || defaultImage}
             alt={temple.name}
             className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-1 transition-transform duration-700"
           />

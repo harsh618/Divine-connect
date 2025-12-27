@@ -1,0 +1,373 @@
+import React, { useState, useRef } from 'react';
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Upload, Crop, X, Check, Target, Eye, EyeOff } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
+
+// Standardized aspect ratios for the platform
+const IMAGE_TYPES = {
+  hero: { ratio: 16/9, label: 'Hero Banner (16:9)', description: 'Temple headers, carousels, events' },
+  card: { ratio: 3/2, label: 'Listing Card (3:2)', description: 'Search results, recommendations' },
+  avatar: { ratio: 1, label: 'Avatar (1:1)', description: 'Profiles, user pictures' },
+  article: { ratio: 4/3, label: 'Article Thumbnail (4:3)', description: 'Blog posts, journals' },
+};
+
+export default function SmartImageEditor({ 
+  value, 
+  onChange, 
+  label = "Image",
+  imageType = 'card', // hero, card, avatar, article
+  showFocalPoint = true,
+  showVisibilityToggle = false,
+  isVisible = true,
+  onVisibilityChange
+}) {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState(null);
+  const [completedCrop, setCompletedCrop] = useState(null);
+  const [focalPoint, setFocalPoint] = useState(null); // { x: %, y: % }
+  const [isUploading, setIsUploading] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
+  const imgRef = useRef(null);
+
+  const aspectRatio = IMAGE_TYPES[imageType].ratio;
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageSrc(reader.result);
+      setShowCropper(true);
+      setFocalPoint(null); // Reset focal point
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onImageLoad = (e) => {
+    const { width, height } = e.currentTarget;
+    
+    const crop = centerCrop(
+      makeAspectCrop(
+        {
+          unit: '%',
+          width: 90,
+        },
+        aspectRatio,
+        width,
+        height
+      ),
+      width,
+      height
+    );
+    setCrop(crop);
+    setCompletedCrop(crop);
+  };
+
+  const handleImageClick = (e) => {
+    if (!showFocalPoint || !imgRef.current) return;
+    
+    const rect = imgRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    
+    setFocalPoint({ x, y });
+    toast.success('Focal point set');
+  };
+
+  const getCroppedImage = async () => {
+    if (!imgRef.current || !completedCrop) return null;
+
+    const image = imgRef.current;
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    canvas.width = completedCrop.width * scaleX;
+    canvas.height = completedCrop.height * scaleY;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(
+      image,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, 'image/jpeg', 0.95);
+    });
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile || !completedCrop) {
+      toast.error('Please crop the image before uploading');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const croppedBlob = await getCroppedImage();
+      const croppedFile = new File([croppedBlob], selectedFile.name, { type: 'image/jpeg' });
+
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: croppedFile });
+
+      // Return image metadata including focal point
+      const imageData = {
+        url: file_url,
+        focalPoint: focalPoint || { x: 50, y: 50 }, // Default to center
+        type: imageType,
+        aspectRatio: aspectRatio
+      };
+
+      onChange(typeof value === 'string' ? file_url : imageData);
+      toast.success('Image uploaded successfully');
+      
+      setShowCropper(false);
+      setImageSrc(null);
+      setSelectedFile(null);
+      setCrop(null);
+      setCompletedCrop(null);
+      setFocalPoint(null);
+    } catch (error) {
+      toast.error('Failed to upload image');
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowCropper(false);
+    setImageSrc(null);
+    setSelectedFile(null);
+    setCrop(null);
+    setCompletedCrop(null);
+    setFocalPoint(null);
+  };
+
+  const handleRemove = () => {
+    onChange('');
+    toast.success('Image removed');
+  };
+
+  const currentUrl = typeof value === 'string' ? value : value?.url;
+  const currentFocalPoint = typeof value === 'object' ? value?.focalPoint : null;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <Label>{label}</Label>
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="secondary" className="text-xs">
+              {IMAGE_TYPES[imageType].label}
+            </Badge>
+            <span className="text-xs text-muted-foreground">
+              {IMAGE_TYPES[imageType].description}
+            </span>
+          </div>
+        </div>
+        {showVisibilityToggle && currentUrl && (
+          <Button
+            size="sm"
+            variant={isVisible ? "default" : "outline"}
+            onClick={() => onVisibilityChange?.(!isVisible)}
+          >
+            {isVisible ? <Eye className="w-4 h-4 mr-2" /> : <EyeOff className="w-4 h-4 mr-2" />}
+            {isVisible ? 'Visible' : 'Hidden'}
+          </Button>
+        )}
+      </div>
+
+      {!showCropper && !currentUrl && (
+        <Card className="p-6 border-2 border-dashed border-gray-300 hover:border-primary transition-colors cursor-pointer">
+          <label className="flex flex-col items-center gap-3 cursor-pointer">
+            <Upload className="w-8 h-8 text-gray-400" />
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-700">Click to upload image</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Required: {IMAGE_TYPES[imageType].label}
+              </p>
+            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </label>
+        </Card>
+      )}
+
+      {!showCropper && currentUrl && (
+        <div className="space-y-2">
+          <div className="relative inline-block group">
+            <div 
+              className={`relative rounded-lg border overflow-hidden`}
+              style={{ aspectRatio: aspectRatio }}
+            >
+              <img 
+                src={currentUrl} 
+                alt="Uploaded" 
+                className="w-full h-full object-cover"
+                style={
+                  currentFocalPoint
+                    ? {
+                        objectPosition: `${currentFocalPoint.x}% ${currentFocalPoint.y}%`,
+                      }
+                    : {}
+                }
+              />
+              {currentFocalPoint && (
+                <div 
+                  className="absolute w-4 h-4 bg-red-500 rounded-full border-2 border-white transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                  style={{
+                    left: `${currentFocalPoint.x}%`,
+                    top: `${currentFocalPoint.y}%`,
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-full animate-ping bg-red-500 opacity-75"></div>
+                </div>
+              )}
+            </div>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleRemove}
+              className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <div>
+            <Button size="sm" variant="outline" asChild>
+              <label className="cursor-pointer">
+                <Upload className="w-3 h-3 mr-2" />
+                Change Image
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </label>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {showCropper && imageSrc && (
+        <Card className="p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Crop className="w-4 h-4 text-primary" />
+              <span className="font-medium">Crop to {IMAGE_TYPES[imageType].label}</span>
+            </div>
+            <Badge variant="outline" className="text-xs">
+              Locked Ratio: {imageType === 'avatar' ? '1:1' : `${Math.round(aspectRatio * 100) / 100}:1`}
+            </Badge>
+          </div>
+
+          {showFocalPoint && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+              <Target className="w-4 h-4 text-blue-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-blue-900">Set Focal Point</p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Click on the image to mark the most important area. This ensures it stays visible on all devices.
+                </p>
+                {focalPoint && (
+                  <Badge className="mt-2 bg-blue-100 text-blue-900 border-0">
+                    <Check className="w-3 h-3 mr-1" />
+                    Focal point set
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div 
+            className="max-h-96 overflow-auto bg-gray-100 rounded-lg flex items-center justify-center p-4 cursor-crosshair"
+            onClick={handleImageClick}
+          >
+            <div className="relative">
+              <ReactCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={aspectRatio}
+                locked={true}
+              >
+                <img
+                  ref={imgRef}
+                  src={imageSrc}
+                  onLoad={onImageLoad}
+                  alt="Crop"
+                  className="max-w-full"
+                />
+              </ReactCrop>
+              {focalPoint && (
+                <div 
+                  className="absolute w-6 h-6 bg-red-500 rounded-full border-4 border-white transform -translate-x-1/2 -translate-y-1/2 pointer-events-none shadow-lg z-10"
+                  style={{
+                    left: `${focalPoint.x}%`,
+                    top: `${focalPoint.y}%`,
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-full animate-ping bg-red-500 opacity-75"></div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              className="flex-1"
+              disabled={isUploading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpload}
+              className="flex-1 bg-primary hover:bg-primary/90"
+              disabled={isUploading || !completedCrop}
+            >
+              {isUploading ? (
+                <>Uploading...</>
+              ) : (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  Upload Image
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
