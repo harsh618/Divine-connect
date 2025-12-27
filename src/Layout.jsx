@@ -77,9 +77,9 @@ function LayoutContent({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-background">
       {/* Desktop Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-sm border-b border-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-border shadow-sm">
         <div className="container mx-auto px-8 max-w-7xl">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
               <span className="text-xl font-normal tracking-wide text-foreground">
@@ -91,7 +91,7 @@ function LayoutContent({ children, currentPageName }) {
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
                 <Link key={link.name} to={createPageUrl(link.page)}>
-                  <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase tracking-wider">
+                  <span className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase tracking-widest font-light">
                     {link.name}
                   </span>
                 </Link>
@@ -225,7 +225,7 @@ function LayoutContent({ children, currentPageName }) {
       </nav>
 
       {/* Page Content */}
-      <main className="pt-20">
+      <main className="pt-16">
         {children}
       </main>
 
