@@ -1,14 +1,12 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, BookOpen, User, Loader2 } from 'lucide-react';
-import moment from 'moment';
-import BackButton from '@/components/ui/BackButton';
-import ArticleCard from '@/components/articles/ArticleCard';
+import { CalendarDays, User, Loader2, ChevronLeft } from 'lucide-react';
+import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import ReactMarkdown from 'react-markdown';
 
 export default function ArticleDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -64,98 +62,131 @@ export default function ArticleDetail() {
   const defaultImage = article.images?.[0] || "https://images.unsplash.com/photo-1518655189052-ba153835e009?w=1200";
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
-      <div className="relative h-96 overflow-hidden">
-        <img src={defaultImage} alt={article.title} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <div className="container mx-auto">
-            <BackButton label="Back" />
-          </div>
-        </div>
+    <div className="min-h-screen bg-white pb-24 md:pb-8">
+      {/* Back Button - Floating */}
+      <div className="fixed top-20 left-8 z-20">
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg rounded-full text-sm font-light transition-all"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
       </div>
 
-      <div className="container mx-auto px-6 -mt-20 relative z-10">
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-8 shadow-xl">
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <Badge className="bg-teal-100 text-teal-700">
-                <BookOpen className="w-3 h-3 mr-1" />
-                {article.source === 'ai_generated' ? 'AI Generated' : article.source === 'admin' ? 'Admin' : 'Priest'}
+      {/* Hero Image */}
+      <div className="relative w-full aspect-[21/9] overflow-hidden">
+        <img src={defaultImage} alt={article.title} className="w-full h-full object-cover" />
+      </div>
+
+      {/* Article Content */}
+      <div className="container mx-auto px-8 max-w-4xl">
+        <div className="py-16">
+          {/* Metadata */}
+          <div className="flex flex-wrap items-center gap-4 mb-8">
+            {article.temple_id && temple && (
+              <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
+                <Badge variant="outline" className="text-xs uppercase tracking-wider font-light border-border hover:border-primary transition-colors">
+                  {temple.name}
+                </Badge>
+              </Link>
+            )}
+            {article.scripture_reference && (
+              <Badge variant="outline" className="text-xs uppercase tracking-wider font-light border-border">
+                {article.scripture_reference}
               </Badge>
-              {article.temple_id && temple && (
-                <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
-                  <Badge variant="outline" className="hover:bg-gray-100">
-                    {temple.name}
-                  </Badge>
-                </Link>
-              )}
-              {!article.temple_id && (
-                <Badge variant="secondary">General Article</Badge>
-              )}
-            </div>
+            )}
+          </div>
 
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
-              {article.title}
-            </h1>
+          {/* Title */}
+          <h1 className="text-4xl md:text-5xl font-light text-foreground mb-8 leading-tight tracking-wide">
+            {article.title}
+          </h1>
 
-            <div className="flex items-center gap-4 text-sm text-gray-600 mb-6 pb-6 border-b">
+          {/* Author & Date */}
+          <div className="flex items-center gap-6 text-sm text-muted-foreground mb-12 pb-12 border-b border-border font-light">
+            {article.author_name && (
               <div className="flex items-center gap-2">
-                <CalendarDays className="w-4 h-4" />
-                <span>{moment(article.created_date).format('MMMM DD, YYYY')}</span>
+                <User className="w-4 h-4" />
+                <span>{article.author_name}</span>
               </div>
-              {article.author_name && (
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span>{article.author_name}</span>
-                </div>
-              )}
+            )}
+            <div className="flex items-center gap-2">
+              <CalendarDays className="w-4 h-4" />
+              <span>{format(new Date(article.created_date), 'MMMM dd, yyyy')}</span>
             </div>
+          </div>
 
-            {article.quote && (
-              <div className="bg-orange-50 border-l-4 border-orange-500 p-6 mb-8 italic text-gray-700">
+          {/* Quote Block */}
+          {article.quote && (
+            <div className="my-12 py-8 border-y border-border">
+              <blockquote className="text-2xl font-light italic text-foreground/80 leading-relaxed">
                 "{article.quote}"
-                {article.scripture_reference && (
-                  <div className="text-sm text-gray-600 mt-2 not-italic">
-                    — {article.scripture_reference}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="prose prose-lg max-w-none">
-              {article.content.split('\n\n').map((paragraph, idx) => (
-                <p key={idx} className="mb-4 text-gray-700 leading-relaxed">
-                  {paragraph}
+              </blockquote>
+              {article.scripture_reference && (
+                <p className="text-sm text-muted-foreground mt-4 font-light">
+                  — {article.scripture_reference}
                 </p>
-              ))}
-            </div>
-
-            {article.scripture_reference && !article.quote && (
-              <div className="mt-8 pt-8 border-t">
-                <p className="text-sm text-gray-600">
-                  <strong>Scripture Reference:</strong> {article.scripture_reference}
-                </p>
-              </div>
-            )}
-          </Card>
-
-          {relatedArticles && relatedArticles.length > 1 && (
-            <div className="mt-12">
-              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
-                {article.temple_id ? 'More from this Temple' : 'Related Articles'}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedArticles
-                  .filter(a => a.id !== article.id)
-                  .slice(0, 3)
-                  .map(relatedArticle => (
-                    <ArticleCard key={relatedArticle.id} article={relatedArticle} />
-                  ))}
-              </div>
+              )}
             </div>
           )}
+
+          {/* Article Content */}
+          <div className="prose prose-lg max-w-none">
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="mb-6 text-foreground/80 leading-relaxed font-light text-lg">{children}</p>,
+                h1: ({ children }) => <h1 className="text-3xl font-normal mt-12 mb-6 text-foreground">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-2xl font-normal mt-10 mb-5 text-foreground">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-xl font-normal mt-8 mb-4 text-foreground">{children}</h3>,
+                ul: ({ children }) => <ul className="list-none pl-0 mb-6 space-y-3">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal pl-6 mb-6 space-y-3">{children}</ol>,
+                li: ({ children }) => <li className="text-foreground/80 leading-relaxed font-light text-lg">{children}</li>,
+                strong: ({ children }) => <strong className="font-normal text-foreground">{children}</strong>,
+                em: ({ children }) => <em className="italic text-foreground/90">{children}</em>,
+                blockquote: ({ children }) => (
+                  <blockquote className="border-l-2 border-primary pl-6 my-8 italic text-foreground/70">
+                    {children}
+                  </blockquote>
+                ),
+              }}
+            >
+              {article.content}
+            </ReactMarkdown>
+          </div>
         </div>
+
+        {/* Related Articles */}
+        {relatedArticles && relatedArticles.length > 1 && (
+          <div className="py-16 border-t border-border">
+            <h2 className="text-2xl font-normal text-foreground mb-8 tracking-wide">
+              {article.temple_id ? 'More from this Temple' : 'Related Stories'}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedArticles
+                .filter(a => a.id !== article.id)
+                .slice(0, 3)
+                .map(relatedArticle => (
+                  <Link key={relatedArticle.id} to={createPageUrl(`ArticleDetail?id=${relatedArticle.id}`)}>
+                    <div className="group cursor-pointer">
+                      {relatedArticle.images?.[0] && (
+                        <div className="relative aspect-[4/3] overflow-hidden mb-4">
+                          <img
+                            src={relatedArticle.images[0]}
+                            alt={relatedArticle.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      )}
+                      <h3 className="font-normal text-lg text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                        {relatedArticle.title}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
