@@ -13,7 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle, XCircle, Search, Eye, EyeOff } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Eye, EyeOff, Pencil } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -133,36 +135,41 @@ export default function AdminProviders() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setSelectedProvider(provider)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => toggleVisibilityMutation.mutate({ id: provider.id, is_hidden: !provider.is_hidden })}
-                      >
-                        {provider.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                      </Button>
-                      {!provider.is_verified && (
-                        <Button 
-                          size="sm" 
-                          className="bg-green-600 hover:bg-green-700"
-                          onClick={() => verifyMutation.mutate({ id: provider.id, is_verified: true })}
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </Button>
-                      )}
-                      {provider.is_verified && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => verifyMutation.mutate({ id: provider.id, is_verified: false })}
-                        >
-                          <XCircle className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
+                   <div className="flex gap-2">
+                     <Button size="sm" variant="outline" onClick={() => setSelectedProvider(provider)}>
+                       <Eye className="w-4 h-4" />
+                     </Button>
+                     <Link to={createPageUrl(`ProviderOnboarding?id=${provider.id}`)}>
+                       <Button size="sm" variant="outline">
+                         <Pencil className="w-4 h-4" />
+                       </Button>
+                     </Link>
+                     <Button 
+                       size="sm" 
+                       variant="outline" 
+                       onClick={() => toggleVisibilityMutation.mutate({ id: provider.id, is_hidden: !provider.is_hidden })}
+                     >
+                       {provider.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                     </Button>
+                     {!provider.is_verified && (
+                       <Button 
+                         size="sm" 
+                         className="bg-green-600 hover:bg-green-700"
+                         onClick={() => verifyMutation.mutate({ id: provider.id, is_verified: true })}
+                       >
+                         <CheckCircle className="w-4 h-4" />
+                       </Button>
+                     )}
+                     {provider.is_verified && (
+                       <Button 
+                         size="sm" 
+                         variant="outline"
+                         onClick={() => verifyMutation.mutate({ id: provider.id, is_verified: false })}
+                       >
+                         <XCircle className="w-4 h-4" />
+                       </Button>
+                     )}
+                   </div>
                   </TableCell>
                 </TableRow>
               ))
