@@ -63,17 +63,14 @@ export default function MinimalHero() {
           <Link to={createPageUrl('Temples')}>
             <Button
               size="lg"
-              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/30 rounded-full px-8 py-6 text-lg">
-
+              className="bg-[#D97706] hover:bg-[#B45309] text-white border-none rounded-lg px-8 py-6 text-sm font-semibold uppercase tracking-wide hover:shadow-[0_8px_16px_rgba(217,119,6,0.3)] hover:-translate-y-0.5 transition-all min-h-[48px]">
               Explore Temples
             </Button>
           </Link>
           <Link to={createPageUrl('Astrology')}>
             <Button
               size="lg"
-              variant="outline"
-              className="bg-transparent text-white px-8 py-6 text-lg rounded-full border border-white/30 hover:bg-white/10">
-
+              className="bg-transparent hover:bg-white/10 text-white px-8 py-6 text-sm font-semibold uppercase tracking-wide rounded-lg border-2 border-white hover:border-[#FCD34D] transition-all min-h-[48px]">
               Consult Astrologer
             </Button>
           </Link>
