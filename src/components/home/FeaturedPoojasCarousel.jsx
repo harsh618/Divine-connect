@@ -73,32 +73,45 @@ export default function FeaturedPoojasCarousel() {
   }
 
   return (
-    <div className="py-20 bg-background">
-      <div className="container mx-auto px-8 max-w-7xl">
-        <div className="flex items-center justify-between mb-12">
-          <div>
-            <h2 className="text-3xl font-normal text-foreground tracking-wide mb-2">Featured Poojas</h2>
-            <p className="text-muted-foreground font-light">Sacred rituals for every occasion</p>
-          </div>
-          <div className="flex gap-2">
+    <div className="py-24 px-6 bg-gradient-to-b from-orange-50/30 to-background relative overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl" />
+      
+      <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="text-center mb-16">
+          <Badge className="mb-4 bg-orange-100 text-orange-700 border-0 px-4 py-1.5">
+            Sacred Rituals
+          </Badge>
+          <h2 className="text-4xl md:text-5xl font-normal text-foreground mb-4 tracking-tight">
+            Featured Poojas
+          </h2>
+          <p className="text-muted-foreground font-light text-lg max-w-2xl mx-auto">
+            Experience divine blessings through authentic Vedic ceremonies
+          </p>
+        </div>
+
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
             <Button
               variant="ghost"
               size="icon"
               onClick={scrollPrev}
-              className="bg-gray-800 hover:bg-gray-700 text-white rounded-full w-10 h-10 shadow-lg"
+              className="bg-white hover:bg-gray-50 text-gray-800 rounded-full w-12 h-12 shadow-2xl border border-gray-200"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-6 h-6" />
             </Button>
+          </div>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
             <Button
               variant="ghost"
               size="icon"
               onClick={scrollNext}
-              className="bg-gray-800 hover:bg-gray-700 text-white rounded-full w-10 h-10 shadow-lg"
+              className="bg-white hover:bg-gray-50 text-gray-800 rounded-full w-12 h-12 shadow-2xl border border-gray-200"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-6 h-6" />
             </Button>
           </div>
-        </div>
 
           <div className="overflow-hidden py-8" ref={emblaRef}>
             <div className="flex">
@@ -188,6 +201,7 @@ export default function FeaturedPoojasCarousel() {
               <ChevronRight className="w-6 h-6" />
             </Button>
           </div>
+        </div>
         </div>
       </div>
     </div>
