@@ -9,26 +9,26 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  DropdownMenuTrigger } from
+"@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { 
-  Menu, 
-  User, 
-  LogOut, 
-  Home, 
-  Building2, 
-  Flame, 
-  Stars, 
-  Users, 
+  SheetTrigger } from
+"@/components/ui/sheet";
+import {
+  Menu,
+  User,
+  LogOut,
+  Home,
+  Building2,
+  Flame,
+  Stars,
+  Users,
   Heart,
   Search,
-  Settings
-} from 'lucide-react';
+  Settings } from
+'lucide-react';
 
 function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -36,12 +36,12 @@ function LayoutContent({ children, currentPageName }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Temples', icon: Building2, page: 'Temples' },
-    { name: 'Poojas', icon: Flame, page: 'Poojas' },
-    { name: 'Astrology', icon: Stars, page: 'Astrology' },
-    { name: 'Priests', icon: Users, page: 'Priests' },
-    { name: 'Donate', icon: Heart, page: 'Donate' },
-  ];
+  { name: 'Temples', icon: Building2, page: 'Temples' },
+  { name: 'Poojas', icon: Flame, page: 'Poojas' },
+  { name: 'Astrology', icon: Stars, page: 'Astrology' },
+  { name: 'Priests', icon: Users, page: 'Priests' },
+  { name: 'Donate', icon: Heart, page: 'Donate' }];
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -50,10 +50,10 @@ function LayoutContent({ children, currentPageName }) {
         if (authenticated) {
           const userData = await base44.auth.me();
           setUser(userData);
-          
+
           // Check if user has a provider profile
-          const profiles = await base44.entities.ProviderProfile.filter({ 
-            user_id: userData.id, 
+          const profiles = await base44.entities.ProviderProfile.filter({
+            user_id: userData.id,
             is_deleted: false,
             profile_status: 'approved'
           });
@@ -75,40 +75,43 @@ function LayoutContent({ children, currentPageName }) {
   const isHomePage = currentPageName === 'Home';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       {/* Desktop Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-8 max-w-7xl">
-          <div className="flex items-center justify-between h-20">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-              <span className="text-xl font-normal tracking-wide text-foreground">
-                DIVINE
+              <span className="text-2xl font-serif font-bold text-orange-500">
+                Divine
               </span>
             </Link>
 
             {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <Link key={link.name} to={createPageUrl(link.page)}>
-                  <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase tracking-wider">
+            <div className="hidden md:flex items-center gap-1">
+              {navLinks.map((link) =>
+              <Link key={link.name} to={createPageUrl(link.page)}>
+                  <Button
+                  variant="ghost" className="text-muted-foreground text-sm uppercase tracking-wider opacity-100 hover:text-foreground transition-colors cursor-pointer">
+
+
                     {link.name}
-                  </span>
+                  </Button>
                 </Link>
-              ))}
+              )}
             </div>
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
-              {user ? (
-                <DropdownMenu>
+              {user ?
+              <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="rounded-full hover:bg-muted"
-                    >
-                      <User className="w-4 h-4" />
+                    <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full">
+
+                      <User className="w-5 h-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -124,26 +127,26 @@ function LayoutContent({ children, currentPageName }) {
                       </DropdownMenuItem>
                     </Link>
 
-                    {userRole === 'priest' && (
-                      <Link to={createPageUrl('PriestDashboard')}>
+                    {userRole === 'priest' &&
+                  <Link to={createPageUrl('PriestDashboard')}>
                         <DropdownMenuItem>
                           <Flame className="w-4 h-4 mr-2" />
                           Priest Dashboard
                         </DropdownMenuItem>
                       </Link>
-                    )}
+                  }
 
-                    {userRole === 'astrologer' && (
-                      <Link to={createPageUrl('AstrologerDashboard')}>
+                    {userRole === 'astrologer' &&
+                  <Link to={createPageUrl('AstrologerDashboard')}>
                         <DropdownMenuItem>
                           <Stars className="w-4 h-4 mr-2" />
                           Astrologer Dashboard
                         </DropdownMenuItem>
                       </Link>
-                    )}
+                  }
 
-                    {!userRole && (
-                      <>
+                    {!userRole &&
+                  <>
                         <Link to={createPageUrl('AstrologyProfile')}>
                           <DropdownMenuItem>
                             <Stars className="w-4 h-4 mr-2" />
@@ -163,40 +166,39 @@ function LayoutContent({ children, currentPageName }) {
                           </DropdownMenuItem>
                         </Link>
                       </>
-                    )}
+                  }
 
-                    {user.role === 'admin' && (
-                      <Link to={createPageUrl('AdminDashboard')}>
+                    {user.role === 'admin' &&
+                  <Link to={createPageUrl('AdminDashboard')}>
                         <DropdownMenuItem>
                           <Settings className="w-4 h-4 mr-2" />
                           Admin Panel
                         </DropdownMenuItem>
                       </Link>
-                    )}
+                  }
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => base44.auth.logout(createPageUrl('Home'))}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
                       </DropdownMenuItem>
                   </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button
-                  onClick={() => base44.auth.redirectToLogin()}
-                  variant="outline"
-                  className="border-border hover:bg-muted text-foreground rounded-none px-6 text-sm uppercase tracking-wider"
-                >
+                </DropdownMenu> :
+
+              <Button
+                onClick={() => base44.auth.redirectToLogin()}
+                className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-6">
+
                   Sign In
                 </Button>
-              )}
+              }
 
               {/* Mobile Menu */}
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild className="md:hidden">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                  >
+                  <Button
+                    variant="ghost"
+                    size="icon">
+
                     <Menu className="w-6 h-6" />
                   </Button>
                 </SheetTrigger>
@@ -208,14 +210,14 @@ function LayoutContent({ children, currentPageName }) {
                         Home
                       </Button>
                     </Link>
-                    {navLinks.map((link) => (
-                      <Link key={link.name} to={createPageUrl(link.page)} onClick={() => setIsOpen(false)}>
+                    {navLinks.map((link) =>
+                    <Link key={link.name} to={createPageUrl(link.page)} onClick={() => setIsOpen(false)}>
                         <Button variant="ghost" className="w-full justify-start">
                           <link.icon className="w-5 h-5 mr-3" />
                           {link.name}
                         </Button>
                       </Link>
-                    ))}
+                    )}
                   </div>
                 </SheetContent>
               </Sheet>
@@ -225,39 +227,39 @@ function LayoutContent({ children, currentPageName }) {
       </nav>
 
       {/* Page Content */}
-      <main className="pt-20">
+      <main className="pt-16">
         {children}
       </main>
 
       {/* Mobile Bottom Navigation - Only show when logged in */}
-      {user && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50">
-          <div className="flex items-center justify-around py-3">
-            <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
+      {user &&
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+          <div className="flex items-center justify-around py-2">
+            <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
               <Home className="w-5 h-5" />
               <span className="text-xs mt-1">Home</span>
             </Link>
-            <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
               <Stars className="w-5 h-5" />
               <span className="text-xs mt-1">Journey</span>
             </Link>
-            <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
               <Flame className="w-5 h-5" />
               <span className="text-xs mt-1">Bookings</span>
             </Link>
-            <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
               <Heart className="w-5 h-5" />
               <span className="text-xs mt-1">Donate</span>
             </Link>
-            <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
+            <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
               <User className="w-5 h-5" />
               <span className="text-xs mt-1">Profile</span>
             </Link>
           </div>
         </nav>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
 export default function Layout({ children, currentPageName }) {
