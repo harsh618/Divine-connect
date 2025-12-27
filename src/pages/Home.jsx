@@ -11,6 +11,9 @@ import DonationCampaignsMinimal from '../components/home/DonationCampaignsMinima
 import PriestsMinimal from '../components/home/PriestsMinimal';
 import JoinUsSection from '../components/home/JoinUsSection';
 import ArticlesSection from '../components/articles/ArticlesSection';
+import FeaturedProvidersCarousel from '../components/home/FeaturedProvidersCarousel';
+import FeaturedPoojasCarousel from '../components/home/FeaturedPoojasCarousel';
+import FeaturedServicesCarousel from '../components/home/FeaturedServicesCarousel';
 
 export default function Home() {
   const { data: temples, isLoading } = useQuery({
@@ -29,6 +32,9 @@ export default function Home() {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <MinimalHero />
       <FeaturedTemplesMinimal temples={displayTemples} isLoading={isLoading && isLoadingAll} />
+      <FeaturedProvidersCarousel />
+      <FeaturedPoojasCarousel />
+      <FeaturedServicesCarousel />
       <div className="bg-muted/30">
         <AuspiciousTimeline />
       </div>
