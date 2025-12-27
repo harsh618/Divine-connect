@@ -75,28 +75,25 @@ function LayoutContent({ children, currentPageName }) {
   const isHomePage = currentPageName === 'Home';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Desktop Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-sm border-b border-border">
+        <div className="container mx-auto px-8 max-w-7xl">
+          <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-              <span className="text-2xl font-serif font-bold text-orange-500">
-                Divine
+              <span className="text-xl font-normal tracking-wide text-foreground">
+                DIVINE
               </span>
             </Link>
 
             {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
                 <Link key={link.name} to={createPageUrl(link.page)}>
-                  <Button
-                    variant="ghost"
-                    className="text-gray-600 hover:text-gray-900"
-                  >
+                  <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer uppercase tracking-wider">
                     {link.name}
-                  </Button>
+                  </span>
                 </Link>
               ))}
             </div>
@@ -109,9 +106,9 @@ function LayoutContent({ children, currentPageName }) {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="rounded-full"
+                      className="rounded-full hover:bg-muted"
                     >
-                      <User className="w-5 h-5" />
+                      <User className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -186,7 +183,8 @@ function LayoutContent({ children, currentPageName }) {
               ) : (
                 <Button
                   onClick={() => base44.auth.redirectToLogin()}
-                  className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-6"
+                  variant="outline"
+                  className="border-border hover:bg-muted text-foreground rounded-none px-6 text-sm uppercase tracking-wider"
                 >
                   Sign In
                 </Button>
@@ -227,31 +225,31 @@ function LayoutContent({ children, currentPageName }) {
       </nav>
 
       {/* Page Content */}
-      <main className="pt-16">
+      <main className="pt-20">
         {children}
       </main>
 
       {/* Mobile Bottom Navigation - Only show when logged in */}
       {user && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-          <div className="flex items-center justify-around py-2">
-            <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50">
+          <div className="flex items-center justify-around py-3">
+            <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Home className="w-5 h-5" />
               <span className="text-xs mt-1">Home</span>
             </Link>
-            <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+            <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Stars className="w-5 h-5" />
               <span className="text-xs mt-1">Journey</span>
             </Link>
-            <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+            <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Flame className="w-5 h-5" />
               <span className="text-xs mt-1">Bookings</span>
             </Link>
-            <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+            <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Heart className="w-5 h-5" />
               <span className="text-xs mt-1">Donate</span>
             </Link>
-            <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-gray-600 hover:text-orange-500">
+            <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <User className="w-5 h-5" />
               <span className="text-xs mt-1">Profile</span>
             </Link>
