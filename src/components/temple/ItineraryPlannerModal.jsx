@@ -14,16 +14,14 @@ import { toast } from 'sonner';
 const categories = [
   { id: 'sacred_walks', label: 'Sacred Walks', icon: '🚶', color: 'bg-purple-100 text-purple-700' },
   { id: 'ghats', label: 'Ghats', icon: '🌊', color: 'bg-blue-100 text-blue-700' },
-  { id: 'aarti', label: 'Aarti Spots', icon: '🪔', color: 'bg-orange-100 text-orange-700' },
-  { id: 'markets', label: 'Local Markets', icon: '🛍️', color: 'bg-green-100 text-green-700' },
-  { id: 'temples', label: 'Other Temples', icon: '🏛️', color: 'bg-amber-100 text-amber-700' },
-  { id: 'food', label: 'Local Cuisine', icon: '🍽️', color: 'bg-red-100 text-red-700' }
+  { id: 'aarti', label: 'Aarti', icon: '🪔', color: 'bg-orange-100 text-orange-700' },
+  { id: 'markets', label: 'Local Markets', icon: '🛍️', color: 'bg-green-100 text-green-700' }
 ];
 
 const vibes = [
   { id: 'adventurous', label: 'Adventurous', icon: '⛰️', color: 'bg-red-100 text-red-700' },
-  { id: 'peaceful', label: 'Peace & Meditation', icon: '🧘', color: 'bg-blue-100 text-blue-700' },
-  { id: 'festive', label: 'Occasion & Festival', icon: '🎉', color: 'bg-pink-100 text-pink-700' }
+  { id: 'peaceful', label: 'Peace/Meditation', icon: '🧘', color: 'bg-blue-100 text-blue-700' },
+  { id: 'festive', label: 'Occasion/Festival', icon: '🎉', color: 'bg-pink-100 text-pink-700' }
 ];
 
 export default function ItineraryPlannerModal({ isOpen, onClose, temple }) {
