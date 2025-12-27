@@ -14,12 +14,11 @@ export default function FeaturedProvidersCarousel() {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { 
       loop: true, 
-      align: 'center',
+      align: 'start',
       slidesToScroll: 1,
-      dragFree: false,
       containScroll: 'trimSnaps'
     },
-    [Autoplay({ delay: 3000, stopOnInteraction: false })]
+    [Autoplay({ delay: 3000, stopOnInteraction: true })]
   );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
