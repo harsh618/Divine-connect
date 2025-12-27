@@ -13,7 +13,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle, XCircle, Search, Eye, EyeOff, Pencil } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CheckCircle, XCircle, Search, Eye, EyeOff, Pencil, Plus, MoreVertical, Trash2, Star, StarOff, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
@@ -28,6 +42,7 @@ export default function AdminProviders() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvider, setSelectedProvider] = useState(null);
+  const [filterType, setFilterType] = useState('all');
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['admin-providers'],
@@ -59,66 +74,118 @@ export default function AdminProviders() {
     }
   });
 
-  const filteredProviders = providers?.filter(provider =>
-    provider.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    provider.provider_type?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleDelete = (provider) => {
+    if (confirm(`Delete ${provider.display_name}? This will move them to trash.`)) {
+      deleteMutation.mutate(provider.id);
+    }
+  };
+
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: ({ id, is_featured }) => base44.entities.ProviderProfile.update(id, { is_featured }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-providers']);
+      toast.success('Featured status updated');
+    }
+  });
+
+  const filteredProviders = providers?.filter(provider => {
+    const matchesSearch = provider.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      provider.provider_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      provider.city?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesType = filterType === 'all' || provider.provider_type === filterType;
+    
+    return matchesSearch && matchesType;
+  });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Providers Management</h2>
-          <p className="text-gray-500">Manage priests and astrologers</p>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between gap-4">
+        <div className="flex flex-col md:flex-row gap-3 flex-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search providers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Providers</SelectItem>
+              <SelectItem value="priest">Priests</SelectItem>
+              <SelectItem value="astrologer">Astrologers</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+        <Link to={createPageUrl('ProviderOnboarding')}>
+          <Button className="bg-orange-500 hover:bg-orange-600">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Provider
+          </Button>
+        </Link>
       </div>
 
-      <Card className="p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search providers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </Card>
-
-      <Card>
+      {/* Table */}
+      <Card className="overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Avatar</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead>Provider</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Experience</TableHead>
+              <TableHead>City</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Rating</TableHead>
+              <TableHead>Featured</TableHead>
               <TableHead>Visibility</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="w-12">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={8} className="text-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                </TableCell>
               </TableRow>
             ) : filteredProviders?.length > 0 ? (
               filteredProviders.map((provider) => (
                 <TableRow key={provider.id} className={provider.is_hidden ? 'opacity-50' : ''}>
                   <TableCell>
-                    {provider.avatar_url ? (
-                      <img src={provider.avatar_url} alt={provider.display_name} className="w-12 h-12 object-cover rounded-full" />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500">
-                        {provider.display_name?.[0] || 'P'}
+                    <div className="flex items-center gap-3">
+                      {provider.avatar_url ? (
+                        <img src={provider.avatar_url} alt={provider.display_name} className="w-10 h-10 object-cover rounded-full" />
+                      ) : (
+                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500">
+                          {provider.display_name?.[0] || 'P'}
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-medium">{provider.display_name}</div>
+                        {provider.rating_average > 0 && (
+                          <div className="text-xs text-gray-500">
+                            {provider.rating_average.toFixed(1)} ⭐
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </TableCell>
-                  <TableCell className="font-medium">{provider.display_name}</TableCell>
-                  <TableCell className="capitalize">{provider.provider_type}</TableCell>
-                  <TableCell>{provider.years_of_experience} years</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className={
+                      provider.provider_type === 'priest' 
+                        ? 'bg-orange-50 text-orange-700' 
+                        : 'bg-purple-50 text-purple-700'
+                    }>
+                      {provider.provider_type}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{provider.years_of_experience || 0} years</TableCell>
+                  <TableCell>{provider.city || 'N/A'}</TableCell>
                   <TableCell>
                     {provider.is_verified ? (
                       <Badge className="bg-green-100 text-green-700">Verified</Badge>
@@ -127,7 +194,12 @@ export default function AdminProviders() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {provider.rating_average > 0 ? `${provider.rating_average.toFixed(1)} ⭐` : 'No ratings'}
+                    {provider.is_featured && (
+                      <Badge className="bg-amber-100 text-amber-700">
+                        <Star className="w-3 h-3 mr-1 fill-current" />
+                        Featured
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge className={!provider.is_hidden ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
@@ -135,47 +207,84 @@ export default function AdminProviders() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                   <div className="flex gap-2">
-                     <Button size="sm" variant="outline" onClick={() => setSelectedProvider(provider)}>
-                       <Eye className="w-4 h-4" />
-                     </Button>
-                     <Link to={createPageUrl(`ProviderOnboarding?id=${provider.id}`)}>
-                       <Button size="sm" variant="outline">
-                         <Pencil className="w-4 h-4" />
-                       </Button>
-                     </Link>
-                     <Button 
-                       size="sm" 
-                       variant="outline" 
-                       onClick={() => toggleVisibilityMutation.mutate({ id: provider.id, is_hidden: !provider.is_hidden })}
-                     >
-                       {provider.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                     </Button>
-                     {!provider.is_verified && (
-                       <Button 
-                         size="sm" 
-                         className="bg-green-600 hover:bg-green-700"
-                         onClick={() => verifyMutation.mutate({ id: provider.id, is_verified: true })}
-                       >
-                         <CheckCircle className="w-4 h-4" />
-                       </Button>
-                     )}
-                     {provider.is_verified && (
-                       <Button 
-                         size="sm" 
-                         variant="outline"
-                         onClick={() => verifyMutation.mutate({ id: provider.id, is_verified: false })}
-                       >
-                         <XCircle className="w-4 h-4" />
-                       </Button>
-                     )}
-                   </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setSelectedProvider(provider)}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to={createPageUrl(`ProviderOnboarding?id=${provider.id}`)}>
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => verifyMutation.mutate({ id: provider.id, is_verified: !provider.is_verified })}
+                        >
+                          {provider.is_verified ? (
+                            <>
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Unverify
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Verify
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => toggleFeaturedMutation.mutate({ id: provider.id, is_featured: !provider.is_featured })}
+                        >
+                          {provider.is_featured ? (
+                            <>
+                              <StarOff className="w-4 h-4 mr-2" />
+                              Remove Featured
+                            </>
+                          ) : (
+                            <>
+                              <Star className="w-4 h-4 mr-2" />
+                              Mark Featured
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => toggleVisibilityMutation.mutate({ id: provider.id, is_hidden: !provider.is_hidden })}
+                        >
+                          {provider.is_hidden ? (
+                            <>
+                              <Eye className="w-4 h-4 mr-2" />
+                              Show Provider
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-4 h-4 mr-2" />
+                              Hide Provider
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleDelete(provider)} className="text-red-600">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">No providers found</TableCell>
+                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                  No providers found
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
