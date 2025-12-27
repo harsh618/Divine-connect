@@ -111,67 +111,51 @@ export default function FeaturedProvidersCarousel() {
               const specialization = provider.provider_type === 'priest'
                 ? provider.specializations?.[0] || 'Vedic Priest'
                 : provider.astrology_types?.[0] || 'Vedic Astrology';
-              const badgeText = provider.provider_type === 'priest' ? 'Priest' : 'Astrologer';
+              const badgeText = provider.provider_type === 'priest' ? 'Top Priest' : 'Top Astrologer';
               const isActive = index === selectedIndex;
-              const rate = provider.consultation_rate_video || provider.consultation_rate_voice || provider.consultation_rate_chat;
-
+              
               return (
                 <div 
                   key={provider.id} 
                   className={cn(
-                    "flex-[0_0_90%] md:flex-[0_0_380px] px-3 transition-all duration-500",
+                    "flex-[0_0_280px] md:flex-[0_0_320px] px-3 transition-all duration-500 ease-out",
                     {
-                      'opacity-100': isActive,
-                      'opacity-60': !isActive,
+                      'scale-110 opacity-100 z-10': isActive,
+                      'scale-90 opacity-40': !isActive,
                     }
                   )}
                 >
                   <Link to={createPageUrl(profileUrl)}>
-                    <div className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200">
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={provider.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600'}
-                          alt={provider.display_name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <Badge className="absolute top-3 left-3 bg-orange-500 text-white border-0 shadow-sm text-xs">
-                          {badgeText}
-                        </Badge>
-                        {provider.is_verified && (
-                          <Badge className="absolute top-3 right-3 bg-green-500 text-white border-0 shadow-sm text-xs">
-                            ✓ Verified
-                          </Badge>
-                        )}
-                      </div>
+                    <div className="relative group cursor-pointer h-[400px] overflow-hidden rounded-lg shadow-xl">
+                      <img
+                        src={provider.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600'}
+                        alt={provider.display_name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      
+                      <Badge className="absolute top-4 left-4 bg-red-500 text-white border-0 shadow-md">
+                        {badgeText}
+                      </Badge>
 
-                      <div className="p-4">
-                        <div className="mb-3">
-                          {rate && (
-                            <div className="text-xl font-semibold text-gray-900 mb-1">
-                              ₹{rate}/session
-                            </div>
-                          )}
-                          <h3 className="text-base font-normal text-gray-800 line-clamp-1">
-                            {provider.display_name}
-                          </h3>
-                        </div>
-
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                          <div className="text-xs">
-                            {provider.years_of_experience || 0}+ years exp
-                          </div>
-                          {provider.rating_average > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
-                              <span className="text-xs">{provider.rating_average.toFixed(1)}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                          {specialization}
-                          {provider.languages?.length > 0 && ` • ${provider.languages.slice(0, 2).join(', ')}`}
+                      <div className="absolute bottom-0 left-0 right-0 p-6 text-background">
+                        <h3 className="text-xl font-normal mb-1">{provider.display_name}</h3>
+                        <p className="text-sm text-background/80 mb-2">
+                          {specialization} | {provider.years_of_experience || 0}+ years exp
                         </p>
+                        {provider.rating_average > 0 && (
+                          <div className="flex items-center gap-1 text-sm">
+                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                            <span>{provider.rating_average.toFixed(1)}</span>
+                          </div>
+                        )}
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-4 bg-background text-foreground hover:bg-background/90 border-0"
+                        >
+                          View Profile
+                        </Button>
                       </div>
                     </div>
                   </Link>
