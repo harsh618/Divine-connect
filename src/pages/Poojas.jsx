@@ -135,12 +135,18 @@ export default function Poojas() {
     queryFn: () => base44.entities.Pooja.filter({ is_deleted: false }, '-is_popular'),
   });
 
+  const { data: featuredPoojas, isLoading: loadingFeatured } = useQuery({
+    queryKey: ['featured-poojas'],
+    queryFn: () => base44.entities.Pooja.filter({ is_deleted: false, is_featured: true }, '-created_date'),
+  });
+
   const filteredPoojas = poojas?.filter(pooja => {
     const matchesSearch = pooja.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           pooja.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || pooja.category === selectedCategory;
     const matchesVirtual = !showVirtualOnly || pooja.base_price_virtual > 0;
-    return matchesSearch && matchesCategory && matchesVirtual;
+    const notFeatured = !featuredPoojas?.some(fp => fp.id === pooja.id);
+    return matchesSearch && matchesCategory && matchesVirtual && notFeatured;
   });
 
   return (
@@ -209,7 +215,23 @@ export default function Poojas() {
            </div>
         </div>
 
-        {/* 3. The Grid */}
+        {/* Featured Poojas Section */}
+        {featuredPoojas && featuredPoojas.length > 0 && !searchQuery && selectedCategory === 'all' && (
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <Sparkles className="w-6 h-6 text-amber-600" />
+              <h2 className="text-3xl font-serif text-gray-900">Featured Rituals</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredPoojas.map((pooja) => (
+                <PoojaCard key={pooja.id} pooja={pooja} />
+              ))}
+            </div>
+            <div className="mt-12 mb-8 border-t border-gray-200" />
+          </div>
+        )}
+
+        {/* 3. All Poojas Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => <PoojaCardSkeleton key={i} />)
