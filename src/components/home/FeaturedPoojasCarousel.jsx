@@ -73,106 +73,85 @@ export default function FeaturedPoojasCarousel() {
   }
 
   return (
-    <div className="py-24 px-6 bg-gradient-to-b from-orange-50/30 to-background relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-500/5 rounded-full blur-3xl" />
-      
-      <div className="container mx-auto max-w-7xl relative z-10">
-        <div className="text-center mb-16">
-          <Badge className="mb-4 bg-orange-100 text-orange-700 border-0 px-4 py-1.5">
-            Sacred Rituals
-          </Badge>
-          <h2 className="text-4xl md:text-5xl font-normal text-foreground mb-4 tracking-tight">
-            Featured Poojas
-          </h2>
-          <p className="text-muted-foreground font-light text-lg max-w-2xl mx-auto">
-            Experience divine blessings through authentic Vedic ceremonies
-          </p>
+    <div className="py-20 px-6 bg-background">
+      <div className="container mx-auto max-w-7xl">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-normal text-foreground tracking-wide mb-2">Featured Poojas</h2>
+          <p className="text-muted-foreground font-light">Sacred rituals for every occasion</p>
         </div>
 
         <div className="relative">
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 hidden md:block">
             <Button
               variant="ghost"
               size="icon"
               onClick={scrollPrev}
-              className="bg-white hover:bg-gray-50 text-gray-800 rounded-full w-12 h-12 shadow-2xl border border-gray-200"
+              className="bg-white/90 hover:bg-white text-gray-800 rounded-full w-10 h-10 shadow-lg border border-gray-200 backdrop-blur-sm"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-5 h-5" />
             </Button>
           </div>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 hidden md:block">
             <Button
               variant="ghost"
               size="icon"
               onClick={scrollNext}
-              className="bg-white hover:bg-gray-50 text-gray-800 rounded-full w-12 h-12 shadow-2xl border border-gray-200"
+              className="bg-white/90 hover:bg-white text-gray-800 rounded-full w-10 h-10 shadow-lg border border-gray-200 backdrop-blur-sm"
             >
-              <ChevronRight className="w-6 h-6" />
+              <ChevronRight className="w-5 h-5" />
             </Button>
           </div>
 
-          <div className="overflow-hidden py-8" ref={emblaRef}>
-            <div className="flex">
+          <div className="overflow-hidden py-12" ref={emblaRef}>
+            <div className="flex items-center">
               {poojas.map((pooja, index) => {
                 const isActive = index === selectedIndex;
                 return (
                   <div 
                     key={pooja.id} 
                     className={cn(
-                      "flex-[0_0_85%] md:flex-[0_0_400px] px-4 transition-all duration-700 ease-out",
+                      "flex-[0_0_280px] md:flex-[0_0_320px] px-3 transition-all duration-500",
                       {
-                        'scale-105 md:scale-110 opacity-100 z-10': isActive,
-                        'scale-90 md:scale-85 opacity-30': !isActive,
+                        'scale-100 opacity-100': isActive,
+                        'scale-90 opacity-40': !isActive,
                       }
                     )}
                   >
                     <Link to={createPageUrl(`PoojaDetail?id=${pooja.id}`)}>
-                      <div className="group cursor-pointer h-full bg-white rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-500 border border-orange-100">
-                        <div className="relative h-80 overflow-hidden">
+                      <div className="group cursor-pointer bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+                        <div className="relative h-64 overflow-hidden">
                           <img
                             src={pooja.image_url || 'https://images.unsplash.com/photo-1604608672516-f1e3e4c3d72c?w=600'}
                             alt={pooja.name}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                           
-                          {/* Top Badges */}
-                          <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                            <Badge variant="secondary" className="text-xs uppercase tracking-wider bg-white/90 text-gray-800 border-0 backdrop-blur-sm font-medium">
+                          {pooja.is_popular && (
+                            <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground border-0">
+                              Popular
+                            </Badge>
+                          )}
+
+                          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                            <Badge variant="secondary" className="mb-2 text-xs uppercase tracking-wider bg-white/20 text-white border-0 backdrop-blur-sm">
                               {pooja.category?.replace('_', ' ')}
                             </Badge>
-                            {pooja.is_popular && (
-                              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg font-medium">
-                                ⭐ Popular
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Content Overlay */}
-                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                            <h3 className="text-2xl md:text-3xl font-normal mb-3 tracking-tight">
+                            <h3 className="text-lg font-normal mb-1">
                               {pooja.name}
                             </h3>
-                            <p className="text-sm text-white/90 mb-5 line-clamp-2 font-light leading-relaxed">
-                              {pooja.description}
-                            </p>
-                            <div className="flex items-center justify-between gap-3">
-                              <div className="flex items-center gap-2 text-sm text-white bg-white/15 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
-                                <Clock className="w-4 h-4" />
-                                <span className="font-medium">{pooja.duration_minutes} min</span>
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center gap-1 text-white/80">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>{pooja.duration_minutes} min</span>
                               </div>
                               {(pooja.base_price_virtual || pooja.base_price_in_person) && (
-                                <div className="text-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-2 rounded-full shadow-lg">
+                                <span className="font-medium">
                                   ₹{pooja.base_price_virtual || pooja.base_price_in_person}
-                                </div>
+                                </span>
                               )}
                             </div>
                           </div>
-
-                          {/* Hover Effect Overlay */}
-                          <div className="absolute inset-0 bg-orange-500/0 group-hover:bg-orange-500/10 transition-all duration-500" />
                         </div>
                       </div>
                     </Link>
@@ -180,26 +159,6 @@ export default function FeaturedPoojasCarousel() {
                 );
               })}
             </div>
-          </div>
-
-          {/* Mobile Navigation */}
-          <div className="flex justify-center gap-3 mt-8 md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={scrollPrev}
-              className="bg-white hover:bg-gray-50 text-gray-800 rounded-full w-12 h-12 shadow-xl border border-gray-200"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={scrollNext}
-              className="bg-white hover:bg-gray-50 text-gray-800 rounded-full w-12 h-12 shadow-xl border border-gray-200"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </Button>
           </div>
         </div>
       </div>
