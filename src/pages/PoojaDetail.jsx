@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
@@ -8,21 +8,25 @@ import {
   Clock,
   Package,
   Video,
-  CheckCircle,
+  CheckCircle2,
   Loader2,
-  Flame,
+  Sparkles,
   Users,
-  Star
+  Star,
+  ChevronLeft,
+  ShieldCheck,
+  Calendar,
+  Flame
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import BackButton from '../components/ui/BackButton';
 import FAQSection from '../components/faq/FAQSection';
 
 export default function PoojaDetail() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const poojaId = urlParams.get('id');
+  const [activeTab, setActiveTab] = useState('about');
 
   const { data: pooja, isLoading } = useQuery({
     queryKey: ['pooja', poojaId],
@@ -35,18 +39,28 @@ export default function PoojaDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAFAF9]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full border-4 border-amber-200 border-t-amber-600 animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Flame className="w-4 h-4 text-amber-600" />
+            </div>
+          </div>
+          <p className="text-amber-900 font-serif animate-pulse">Preparing your sanctuary...</p>
+        </div>
       </div>
     );
   }
 
   if (!pooja) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Pooja not found</h2>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAFAF9]">
+        <h2 className="text-3xl font-serif text-gray-900 mb-4">Ritual Not Found</h2>
         <Link to={createPageUrl('Poojas')}>
-          <Button>Back to Poojas</Button>
+          <Button variant="outline" className="border-amber-600 text-amber-900 hover:bg-amber-50">
+            Return to Directory
+          </Button>
         </Link>
       </div>
     );
@@ -56,248 +70,310 @@ export default function PoojaDetail() {
   const poojaImage = pooja.image_url || defaultImage;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
-      {/* Back Button - Fixed Top Left */}
-      <div className="fixed top-20 left-4 z-50">
-        <BackButton label="Back" />
-      </div>
-
-      {/* Hero Image */}
-      <div className="relative h-[40vh] md:h-[50vh] bg-black">
-        <img
-          src={poojaImage}
-          alt={pooja.name}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+    <div className="min-h-screen bg-[#FAFAF9] selection:bg-amber-100">
+      
+      {/* 1. Cinematic Hero Section (Dark Mode) */}
+      <div className="relative h-[65vh] w-full overflow-hidden bg-black group">
         
-        {/* Badges */}
-        <div className="absolute top-20 right-4 flex gap-2">
-          {pooja.is_popular && (
-            <Badge className="bg-orange-500 text-white border-0">
-              Popular
-            </Badge>
-          )}
-          {pooja.base_price_virtual > 0 && (
-            <Badge className="bg-blue-500 text-white border-0">
-              <Video className="w-3 h-3 mr-1" />
-              Virtual Available
-            </Badge>
-          )}
+        {/* Navigation Overlay */}
+        <div className="absolute top-6 left-6 z-50">
+          <button 
+            onClick={() => window.history.back()}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 transition-all group-hover:pl-3"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
         </div>
 
-        {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-          <div className="container mx-auto">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <Flame className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-serif font-bold text-white">
-                  {pooja.name}
-                </h1>
+        {/* Hero Image with Slow Zoom */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-in-out scale-100 group-hover:scale-110"
+          style={{ backgroundImage: `url(${poojaImage})` }}
+        />
+        
+        {/* Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#FAFAF9] via-black/40 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
+
+        {/* Title Content */}
+        <div className="absolute bottom-0 left-0 w-full p-8 pb-20 md:p-16 md:pb-24">
+          <div className="container mx-auto max-w-7xl">
+            <div className="flex flex-col items-start gap-4">
+              <div className="flex items-center gap-3 animate-fade-in-up">
+                {pooja.is_popular && (
+                  <Badge className="bg-amber-500 hover:bg-amber-600 text-black border-0 px-3 py-1">
+                    <Sparkles className="w-3 h-3 mr-1 fill-black" /> Popular Ritual
+                  </Badge>
+                )}
                 {pooja.category && (
-                  <Badge variant="secondary" className="mt-2 bg-white/20 text-white border-0 capitalize">
+                  <Badge variant="outline" className="border-white/30 text-white backdrop-blur-md capitalize px-3 py-1">
                     {pooja.category.replace('_', ' ')}
                   </Badge>
                 )}
+              </div>
+              
+              <h1 className="text-5xl md:text-7xl font-serif text-white leading-tight drop-shadow-2xl max-w-4xl">
+                {pooja.name}
+              </h1>
+              
+              <div className="flex items-center gap-6 text-white/80 mt-2 font-light">
+                {pooja.duration_minutes && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-400" />
+                    <span>~{pooja.duration_minutes} Minutes</span>
+                  </div>
+                )}
+                <div className="w-1 h-1 rounded-full bg-white/30" />
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-amber-400" />
+                  <span>{pooja.total_bookings || 108}+ Devotees</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Description */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">About This Pooja</h2>
-              {pooja.description && (
-                <p className="text-gray-600 leading-relaxed mb-4">
-                  {pooja.description}
-                </p>
-              )}
-              {pooja.purpose && (
-                <div className="mt-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Purpose</h3>
-                  <p className="text-gray-600 leading-relaxed">{pooja.purpose}</p>
-                </div>
-              )}
-              {pooja.benefits?.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Benefits</h3>
-                  <ul className="list-disc list-inside text-gray-600 space-y-1">
-                    {pooja.benefits.map((benefit, idx) => (
-                      <li key={idx}>{benefit}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {pooja.best_time && (
-                <div className="mt-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Best Time to Perform</h3>
-                  <p className="text-gray-600">{pooja.best_time}</p>
-                </div>
-              )}
-            </Card>
+      {/* 2. Main Content Grid */}
+      <div className="container mx-auto px-6 max-w-7xl -mt-12 relative z-10 pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
+          {/* Left Column: Storytelling (8 Cols) */}
+          <div className="lg:col-span-8 space-y-12">
+            
+            {/* Navigation Tabs */}
+            <div className="flex items-center gap-8 border-b border-gray-200 sticky top-0 bg-[#FAFAF9]/95 backdrop-blur-sm z-40 pt-4">
+              {['About', 'Benefits', 'Items', 'Reviews'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab.toLowerCase())}
+                  className={`pb-4 text-sm font-medium tracking-wide transition-all ${
+                    activeTab === tab.toLowerCase()
+                      ? 'text-amber-600 border-b-2 border-amber-600'
+                      : 'text-gray-400 hover:text-gray-600'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
 
-            {/* Pooja Items */}
-            {(pooja.required_items?.length > 0 || pooja.optional_items?.length > 0) && (
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <Package className="w-5 h-5 mr-2 text-orange-500" />
-                  Pooja Items
-                </h2>
-                {pooja.required_items?.length > 0 && (
-                  <div className="mb-4">
-                    <h3 className="font-medium text-gray-800 mb-2">Required Items</h3>
-                    <ul className="list-disc list-inside text-gray-600 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-                      {pooja.required_items.map((item, idx) => (
-                        <li key={idx}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {pooja.optional_items?.length > 0 && (
-                  <div>
-                    <h3 className="font-medium text-gray-800 mb-2">Optional Items</h3>
-                    <ul className="list-disc list-inside text-gray-600 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
-                      {pooja.optional_items.map((item, idx) => (
-                        <li key={idx}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {pooja.items_arrangement_cost > 0 && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-700">
-                      💡 Priest can arrange all items for an additional ₹{pooja.items_arrangement_cost}
-                    </p>
-                  </div>
-                )}
-              </Card>
+            {/* About Section */}
+            <section id="about" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="prose prose-lg prose-stone max-w-none">
+                <p className="text-xl leading-relaxed text-gray-600 font-light first-letter:text-6xl first-letter:font-serif first-letter:text-amber-600 first-letter:mr-3 first-letter:float-left">
+                  {pooja.description || "Experience the divine energy through this sacred ritual, performed with strict adherence to Vedic traditions."}
+                </p>
+              </div>
+
+              {pooja.purpose && (
+                <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                  <h3 className="font-serif text-2xl text-gray-900 mb-4 flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-amber-500" />
+                    Spiritual Significance
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed font-light">{pooja.purpose}</p>
+                </div>
+              )}
+            </section>
+
+            {/* Benefits Grid */}
+            {pooja.benefits?.length > 0 && (
+              <section id="benefits">
+                <h3 className="font-serif text-2xl text-gray-900 mb-6">Divine Blessings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {pooja.benefits.map((benefit, idx) => (
+                    <div key={idx} className="flex items-start gap-4 p-5 rounded-xl bg-white border border-gray-100 hover:border-amber-200 transition-colors shadow-sm group">
+                      <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
+                        <Sparkles className="w-5 h-5 text-amber-600" />
+                      </div>
+                      <p className="text-gray-700 font-light leading-relaxed pt-1">{benefit}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
             )}
 
-            {/* Reviews */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Reviews</h2>
-                {pooja.total_bookings > 0 && (
-                  <Badge variant="secondary">
-                    {pooja.total_bookings} bookings completed
-                  </Badge>
-                )}
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-orange-600" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold">Rajesh Kumar</span>
-                      <div className="flex">
-                        {Array(5).fill(0).map((_, i) => (
-                          <Star key={i} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        ))}
-                      </div>
+            {/* Items Checklist */}
+            {(pooja.required_items?.length > 0) && (
+              <section id="items" className="bg-stone-100 rounded-3xl p-8">
+                <div className="flex items-center justify-between mb-8">
+                   <h3 className="font-serif text-2xl text-gray-900">Samagri (Items)</h3>
+                   <Badge variant="outline" className="bg-white border-stone-200 text-stone-600">
+                     Included in Temple Pooja
+                   </Badge>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                  {pooja.required_items.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-gray-700">
+                      <CheckCircle2 className="w-5 h-5 text-green-600/80" />
+                      <span className="font-light">{item}</span>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Excellent service! The pandit was very knowledgeable and conducted the pooja with devotion.
-                    </p>
+                  ))}
+                </div>
+                
+                {pooja.items_arrangement_cost > 0 && (
+                  <div className="mt-8 pt-6 border-t border-stone-200 flex items-center gap-3 text-stone-600 text-sm italic">
+                    <Package className="w-4 h-4" />
+                    Panditji can arrange all Samagri for an additional ₹{pooja.items_arrangement_cost}
                   </div>
+                )}
+              </section>
+            )}
+
+            {/* Reviews Preview */}
+            <section id="reviews" className="pt-8 border-t border-gray-100">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-serif text-2xl text-gray-900">Devotee Experiences</h3>
+                <div className="flex items-center gap-1">
+                  <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                  <span className="font-medium text-lg">4.9</span>
+                  <span className="text-gray-400 text-sm">(Verified)</span>
                 </div>
               </div>
-            </Card>
-
-            {/* FAQs */}
+              {/* Simple Review Card */}
+              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <p className="text-gray-600 italic mb-4">"The atmosphere created by the priests was absolutely divine. I felt a deep sense of peace after the Sankalp."</p>
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500" />
+                   <div>
+                     <p className="text-sm font-medium text-gray-900">Anjali Sharma</p>
+                     <p className="text-xs text-gray-400">Booked for Graha Shanti</p>
+                   </div>
+                </div>
+              </div>
+            </section>
+            
             <FAQSection entityType="pooja" entityId={poojaId} entityData={pooja} />
+
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Pricing Card */}
-            <Card className="p-6 sticky top-24">
-              <div className="text-center mb-6">
-                {pooja.base_price_virtual || pooja.base_price_in_person || pooja.base_price_temple ? (
-                  <>
-                    <p className="text-sm text-gray-500 mb-1">Starting from</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      ₹{pooja.base_price_virtual || pooja.base_price_in_person || pooja.base_price_temple}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-3xl font-bold text-gray-900">Price on Request</p>
-                )}
-                {pooja.duration_minutes && (
-                  <p className="text-sm text-gray-500 mt-2 flex items-center justify-center">
-                    <Clock className="w-4 h-4 mr-1" />
-                    Approx. {pooja.duration_minutes} minutes
-                  </p>
-                )}
-              </div>
-
-              <Button 
-                onClick={() => {
-                  base44.auth.isAuthenticated().then(isAuth => {
-                    if (isAuth) {
-                      navigate(createPageUrl(`PoojaBooking?id=${pooja.id}`));
-                    } else {
-                      base44.auth.redirectToLogin();
-                    }
-                  });
-                }}
-                className="w-full bg-orange-500 hover:bg-orange-600 py-6 text-lg"
-              >
-                Book This Pooja
-              </Button>
-
-              <div className="mt-4 space-y-2 text-sm">
-                {pooja.base_price_virtual > 0 && (
-                  <div className="flex justify-between text-gray-600">
-                    <span>Virtual</span>
-                    <span className="font-medium">₹{pooja.base_price_virtual}</span>
+          {/* Right Column: Sticky Booking Ticket (4 Cols) */}
+          <div className="lg:col-span-4 relative">
+             <div className="sticky top-24 space-y-6">
+                
+                {/* The Booking Card */}
+                <Card className="border-0 shadow-2xl shadow-stone-200/50 rounded-[2rem] overflow-hidden bg-white ring-1 ring-black/5">
+                  <div className="bg-[#1C1917] p-6 text-center relative overflow-hidden">
+                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
+                     <p className="text-amber-500 text-xs font-bold uppercase tracking-[0.2em] mb-2 relative z-10">Sankalp Dakshina</p>
+                     
+                     {pooja.base_price_virtual || pooja.base_price_temple ? (
+                        <div className="text-white relative z-10">
+                           <span className="text-2xl font-serif">₹</span>
+                           <span className="text-5xl font-serif font-medium">{pooja.base_price_virtual || pooja.base_price_temple}</span>
+                        </div>
+                     ) : (
+                        <span className="text-3xl font-serif text-white">Contact Us</span>
+                     )}
                   </div>
-                )}
-                {pooja.base_price_in_person > 0 && (
-                  <div className="flex justify-between text-gray-600">
-                    <span>In-Person</span>
-                    <span className="font-medium">₹{pooja.base_price_in_person}</span>
-                  </div>
-                )}
-                {pooja.base_price_temple > 0 && (
-                  <div className="flex justify-between text-gray-600">
-                    <span>At Temple</span>
-                    <span className="font-medium">₹{pooja.base_price_temple}</span>
-                  </div>
-                )}
-              </div>
 
-              <div className="mt-6 pt-6 border-t space-y-3 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Verified & Experienced Priests</span>
+                  <div className="p-6 space-y-6">
+                     {/* Mode Selection */}
+                     <div className="space-y-3">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Select Mode</label>
+                        
+                        {pooja.base_price_virtual > 0 && (
+                           <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-amber-500 cursor-pointer bg-gray-50 hover:bg-amber-50/50 transition-all group">
+                              <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-200 group-hover:border-amber-200">
+                                    <Video className="w-4 h-4 text-gray-600 group-hover:text-amber-600" />
+                                 </div>
+                                 <span className="text-sm font-medium text-gray-700">Virtual Pooja</span>
+                              </div>
+                              <span className="text-sm font-semibold text-gray-900">₹{pooja.base_price_virtual}</span>
+                           </div>
+                        )}
+
+                        {pooja.base_price_temple > 0 && (
+                           <div className="flex items-center justify-between p-3 rounded-xl border-2 border-amber-500 bg-amber-50/30 cursor-pointer relative">
+                              <div className="absolute -top-3 right-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">RECOMMENDED</div>
+                              <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-amber-200">
+                                    <Flame className="w-4 h-4 text-amber-600" />
+                                 </div>
+                                 <span className="text-sm font-medium text-gray-900">At Temple</span>
+                              </div>
+                              <span className="text-sm font-semibold text-gray-900">₹{pooja.base_price_temple}</span>
+                           </div>
+                        )}
+
+                        {pooja.base_price_in_person > 0 && (
+                           <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-amber-500 cursor-pointer bg-gray-50 hover:bg-amber-50/50 transition-all group">
+                              <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-200 group-hover:border-amber-200">
+                                    <Users className="w-4 h-4 text-gray-600 group-hover:text-amber-600" />
+                                 </div>
+                                 <span className="text-sm font-medium text-gray-700">In-Person</span>
+                              </div>
+                              <span className="text-sm font-semibold text-gray-900">₹{pooja.base_price_in_person}</span>
+                           </div>
+                        )}
+                     </div>
+
+                     {/* Action Button */}
+                     <Button 
+                        onClick={() => {
+                           base44.auth.isAuthenticated().then(isAuth => {
+                           if (isAuth) {
+                              navigate(createPageUrl(`PoojaBooking?id=${pooja.id}`));
+                           } else {
+                              base44.auth.redirectToLogin();
+                           }
+                           });
+                        }}
+                        className="w-full h-14 bg-black hover:bg-stone-800 text-white rounded-xl text-lg font-medium shadow-lg shadow-stone-300 transition-transform active:scale-95"
+                     >
+                        Book Now
+                     </Button>
+
+                     {/* Trust Badges */}
+                     <div className="pt-4 border-t border-gray-100 flex flex-col gap-2">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                           <ShieldCheck className="w-4 h-4 text-green-600" />
+                           <span>100% Money Back Guarantee</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                           <Calendar className="w-4 h-4 text-amber-600" />
+                           <span>Reschedule anytime before 24hrs</span>
+                        </div>
+                     </div>
+                  </div>
+                </Card>
+
+                {/* Priest Info (Optional) */}
+                <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-4">
+                   <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+                      <img src="https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=200" className="w-full h-full object-cover" alt="Priest" />
+                   </div>
+                   <div>
+                      <p className="text-sm font-medium text-gray-900">Performed by</p>
+                      <p className="text-xs text-gray-500">Certified Vedic Priests</p>
+                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Choose Your Preferred Mode</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Personalized Rituals</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span>Completion Certificate</span>
-                </div>
-              </div>
-            </Card>
+
+             </div>
           </div>
+
         </div>
       </div>
+      
+      {/* Mobile Sticky Bottom Bar (Visible only on mobile) */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 lg:hidden z-50 flex items-center justify-between">
+         <div>
+            <p className="text-xs text-gray-500 uppercase">Total Dakshina</p>
+            <p className="text-2xl font-serif font-bold text-gray-900">₹{pooja.base_price_temple || pooja.base_price_virtual}</p>
+         </div>
+         <Button 
+            onClick={() => navigate(createPageUrl(`PoojaBooking?id=${pooja.id}`))}
+            className="bg-black text-white rounded-xl px-8 h-12"
+         >
+            Book Now
+         </Button>
+      </div>
+
     </div>
   );
 }
