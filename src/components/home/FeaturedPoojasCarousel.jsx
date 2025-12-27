@@ -202,7 +202,6 @@ export default function FeaturedPoojasCarousel() {
             </Button>
           </div>
         </div>
-        </div>
       </div>
     </div>
   );
