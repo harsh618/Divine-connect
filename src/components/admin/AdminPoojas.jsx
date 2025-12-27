@@ -28,7 +28,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash2, Plus, Search, Eye, EyeOff } from 'lucide-react';
+import { Pencil, Trash2, Plus, Search, Eye, EyeOff, Star, StarOff, MoreVertical, Loader2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
 import { toast } from 'sonner';
 import ImageCropUpload from './ImageCropUpload';
 
@@ -89,6 +97,14 @@ export default function AdminPoojas() {
     }
   });
 
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: ({ id, is_featured }) => base44.entities.Pooja.update(id, { is_featured }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-poojas']);
+      toast.success('Featured status updated');
+    }
+  });
+
   const resetForm = () => {
     setShowModal(false);
     setEditingPooja(null);
@@ -105,7 +121,8 @@ export default function AdminPoojas() {
       base_price_in_person: '',
       base_price_temple: '',
       image_url: '',
-      is_popular: false
+      is_popular: false,
+      is_featured: false
     });
   };
 
@@ -124,7 +141,8 @@ export default function AdminPoojas() {
       base_price_in_person: pooja.base_price_in_person || '',
       base_price_temple: pooja.base_price_temple || '',
       image_url: pooja.image_url || '',
-      is_popular: pooja.is_popular || false
+      is_popular: pooja.is_popular || false,
+      is_featured: pooja.is_featured || false
     });
     setShowModal(true);
   };
@@ -182,23 +200,25 @@ export default function AdminPoojas() {
         </div>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Duration</TableHead>
-              <TableHead>Virtual Price</TableHead>
-              <TableHead>In-Person Price</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Featured</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="w-12">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={7} className="text-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                </TableCell>
               </TableRow>
             ) : filteredPoojas?.length > 0 ? (
               filteredPoojas.map((pooja) => (
@@ -208,28 +228,60 @@ export default function AdminPoojas() {
                     <Badge variant="secondary">{pooja.category?.replace('_', ' ')}</Badge>
                   </TableCell>
                   <TableCell>{pooja.duration_minutes} min</TableCell>
-                  <TableCell>₹{pooja.base_price_virtual || '-'}</TableCell>
-                  <TableCell>₹{pooja.base_price_in_person || '-'}</TableCell>
+                  <TableCell>₹{pooja.base_price_virtual || pooja.base_price_in_person || '-'}</TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={pooja.is_featured}
+                      onCheckedChange={(checked) => 
+                        toggleFeaturedMutation.mutate({ id: pooja.id, is_featured: checked })
+                      }
+                    />
+                  </TableCell>
                   <TableCell>
                     {pooja.is_popular && (
                       <Badge className="bg-orange-100 text-orange-700">Popular</Badge>
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(pooja)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => deleteMutation.mutate(pooja.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(pooja)}>
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => toggleFeaturedMutation.mutate({ id: pooja.id, is_featured: !pooja.is_featured })}
+                        >
+                          {pooja.is_featured ? (
+                            <>
+                              <StarOff className="w-4 h-4 mr-2" />
+                              Remove Featured
+                            </>
+                          ) : (
+                            <>
+                              <Star className="w-4 h-4 mr-2" />
+                              Mark Featured
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => deleteMutation.mutate(pooja.id)} className="text-red-600">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">No poojas found</TableCell>
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">No poojas found</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -364,15 +416,27 @@ export default function AdminPoojas() {
               label="Pooja Image"
             />
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_popular"
-                checked={formData.is_popular}
-                onChange={(e) => setFormData({ ...formData, is_popular: e.target.checked })}
-                className="rounded"
-              />
-              <Label htmlFor="is_popular" className="cursor-pointer">Mark as Popular</Label>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_popular"
+                  checked={formData.is_popular}
+                  onChange={(e) => setFormData({ ...formData, is_popular: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="is_popular" className="cursor-pointer">Mark as Popular</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_featured"
+                  checked={formData.is_featured}
+                  onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="is_featured" className="cursor-pointer">Mark as Featured</Label>
+              </div>
             </div>
           </div>
 

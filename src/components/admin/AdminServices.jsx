@@ -28,7 +28,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash2, Plus, Search, Eye, EyeOff } from 'lucide-react';
+import { Pencil, Trash2, Plus, Search, Eye, EyeOff, Star, StarOff, MoreVertical, Loader2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Switch } from "@/components/ui/switch";
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
 
@@ -88,6 +96,14 @@ export default function AdminServices() {
     }
   });
 
+  const toggleFeaturedMutation = useMutation({
+    mutationFn: ({ id, is_featured }) => base44.entities.Service.update(id, { is_featured }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-services']);
+      toast.success('Featured status updated');
+    }
+  });
+
   const resetForm = () => {
     setShowModal(false);
     setEditingService(null);
@@ -100,7 +116,8 @@ export default function AdminServices() {
       materials_included: '',
       images: [],
       thumbnail_url: '',
-      is_virtual: false
+      is_virtual: false,
+      is_featured: false
     });
   };
 
@@ -115,7 +132,8 @@ export default function AdminServices() {
       materials_included: service.materials_included?.join(', ') || '',
       images: service.images || [],
       thumbnail_url: service.thumbnail_url || '',
-      is_virtual: service.is_virtual || false
+      is_virtual: service.is_virtual || false,
+      is_featured: service.is_featured || false
     });
     setShowModal(true);
   };
@@ -172,69 +190,114 @@ export default function AdminServices() {
         </div>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Image</TableHead>
-              <TableHead>Title</TableHead>
+              <TableHead>Service</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Duration</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead>Featured</TableHead>
               <TableHead>Visibility</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="w-12">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={7} className="text-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                </TableCell>
               </TableRow>
             ) : filteredServices?.length > 0 ? (
               filteredServices.map((service) => (
                 <TableRow key={service.id} className={service.is_hidden ? 'opacity-50' : ''}>
                   <TableCell>
-                    {service.thumbnail_url ? (
-                      <img src={service.thumbnail_url} alt={service.title} className="w-16 h-16 object-cover rounded" />
-                    ) : (
-                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
-                        No image
-                      </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {service.thumbnail_url ? (
+                        <img src={service.thumbnail_url} alt={service.title} className="w-12 h-12 object-cover rounded" />
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+                          No img
+                        </div>
+                      )}
+                      <span className="font-medium">{service.title}</span>
+                    </div>
                   </TableCell>
-                  <TableCell className="font-medium">{service.title}</TableCell>
-                  <TableCell className="capitalize">{service.category?.replace('_', ' ')}</TableCell>
+                  <TableCell className="capitalize">
+                    <Badge variant="secondary">{service.category?.replace('_', ' ')}</Badge>
+                  </TableCell>
                   <TableCell>₹{service.price}</TableCell>
                   <TableCell>{service.duration_minutes ? `${service.duration_minutes} min` : '-'}</TableCell>
-                  <TableCell>{service.is_virtual ? 'Virtual' : 'In-person'}</TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={service.is_featured}
+                      onCheckedChange={(checked) => 
+                        toggleFeaturedMutation.mutate({ id: service.id, is_featured: checked })
+                      }
+                    />
+                  </TableCell>
                   <TableCell>
                     <Badge className={!service.is_hidden ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
                       {!service.is_hidden ? 'Visible' : 'Hidden'}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(service)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        onClick={() => toggleVisibilityMutation.mutate({ id: service.id, is_hidden: !service.is_hidden })}
-                      >
-                        {service.is_hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => deleteMutation.mutate(service.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(service)}>
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => toggleFeaturedMutation.mutate({ id: service.id, is_featured: !service.is_featured })}
+                        >
+                          {service.is_featured ? (
+                            <>
+                              <StarOff className="w-4 h-4 mr-2" />
+                              Remove Featured
+                            </>
+                          ) : (
+                            <>
+                              <Star className="w-4 h-4 mr-2" />
+                              Mark Featured
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => toggleVisibilityMutation.mutate({ id: service.id, is_hidden: !service.is_hidden })}
+                        >
+                          {service.is_hidden ? (
+                            <>
+                              <Eye className="w-4 h-4 mr-2" />
+                              Show Service
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-4 h-4 mr-2" />
+                              Hide Service
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => deleteMutation.mutate(service.id)} className="text-red-600">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="text-center">No services found</TableCell>
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">No services found</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -320,15 +383,27 @@ export default function AdminServices() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_virtual"
-                checked={formData.is_virtual}
-                onChange={(e) => setFormData({ ...formData, is_virtual: e.target.checked })}
-                className="rounded"
-              />
-              <Label htmlFor="is_virtual" className="cursor-pointer">Virtual Service</Label>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_virtual"
+                  checked={formData.is_virtual}
+                  onChange={(e) => setFormData({ ...formData, is_virtual: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="is_virtual" className="cursor-pointer">Virtual Service</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is_featured"
+                  checked={formData.is_featured}
+                  onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                  className="rounded"
+                />
+                <Label htmlFor="is_featured" className="cursor-pointer">Mark as Featured</Label>
+              </div>
             </div>
           </div>
 
