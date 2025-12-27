@@ -336,15 +336,16 @@ export default function TempleDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
-      {/* Sticky Action Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border py-3 px-4">
-        <div className="container mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-background pb-24 md:pb-8">
+      {/* Hero Image Grid - Camana Homes Style */}
+      <div className="relative w-full bg-black">
+        {/* Sticky Action Bar Overlay */}
+        <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => window.history.back()}
-            className="hover:bg-muted"
+            className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back
@@ -353,99 +354,98 @@ export default function TempleDetail() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => toggleFavoriteMutation.mutate()}
-              className="hover:bg-muted"
+              onClick={handleShare}
+              className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
             >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+              <Share2 className="w-5 h-5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleShare}
-              className="hover:bg-muted"
+              onClick={() => toggleFavoriteMutation.mutate()}
+              className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
             >
-              <Share2 className="w-5 h-5" />
+              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Hero Image Gallery - 16:9 Aspect Ratio */}
-      <div className="relative w-full aspect-video bg-black mt-14">
-        <img
-          src={images[currentImageIndex]}
-          alt={temple.name}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={() => setCurrentImageIndex(i => i === 0 ? images.length - 1 : i - 1)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              onClick={() => setCurrentImageIndex(i => i === images.length - 1 ? 0 : i + 1)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-              {images.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentImageIndex(idx)}
-                  className={`w-2 h-2 rounded-full transition ${idx === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
-                />
-              ))}
+        {/* Image Grid */}
+        {images.length === 1 ? (
+          <div className="relative aspect-[21/9]">
+            <img
+              src={images[0]}
+              alt={temple.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ) : images.length === 2 ? (
+          <div className="grid grid-cols-2 gap-2 aspect-[21/9]">
+            {images.slice(0, 2).map((img, idx) => (
+              <div key={idx} className="relative overflow-hidden cursor-pointer" onClick={() => setCurrentImageIndex(idx)}>
+                <img src={img} alt={`${temple.name} ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-2 aspect-[21/9]">
+            <div className="col-span-2 row-span-2 relative overflow-hidden cursor-pointer" onClick={() => setCurrentImageIndex(0)}>
+              <img src={images[0]} alt={temple.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
             </div>
-          </>
+            {images.slice(1, 5).map((img, idx) => (
+              <div key={idx} className="relative overflow-hidden cursor-pointer" onClick={() => setCurrentImageIndex(idx + 1)}>
+                <img src={img} alt={`${temple.name} ${idx + 2}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                {idx === 3 && images.length > 5 && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
+                    +{images.length - 5} more
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
 
         {/* Badges */}
-        <div className="absolute top-4 right-4 flex gap-2">
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex gap-2">
           {temple.is_featured && (
-            <Badge className="bg-orange-500 text-white border-0">
+            <Badge className="bg-primary text-primary-foreground border-0 shadow-lg">
               <Star className="w-3 h-3 mr-1 fill-current" />
               Featured
             </Badge>
           )}
           {temple.live_darshan_url && (
-            <Badge className="bg-red-500 text-white border-0 animate-pulse">
+            <Badge className="bg-red-500 text-white border-0 animate-pulse shadow-lg">
               <Video className="w-3 h-3 mr-1" />
               Live
             </Badge>
           )}
         </div>
+      </div>
 
-        {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-          <div className="container mx-auto">
-            <h1 className="text-4xl md:text-6xl font-light text-white mb-4 tracking-wide">
-              {temple.name}
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 text-white/90">
-              <div className="flex items-center text-sm">
-                <MapPin className="w-4 h-4 mr-1" />
-                {temple.city}, {temple.state}
-              </div>
-              <Badge variant="secondary" className="bg-white/10 text-white border-0 backdrop-blur-sm text-xs uppercase tracking-wider">
-                {temple.primary_deity}
-              </Badge>
+      {/* Title Section */}
+      <div className="container mx-auto px-8 py-8 max-w-7xl">
+        <div className="mb-8">
+          <h1 className="text-4xl md:text-5xl font-light text-foreground mb-4 tracking-wide">
+            {temple.name}
+          </h1>
+          <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
+            <div className="flex items-center text-sm font-light">
+              <MapPin className="w-4 h-4 mr-1" />
+              {temple.city}, {temple.state}
             </div>
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-xs uppercase tracking-wider font-light">
+              {temple.primary_deity}
+            </Badge>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 -mt-6 relative z-10">
+      <div className="container mx-auto px-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-8">
             {/* Quick Actions */}
-            <Card className="p-6">
+            <Card className="p-6 border-0 shadow-sm">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Button
                   onClick={() => setShowBookingModal(true)}
@@ -513,26 +513,55 @@ export default function TempleDetail() {
             )}
 
             {/* About */}
-            <Card className="p-8">
+            <Card className="p-8 border-0 shadow-sm">
               <h2 className="text-2xl font-normal mb-6 tracking-wide">About This Temple</h2>
               <div className="prose prose-lg max-w-none text-muted-foreground font-light">
-                <ReactMarkdown>{temple.description || 'A sacred place of worship and spiritual significance.'}</ReactMarkdown>
+                <ReactMarkdown
+                  components={{
+                    strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                    em: ({ children }) => <em className="italic text-foreground/90">{children}</em>,
+                    h1: ({ children }) => <h1 className="text-3xl font-normal mt-8 mb-4 text-foreground">{children}</h1>,
+                    h2: ({ children }) => <h2 className="text-2xl font-normal mt-6 mb-3 text-foreground">{children}</h2>,
+                    h3: ({ children }) => <h3 className="text-xl font-normal mt-4 mb-2 text-foreground">{children}</h3>,
+                    p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
+                    ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-2">{children}</ul>,
+                    ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-2">{children}</ol>,
+                  }}
+                >
+                  {temple.description || 'A sacred place of worship and spiritual significance.'}
+                </ReactMarkdown>
               </div>
               
               {temple.significance && (
-                <div className="mt-8 pt-8 border-t">
+                <div className="mt-8 pt-8 border-t border-border">
                   <h3 className="font-normal text-lg mb-3 tracking-wide">Significance</h3>
                   <div className="prose max-w-none text-muted-foreground font-light">
-                    <ReactMarkdown>{temple.significance}</ReactMarkdown>
+                    <ReactMarkdown
+                      components={{
+                        strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                        em: ({ children }) => <em className="italic text-foreground/90">{children}</em>,
+                        p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
+                      }}
+                    >
+                      {temple.significance}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}
 
               {temple.history && (
-                <div className="mt-8 pt-8 border-t">
+                <div className="mt-8 pt-8 border-t border-border">
                   <h3 className="font-normal text-lg mb-3 tracking-wide">History</h3>
                   <div className="prose max-w-none text-muted-foreground font-light">
-                    <ReactMarkdown>{temple.history}</ReactMarkdown>
+                    <ReactMarkdown
+                      components={{
+                        strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                        em: ({ children }) => <em className="italic text-foreground/90">{children}</em>,
+                        p: ({ children }) => <p className="mb-4 leading-relaxed">{children}</p>,
+                      }}
+                    >
+                      {temple.history}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}
@@ -600,8 +629,8 @@ export default function TempleDetail() {
             </Card>
 
             {/* Reviews & Ratings */}
-            <Card className="p-8">
-              <div className="flex items-center justify-between mb-6">
+            <Card className="p-8 border-0 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-normal tracking-wide">Reviews & Ratings</h2>
                 <Button onClick={() => setShowReviewModal(true)} className="bg-primary hover:bg-primary/90 text-xs uppercase tracking-wider">
                   Write Review
@@ -609,30 +638,42 @@ export default function TempleDetail() {
               </div>
               
               {reviews?.length > 0 ? (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {reviews.slice(0, 5).map((review) => (
-                    <div key={review.id} className="pb-6 border-b last:border-b-0">
-                      <div className="mb-3">
-                        <p className="font-normal text-base mb-2">{review.created_by || 'Anonymous'}</p>
-                        <div className="flex items-center gap-3">
-                          <div className="flex">
-                            {Array(5).fill(0).map((_, i) => (
-                              <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
-                            ))}
-                          </div>
-                          <span className="text-xs text-muted-foreground uppercase tracking-wider font-light">
-                            {format(new Date(review.created_date), 'MMM d, yyyy')}
+                    <div key={review.id} className="pb-8 border-b border-border last:border-b-0">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-lg font-normal text-primary">
+                            {(review.created_by || 'A')[0].toUpperCase()}
                           </span>
                         </div>
+                        <div className="flex-1">
+                          <p className="font-normal text-base mb-2">{review.created_by || 'Anonymous'}</p>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="flex">
+                              {Array(5).fill(0).map((_, i) => (
+                                <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                              ))}
+                            </div>
+                            <span className="text-xs text-muted-foreground font-light">
+                              {format(new Date(review.created_date), 'MMM d, yyyy')}
+                            </span>
+                          </div>
+                          {review.comment && (
+                            <p className="text-muted-foreground text-sm leading-relaxed font-light">{review.comment}</p>
+                          )}
+                        </div>
                       </div>
-                      {review.comment && (
-                        <p className="text-muted-foreground text-sm leading-relaxed font-light">{review.comment}</p>
-                      )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center py-12 font-light">No reviews yet. Be the first to review!</p>
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                    <Star className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground font-light">No reviews yet. Be the first to review!</p>
+                </div>
               )}
             </Card>
 
@@ -655,10 +696,10 @@ export default function TempleDetail() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             {/* Info Card */}
-            <Card className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Temple Information</h3>
+            <Card className="p-6 border-0 shadow-sm">
+              <h3 className="font-normal text-lg text-foreground mb-6 tracking-wide">Temple Information</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-orange-500 mt-0.5" />
@@ -696,9 +737,9 @@ export default function TempleDetail() {
 
             {/* Prasad Preview */}
             {prasadItems?.length > 0 && (
-              <Card className="p-6">
+              <Card className="p-6 border-0 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Prasad Available</h3>
+                  <h3 className="font-normal text-lg text-foreground tracking-wide">Prasad Available</h3>
                   <Button 
                     variant="ghost" 
                     size="sm" 
