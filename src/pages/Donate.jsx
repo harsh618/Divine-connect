@@ -291,12 +291,21 @@ function CampaignCardSkeleton() {
 
 export default function Donate() {
   const queryClient = useQueryClient();
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const urlParams = new URLSearchParams(window.location.search);
+  const categoryFromUrl = urlParams.get('category');
+  
+  const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl || 'all');
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [donationAmount, setDonationAmount] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringFrequency, setRecurringFrequency] = useState('monthly');
+
+  React.useEffect(() => {
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
 
   const { data: campaigns, isLoading } = useQuery({
     queryKey: ['donation-campaigns'],
