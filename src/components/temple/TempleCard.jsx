@@ -11,7 +11,7 @@ export default function TempleCard({ temple }) {
   return (
     <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
       <Card className="group overflow-hidden border-0 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white cursor-pointer rounded-2xl">
-        <div className="relative h-56 overflow-hidden">
+        <div className="relative aspect-[3/2] overflow-hidden">
           <img
             src={temple.images?.[0] || defaultImage}
             alt={temple.name}
