@@ -75,15 +75,15 @@ function LayoutContent({ children, currentPageName }) {
   const isHomePage = currentPageName === 'Home';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-neutral-950">
       {/* Desktop Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-border shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
         <div className="container mx-auto px-8 max-w-7xl">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-              <span className="text-xl font-normal tracking-wide text-foreground">
-                DIVINE
+              <span className="text-xl font-serif tracking-wide text-white">
+                Divine
               </span>
             </Link>
 
@@ -91,10 +91,10 @@ function LayoutContent({ children, currentPageName }) {
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
                 <Link key={link.name} to={createPageUrl(link.page)}>
-                  <span className={`text-xs hover:text-gray-900 transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
+                  <span className={`text-xs hover:text-white transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
                     currentPageName === link.page 
-                      ? 'text-[#D97706] border-[#D97706] font-semibold' 
-                      : 'text-gray-600 border-transparent hover:border-[#D97706]'
+                      ? 'text-amber-400 border-amber-400 font-semibold' 
+                      : 'text-white/60 border-transparent hover:border-amber-400/50'
                   }`}>
                     {link.name}
                   </span>
@@ -187,7 +187,7 @@ function LayoutContent({ children, currentPageName }) {
               ) : (
                 <Button
                   onClick={() => base44.auth.redirectToLogin()}
-                  className="bg-white border-[1.5px] border-[#D97706] text-[#D97706] hover:bg-[#D97706] hover:text-white rounded-md px-5 text-xs uppercase tracking-wider font-semibold transition-all"
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black rounded-md px-5 text-xs uppercase tracking-wider font-semibold transition-all border-0"
                 >
                   Sign In
                 </Button>

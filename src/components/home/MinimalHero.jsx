@@ -14,73 +14,85 @@ const heroImages = [
 
 export default function MinimalHero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const placeholders = [
+    'I want to visit Kashi Vishwanath...',
+    'Book a Puja for peace...',
+    'Find an astrologer...'
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 2000); // 2 seconds = 2000ms
-
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const text = placeholders[currentImageIndex % placeholders.length];
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= text.length) {
+        setTypedText(text.slice(0, index));
+        index++;
+      }
+    }, 50);
+    return () => clearInterval(timer);
+  }, [currentImageIndex]);
+
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Images with Transition */}
+      {/* Animated Background */}
       <div className="absolute inset-0 z-0">
         {heroImages.map((image, index) =>
         <img
           key={image}
           src={image}
           alt={`Temple ${index + 1}`}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-2000 scale-105 ${
           index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`
           } />
-
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#FAFAF9]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-neutral-950" />
+      </div>
+
+      {/* Aurora Gradient Blob */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
       </div>
 
       {/* Content */}
-      <div className="pr-64 pb-48 pl-64 text-center opacity-100 relative z-10 max-w-4xl">
-        <div className="bg-white/10 text-orange-200 mb-8 px-4 py-2 text-sm opacity-0 rounded-full inline-flex items-center gap-2 backdrop-blur-md">
-          <Sparkles className="w-4 h-4" />
-          Welcome to Divine
-        </div>
-        
-        <h1 className="text-5xl md:text-7xl font-serif font-medium text-white mb-6 tracking-tight leading-tight drop-shadow-lg">
-          Divine
+      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+        <h1 className="text-6xl md:text-8xl font-serif font-medium text-white mb-6 tracking-tight leading-[0.95] mix-blend-overlay">
+          Find Your Inner<br />Sanctum
         </h1>
         
-        <p className="text-lg md:text-xl text-white/90 mb-8 font-light tracking-wide">
-          Your spiritual journey, simplified
+        <p className="text-lg md:text-xl text-white/70 mb-16 font-light tracking-wide max-w-2xl mx-auto">
+          Step into a portal of ancient wisdom and modern spirituality
         </p>
 
-        <div className="mb-12">
-          <HeroSearch />
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to={createPageUrl('Temples')}>
-            <Button
-              size="lg"
-              className="bg-[#D97706] hover:bg-[#B45309] text-white border-none rounded-lg px-8 py-6 text-sm font-semibold uppercase tracking-wide hover:shadow-[0_8px_16px_rgba(217,119,6,0.3)] hover:-translate-y-0.5 transition-all min-h-[48px]">
-              Explore Temples
-            </Button>
-          </Link>
-          <Link to={createPageUrl('Astrology')}>
-            <Button
-              size="lg"
-              className="bg-transparent hover:bg-white/10 text-white px-8 py-6 text-sm font-semibold uppercase tracking-wide rounded-lg border-2 border-white hover:border-[#FCD34D] transition-all min-h-[48px]">
-              Consult Astrologer
-            </Button>
-          </Link>
+        {/* Floating Omnibox */}
+        <div className="relative max-w-2xl mx-auto">
+          <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-2 shadow-[0_0_60px_-15px_rgba(217,119,6,0.3)] animate-[breathing_4s_ease-in-out_infinite]">
+            <div className="flex items-center gap-4 px-6 py-4">
+              <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder={typedText}
+                className="flex-1 bg-transparent border-0 text-white placeholder:text-white/50 focus:outline-none text-base"
+              />
+              <Button className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold px-6 py-2 text-sm">
+                Search
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-          <div className="w-1 h-3 bg-white/50 rounded-full" />
+        <div className="w-6 h-10 border-2 border-white/20 rounded-full flex items-start justify-center p-2">
+          <div className="w-1 h-3 bg-amber-400 rounded-full animate-pulse" />
         </div>
       </div>
     </section>);
