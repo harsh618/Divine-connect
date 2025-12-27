@@ -53,6 +53,9 @@ import PriestArticleForm from '../components/temple/PriestArticleForm';
 import BackButton from '../components/ui/BackButton';
 import PrasadOrderModal from '../components/prasad/PrasadOrderModal';
 import FAQSection from '../components/faq/FAQSection';
+import DonationTypeModal from '../components/temple/DonationTypeModal';
+import ItineraryPlannerModal from '../components/temple/ItineraryPlannerModal';
+import ReactMarkdown from 'react-markdown';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -86,6 +89,8 @@ export default function TempleDetail() {
   const [reviewComment, setReviewComment] = useState('');
   const [showPrasadOrderModal, setShowPrasadOrderModal] = useState(false);
   const [selectedPrasadItems, setSelectedPrasadItems] = useState([]);
+  const [showDonationTypeModal, setShowDonationTypeModal] = useState(false);
+  const [showItineraryModal, setShowItineraryModal] = useState(false);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -133,6 +138,19 @@ export default function TempleDetail() {
       temple_id: templeId 
     }, '-created_date'),
     enabled: !!templeId
+  });
+
+  const { data: upcomingFestivals, isLoading: loadingFestivals } = useQuery({
+    queryKey: ['upcoming-festivals', templeId],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('getUpcomingFestivals', {
+        temple_name: temple.name,
+        temple_location: `${temple.city}, ${temple.state}`,
+        primary_deity: temple.primary_deity
+      });
+      return response.data.festivals || [];
+    },
+    enabled: !!temple
   });
 
   React.useEffect(() => {
@@ -319,39 +337,47 @@ export default function TempleDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
-      {/* Back Button - Fixed Top Left */}
-      <div className="fixed top-20 left-4 z-50">
-        <BackButton />
-      </div>
-
-      {/* Action Buttons - Fixed Top Right */}
-      <div className="fixed top-20 right-4 z-50 flex gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => toggleFavoriteMutation.mutate()}
-          className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
-        >
-          <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleShare}
-          className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
-        >
-          <Share2 className="w-5 h-5 text-gray-700" />
-        </Button>
+      {/* Sticky Action Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border py-3 px-4">
+        <div className="container mx-auto flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.history.back()}
+            className="hover:bg-muted"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Back
+          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => toggleFavoriteMutation.mutate()}
+              className="hover:bg-muted"
+            >
+              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleShare}
+              className="hover:bg-muted"
+            >
+              <Share2 className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Hero Image Gallery */}
-      <div className="relative h-[50vh] md:h-[60vh] bg-black">
+      <div className="relative h-[65vh] md:h-[75vh] bg-black mt-14">
         <img
           src={images[currentImageIndex]}
           alt={temple.name}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         
         {images.length > 1 && (
           <>
@@ -396,17 +422,17 @@ export default function TempleDetail() {
         </div>
 
         {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
           <div className="container mx-auto">
-            <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-2">
+            <h1 className="text-4xl md:text-6xl font-light text-white mb-4 tracking-wide">
               {temple.name}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 text-white/80">
-              <div className="flex items-center">
+            <div className="flex flex-wrap items-center gap-4 text-white/90">
+              <div className="flex items-center text-sm">
                 <MapPin className="w-4 h-4 mr-1" />
                 {temple.city}, {temple.state}
               </div>
-              <Badge variant="secondary" className="bg-white/20 text-white border-0">
+              <Badge variant="secondary" className="bg-white/10 text-white border-0 backdrop-blur-sm text-xs uppercase tracking-wider">
                 {temple.primary_deity}
               </Badge>
             </div>
@@ -414,64 +440,53 @@ export default function TempleDetail() {
         </div>
       </div>
 
-      {/* Image Thumbnails Scroll */}
-      {images.length > 1 && (
-        <div className="bg-white border-b">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentImageIndex(idx)}
-                  className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition ${
-                    idx === currentImageIndex ? 'border-orange-500' : 'border-gray-200'
-                  }`}
-                >
-                  <img src={img} alt={`${temple.name} ${idx + 1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="container mx-auto px-6 -mt-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Actions */}
-            <Card className="p-6 grid grid-cols-3 gap-4">
-              <Button
-                onClick={() => setShowBookingModal(true)}
-                className="flex-col h-auto py-4 bg-orange-500 hover:bg-orange-600"
-                disabled={!temple.visit_booking_enabled}
-              >
-                <CalendarIcon className="w-6 h-6 mb-2" />
-                <span className="text-sm">Book Visit</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-col h-auto py-4"
-                onClick={() => {
-                  if (prasadItems?.length > 0) {
-                    setSelectedPrasadItems(prasadItems);
-                    setShowPrasadOrderModal(true);
-                  } else {
-                    toast.error('No prasad items available at this temple');
-                  }
-                }}
-              >
-                <Package className="w-6 h-6 mb-2" />
-                <span className="text-sm">Order Prasad</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowDonationModal(true)}
-                className="flex-col h-auto py-4"
-              >
-                <Heart className="w-6 h-6 mb-2" />
-                <span className="text-sm">Donate</span>
-              </Button>
+            <Card className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Button
+                  onClick={() => setShowBookingModal(true)}
+                  className="flex-col h-auto py-6 bg-primary hover:bg-primary/90"
+                  disabled={!temple.visit_booking_enabled}
+                >
+                  <CalendarIcon className="w-6 h-6 mb-2" />
+                  <span className="text-sm uppercase tracking-wider">Book Visit</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-col h-auto py-6 border-border"
+                  onClick={() => setShowItineraryModal(true)}
+                >
+                  <MapPin className="w-6 h-6 mb-2" />
+                  <span className="text-sm uppercase tracking-wider">Plan Trip</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-col h-auto py-6 border-border"
+                  onClick={() => {
+                    if (prasadItems?.length > 0) {
+                      setSelectedPrasadItems(prasadItems);
+                      setShowPrasadOrderModal(true);
+                    } else {
+                      toast.error('No prasad items available at this temple');
+                    }
+                  }}
+                >
+                  <Package className="w-6 h-6 mb-2" />
+                  <span className="text-sm uppercase tracking-wider">Order Prasad</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDonationTypeModal(true)}
+                  className="flex-col h-auto py-6 border-border"
+                >
+                  <Heart className="w-6 h-6 mb-2" />
+                  <span className="text-sm uppercase tracking-wider">Donate</span>
+                </Button>
+              </div>
             </Card>
 
             {/* Priest Article Seva */}
@@ -498,23 +513,27 @@ export default function TempleDetail() {
             )}
 
             {/* About */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">About This Temple</h2>
-              <p className="text-gray-600 leading-relaxed mb-6">
-                {temple.description || 'A sacred place of worship and spiritual significance.'}
-              </p>
+            <Card className="p-8">
+              <h2 className="text-2xl font-normal mb-6 tracking-wide">About This Temple</h2>
+              <div className="prose prose-lg max-w-none text-muted-foreground font-light">
+                <ReactMarkdown>{temple.description || 'A sacred place of worship and spiritual significance.'}</ReactMarkdown>
+              </div>
               
               {temple.significance && (
-                <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">Significance</h3>
-                  <p className="text-gray-600">{temple.significance}</p>
+                <div className="mt-8 pt-8 border-t">
+                  <h3 className="font-normal text-lg mb-3 tracking-wide">Significance</h3>
+                  <div className="prose max-w-none text-muted-foreground font-light">
+                    <ReactMarkdown>{temple.significance}</ReactMarkdown>
+                  </div>
                 </div>
               )}
 
               {temple.history && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">History</h3>
-                  <p className="text-gray-600">{temple.history}</p>
+                <div className="mt-8 pt-8 border-t">
+                  <h3 className="font-normal text-lg mb-3 tracking-wide">History</h3>
+                  <div className="prose max-w-none text-muted-foreground font-light">
+                    <ReactMarkdown>{temple.history}</ReactMarkdown>
+                  </div>
                 </div>
               )}
             </Card>
@@ -529,83 +548,91 @@ export default function TempleDetail() {
             {/* FAQs */}
             <FAQSection entityType="temple" entityId={templeId} entityData={temple} />
 
-            {/* Events & Festivals */}
-            {(events?.length > 0 || temple.festivals?.length > 0) && (
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
-                  <CalendarDays className="w-5 h-5 mr-2 text-orange-500" />
-                  Upcoming Events & Festivals
-                </h2>
+            {/* Upcoming Festivals (AI Generated) */}
+            <Card className="p-8">
+              <h2 className="text-2xl font-normal mb-6 tracking-wide flex items-center">
+                <CalendarDays className="w-5 h-5 mr-3 text-primary" />
+                Upcoming Festivals
+              </h2>
+              {loadingFestivals ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : upcomingFestivals?.length > 0 ? (
                 <div className="space-y-4">
-                  {events?.slice(0, 5).map((event) => (
-                    <div key={event.id} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
-                      <div className="flex-shrink-0 w-12 h-12 bg-orange-100 rounded-lg flex flex-col items-center justify-center">
-                        <span className="text-xs text-orange-600 font-semibold">
-                          {format(new Date(event.event_date), 'MMM')}
-                        </span>
-                        <span className="text-lg font-bold text-orange-700">
-                          {format(new Date(event.event_date), 'd')}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                        <p className="text-sm text-gray-600">{event.description}</p>
-                        {event.event_time && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            <Clock className="w-3 h-3 inline mr-1" />
-                            {event.event_time}
-                          </p>
-                        )}
+                  {upcomingFestivals.map((festival, idx) => (
+                    <div key={idx} className="p-5 bg-muted/30 border border-border">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-14 h-14 bg-primary/10 flex items-center justify-center text-2xl">
+                          🪔
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-normal text-lg mb-1">{festival.name}</h3>
+                          <p className="text-sm text-muted-foreground mb-2 font-light">{festival.date}</p>
+                          <p className="text-sm text-muted-foreground font-light">{festival.description}</p>
+                          {festival.significance && (
+                            <p className="text-xs text-muted-foreground mt-2 italic font-light">
+                              {festival.significance}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
-                  {temple.festivals?.length > 0 && (
-                    <div className="pt-2 border-t">
-                      <p className="text-sm text-gray-600 mb-2">Other Festivals:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {temple.festivals.map((festival, idx) => (
-                          <Badge key={idx} variant="secondary" className="bg-orange-50 text-orange-700">
-                            {festival}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
-              </Card>
-            )}
+              ) : (
+                <p className="text-muted-foreground text-center py-8 font-light">Loading festival information...</p>
+              )}
+
+              {/* Static Festivals */}
+              {temple.festivals?.length > 0 && (
+                <div className="mt-6 pt-6 border-t">
+                  <p className="text-sm text-muted-foreground mb-3 uppercase tracking-wider font-light">Annual Festivals:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {temple.festivals.map((festival, idx) => (
+                      <Badge key={idx} variant="secondary" className="bg-primary/10 text-primary border-0 font-light">
+                        {festival}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Card>
 
             {/* Reviews & Ratings */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Reviews & Ratings</h2>
-                <Button onClick={() => setShowReviewModal(true)} className="bg-orange-500 hover:bg-orange-600">
+            <Card className="p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-normal tracking-wide">Reviews & Ratings</h2>
+                <Button onClick={() => setShowReviewModal(true)} className="bg-primary hover:bg-primary/90 text-xs uppercase tracking-wider">
                   Write Review
                 </Button>
               </div>
               
               {reviews?.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {reviews.slice(0, 5).map((review) => (
-                    <div key={review.id} className="p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex">
-                          {Array(5).fill(0).map((_, i) => (
-                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
-                          ))}
+                    <div key={review.id} className="pb-6 border-b last:border-b-0">
+                      <div className="mb-3">
+                        <p className="font-normal text-base mb-2">{review.created_by || 'Anonymous'}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="flex">
+                            {Array(5).fill(0).map((_, i) => (
+                              <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground uppercase tracking-wider font-light">
+                            {format(new Date(review.created_date), 'MMM d, yyyy')}
+                          </span>
                         </div>
-                        <span className="text-sm text-gray-500">
-                          {format(new Date(review.created_date), 'MMM d, yyyy')}
-                        </span>
                       </div>
                       {review.comment && (
-                        <p className="text-gray-700 text-sm">{review.comment}</p>
+                        <p className="text-muted-foreground text-sm leading-relaxed font-light">{review.comment}</p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
+                <p className="text-muted-foreground text-center py-12 font-light">No reviews yet. Be the first to review!</p>
               )}
             </Card>
 
@@ -1067,7 +1094,7 @@ export default function TempleDetail() {
             <Button 
               onClick={handleReviewSubmit}
               disabled={reviewMutation.isPending}
-              className="flex-1 bg-orange-500 hover:bg-orange-600"
+              className="flex-1 bg-primary hover:bg-primary/90"
             >
               {reviewMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1079,6 +1106,21 @@ export default function TempleDetail() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Donation Type Modal */}
+      <DonationTypeModal
+        isOpen={showDonationTypeModal}
+        onClose={() => setShowDonationTypeModal(false)}
+        templeId={templeId}
+        templeName={temple?.name}
+      />
+
+      {/* Itinerary Planner Modal */}
+      <ItineraryPlannerModal
+        isOpen={showItineraryModal}
+        onClose={() => setShowItineraryModal(false)}
+        temple={temple}
+      />
     </div>
   );
 }
