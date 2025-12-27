@@ -145,6 +145,32 @@ export default function TempleDetail() {
     enabled: !!templeId
   });
 
+  const { data: savedItineraries } = useQuery({
+    queryKey: ['saved-itineraries', templeId],
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.SavedItinerary.filter({ 
+        user_id: user.id,
+        temple_id: templeId,
+        is_deleted: false 
+      }, '-created_date');
+    },
+    enabled: !!templeId
+  });
+
+  const { data: templeBookings } = useQuery({
+    queryKey: ['temple-bookings', templeId],
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.Booking.filter({ 
+        user_id: user.id,
+        temple_id: templeId,
+        is_deleted: false 
+      }, '-created_date');
+    },
+    enabled: !!templeId
+  });
+
   const { data: upcomingFestivals, isLoading: loadingFestivals } = useQuery({
     queryKey: ['upcoming-festivals', templeId],
     queryFn: async () => {
@@ -755,6 +781,62 @@ export default function TempleDetail() {
 
           {/* Sidebar */}
           <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+            {/* Saved Itineraries */}
+            {savedItineraries?.length > 0 && (
+              <Card className="p-6 border-0 shadow-sm">
+                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Your Planned Trips</h3>
+                <div className="space-y-3">
+                  {savedItineraries.map((itinerary) => (
+                    <div key={itinerary.id} className="p-3 bg-muted/30 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">
+                          {format(new Date(itinerary.start_date), 'MMM d')} - {format(new Date(itinerary.end_date), 'MMM d, yyyy')}
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          {itinerary.itinerary_data?.days?.length || 0} days
+                        </Badge>
+                      </div>
+                      {itinerary.preferences?.vibe && (
+                        <p className="text-xs text-muted-foreground">
+                          {itinerary.preferences.vibe}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Temple Bookings */}
+            {templeBookings?.length > 0 && (
+              <Card className="p-6 border-0 shadow-sm">
+                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Your Bookings</h3>
+                <div className="space-y-3">
+                  {templeBookings.map((booking) => (
+                    <div key={booking.id} className="p-3 bg-muted/30 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">
+                          {format(new Date(booking.date), 'MMM d, yyyy')}
+                        </p>
+                        <Badge 
+                          variant={booking.status === 'confirmed' ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {booking.status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{booking.time_slot}</p>
+                      {booking.num_devotees > 1 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {booking.num_devotees} devotees
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
             {/* Info Card */}
             <Card className="p-6 border-0 shadow-sm">
               <h3 className="font-normal text-lg text-foreground mb-6 tracking-wide">Temple Information</h3>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { Loader2, Clock, Calendar as CalendarIcon, MapPin } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Loader2, Clock, MapPin, MessageCircle, Send, Save, Sparkles } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -25,12 +26,16 @@ const vibes = [
 ];
 
 export default function ItineraryPlannerModal({ isOpen, onClose, temple }) {
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedVibe, setSelectedVibe] = useState(null);
   const [itinerary, setItinerary] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isEditingWithAI, setIsEditingWithAI] = useState(false);
 
   const planItineraryMutation = useMutation({
     mutationFn: async (data) => {
@@ -76,6 +81,78 @@ export default function ItineraryPlannerModal({ isOpen, onClose, temple }) {
     );
   };
 
+  const editItineraryMutation = useMutation({
+    mutationFn: async (message) => {
+      return base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert travel planner. The user has this itinerary: ${JSON.stringify(itinerary)}. They want to make this change: "${message}". Update the itinerary accordingly and return ONLY the updated itinerary in the exact same JSON format with days and activities.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            days: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  activities: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        time: { type: "string" },
+                        name: { type: "string" },
+                        description: { type: "string" },
+                        category: { type: "string" },
+                        location: { type: "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+    },
+    onSuccess: (response) => {
+      setItinerary(response.data);
+      setChatMessages(prev => [...prev, { role: 'assistant', content: 'Itinerary updated!' }]);
+      toast.success('Itinerary updated!');
+    }
+  });
+
+  const saveItineraryMutation = useMutation({
+    mutationFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.SavedItinerary.create({
+        user_id: user.id,
+        temple_id: temple.id,
+        temple_name: temple.name,
+        start_date: format(startDate, 'yyyy-MM-dd'),
+        end_date: format(endDate, 'yyyy-MM-dd'),
+        itinerary_data: itinerary,
+        preferences: {
+          categories: selectedCategories,
+          vibe: selectedVibe
+        }
+      });
+    },
+    onSuccess: () => {
+      toast.success('Itinerary saved successfully!');
+      queryClient.invalidateQueries(['saved-itineraries']);
+      onClose();
+      handleReset();
+    }
+  });
+
+  const handleSendMessage = () => {
+    if (!chatInput.trim()) return;
+    
+    setChatMessages(prev => [...prev, { role: 'user', content: chatInput }]);
+    editItineraryMutation.mutate(chatInput);
+    setChatInput('');
+  };
+
   const handleReset = () => {
     setStep(1);
     setStartDate(null);
@@ -83,6 +160,8 @@ export default function ItineraryPlannerModal({ isOpen, onClose, temple }) {
     setSelectedCategories([]);
     setSelectedVibe(null);
     setItinerary(null);
+    setChatMessages([]);
+    setIsEditingWithAI(false);
   };
 
   return (
@@ -198,56 +277,155 @@ export default function ItineraryPlannerModal({ isOpen, onClose, temple }) {
         )}
 
         {step === 3 && itinerary && (
-          <div className="space-y-6 py-4 max-h-[70vh] overflow-y-auto">
-            {itinerary.days?.map((day, dayIdx) => (
-              <div key={dayIdx} className="space-y-4">
-                <div className="sticky top-0 bg-primary/10 backdrop-blur-sm px-4 py-3 -mx-4 z-10">
-                  <h3 className="font-normal text-lg tracking-wide">
-                    {day.title}
-                  </h3>
-                </div>
-                <div className="space-y-3 relative pl-8 border-l-2 border-border ml-2">
-                  {day.activities?.map((activity, actIdx) => (
-                    <div key={actIdx} className="relative">
-                      <div className="absolute -left-[2.3rem] top-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <Clock className="w-3 h-3 text-primary-foreground" />
+          <div className="space-y-4 py-4">
+            {!isEditingWithAI ? (
+              <>
+                <div className="max-h-[50vh] overflow-y-auto space-y-6">
+                  {itinerary.days?.map((day, dayIdx) => (
+                    <div key={dayIdx} className="space-y-4">
+                      <div className="sticky top-0 bg-primary/10 backdrop-blur-sm px-4 py-3 -mx-4 z-10">
+                        <h3 className="font-normal text-lg tracking-wide">
+                          {day.title}
+                        </h3>
                       </div>
-                      <Card className="p-4 hover:border-primary/50 transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-light mb-1">
-                              {activity.time}
-                            </p>
-                            <h4 className="font-normal text-base">{activity.name}</h4>
+                      <div className="space-y-3 relative pl-8 border-l-2 border-border ml-2">
+                        {day.activities?.map((activity, actIdx) => (
+                          <div key={actIdx} className="relative">
+                            <div className="absolute -left-[2.3rem] top-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                              <Clock className="w-3 h-3 text-primary-foreground" />
+                            </div>
+                            <Card className="p-4 hover:border-primary/50 transition-all">
+                              <div className="flex items-start justify-between mb-2">
+                                <div>
+                                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-light mb-1">
+                                    {activity.time}
+                                  </p>
+                                  <h4 className="font-normal text-base">{activity.name}</h4>
+                                </div>
+                                {activity.category && (
+                                  <Badge variant="secondary" className="text-xs font-light">
+                                    {activity.category}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground font-light leading-relaxed">
+                                {activity.description}
+                              </p>
+                              {activity.location && (
+                                <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                                  <MapPin className="w-3 h-3" />
+                                  {activity.location}
+                                </div>
+                              )}
+                            </Card>
                           </div>
-                          {activity.category && (
-                            <Badge variant="secondary" className="text-xs font-light">
-                              {activity.category}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground font-light leading-relaxed">
-                          {activity.description}
-                        </p>
-                        {activity.location && (
-                          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                            <MapPin className="w-3 h-3" />
-                            {activity.location}
-                          </div>
-                        )}
-                      </Card>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            ))}
 
-            <div className="flex justify-end gap-3 pt-6 border-t sticky bottom-0 bg-background">
-              <Button variant="outline" onClick={handleReset}>
-                Plan Another Trip
-              </Button>
-              <Button onClick={onClose}>Done</Button>
-            </div>
+                <div className="flex justify-between gap-3 pt-4 border-t">
+                  <Button variant="outline" onClick={handleReset}>
+                    Start Over
+                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setIsEditingWithAI(true)}>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Edit with AI
+                    </Button>
+                    <Button onClick={() => saveItineraryMutation.mutate()} disabled={saveItineraryMutation.isPending}>
+                      {saveItineraryMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4 mr-2" />
+                      )}
+                      Save Trip
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4 max-h-[60vh]">
+                  {/* Itinerary Preview */}
+                  <div className="overflow-y-auto space-y-4 pr-2 border-r">
+                    <h3 className="font-normal text-base sticky top-0 bg-background pb-2">Current Itinerary</h3>
+                    {itinerary.days?.map((day, dayIdx) => (
+                      <div key={dayIdx} className="space-y-2">
+                        <p className="text-xs font-medium text-primary">{day.title}</p>
+                        {day.activities?.map((activity, actIdx) => (
+                          <div key={actIdx} className="text-xs bg-muted/30 p-2 rounded">
+                            <p className="font-medium">{activity.time} - {activity.name}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Chat Interface */}
+                  <div className="flex flex-col">
+                    <h3 className="font-normal text-base mb-3">Edit with AI Chat</h3>
+                    <div className="flex-1 overflow-y-auto space-y-3 mb-3 bg-muted/20 p-3 rounded-lg min-h-[200px]">
+                      {chatMessages.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-8">
+                          Ask me to modify your itinerary!<br/>
+                          <span className="text-xs">e.g., "Add more temple visits" or "Make Day 2 more relaxing"</span>
+                        </p>
+                      )}
+                      {chatMessages.map((msg, idx) => (
+                        <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`max-w-[80%] px-3 py-2 rounded-lg text-sm ${
+                            msg.role === 'user' 
+                              ? 'bg-primary text-primary-foreground' 
+                              : 'bg-muted'
+                          }`}>
+                            {msg.content}
+                          </div>
+                        </div>
+                      ))}
+                      {editItineraryMutation.isPending && (
+                        <div className="flex justify-start">
+                          <div className="bg-muted px-3 py-2 rounded-lg">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Type your request..."
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                        disabled={editItineraryMutation.isPending}
+                      />
+                      <Button 
+                        size="icon"
+                        onClick={handleSendMessage}
+                        disabled={editItineraryMutation.isPending || !chatInput.trim()}
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between gap-3 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setIsEditingWithAI(false)}>
+                    Back to Preview
+                  </Button>
+                  <Button onClick={() => saveItineraryMutation.mutate()} disabled={saveItineraryMutation.isPending}>
+                    {saveItineraryMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4 mr-2" />
+                    )}
+                    Save Trip
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </DialogContent>
