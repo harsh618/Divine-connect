@@ -27,6 +27,7 @@ import Profile from './pages/Profile';
 import TempleDetail from './pages/TempleDetail';
 import Temples from './pages/Temples';
 import EnhancedPoojaBooking from './pages/EnhancedPoojaBooking';
+import ProviderOnboarding from './pages/ProviderOnboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +61,7 @@ export const PAGES = {
     "TempleDetail": TempleDetail,
     "Temples": Temples,
     "EnhancedPoojaBooking": EnhancedPoojaBooking,
+    "ProviderOnboarding": ProviderOnboarding,
 }
 
 export const pagesConfig = {
