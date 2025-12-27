@@ -102,56 +102,66 @@ export default function FeaturedPoojasCarousel() {
             </Button>
           </div>
 
-          <div className="overflow-hidden py-12" ref={emblaRef}>
-            <div className="flex items-center">
+          <div className="overflow-hidden py-8" ref={emblaRef}>
+            <div className="flex">
               {poojas.map((pooja, index) => {
                 const isActive = index === selectedIndex;
                 return (
                   <div 
                     key={pooja.id} 
                     className={cn(
-                      "flex-[0_0_280px] md:flex-[0_0_320px] px-3 transition-all duration-500",
+                      "flex-[0_0_90%] md:flex-[0_0_380px] px-3 transition-all duration-500",
                       {
-                        'scale-100 opacity-100': isActive,
-                        'scale-90 opacity-40': !isActive,
+                        'opacity-100': isActive,
+                        'opacity-60': !isActive,
                       }
                     )}
                   >
                     <Link to={createPageUrl(`PoojaDetail?id=${pooja.id}`)}>
-                      <div className="group cursor-pointer bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
-                        <div className="relative h-64 overflow-hidden">
+                      <div className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200">
+                        <div className="relative h-48 overflow-hidden">
                           <img
                             src={pooja.image_url || 'https://images.unsplash.com/photo-1604608672516-f1e3e4c3d72c?w=600'}
                             alt={pooja.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                          
+                          <Badge className="absolute top-3 left-3 bg-orange-500 text-white border-0 shadow-sm text-xs">
+                            {pooja.category?.replace('_', ' ')}
+                          </Badge>
                           {pooja.is_popular && (
-                            <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground border-0">
-                              Popular
+                            <Badge className="absolute top-3 right-3 bg-yellow-500 text-white border-0 shadow-sm text-xs">
+                              ⭐ Popular
                             </Badge>
                           )}
-
-                          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                            <Badge variant="secondary" className="mb-2 text-xs uppercase tracking-wider bg-white/20 text-white border-0 backdrop-blur-sm">
-                              {pooja.category?.replace('_', ' ')}
-                            </Badge>
-                            <h3 className="text-lg font-normal mb-1">
+                        </div>
+                        
+                        <div className="p-4">
+                          <div className="mb-3">
+                            <div className="text-xl font-semibold text-gray-900 mb-1">
+                              ₹{(pooja.base_price_virtual || pooja.base_price_in_person || 0).toLocaleString()}
+                            </div>
+                            <h3 className="text-base font-normal text-gray-800 line-clamp-1">
                               {pooja.name}
                             </h3>
-                            <div className="flex items-center justify-between text-sm">
-                              <div className="flex items-center gap-1 text-white/80">
-                                <Clock className="w-3.5 h-3.5" />
-                                <span>{pooja.duration_minutes} min</span>
-                              </div>
-                              {(pooja.base_price_virtual || pooja.base_price_in_person) && (
-                                <span className="font-medium">
-                                  ₹{pooja.base_price_virtual || pooja.base_price_in_person}
-                                </span>
-                              )}
-                            </div>
                           </div>
+
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              <span>{pooja.duration_minutes} min</span>
+                            </div>
+                            {pooja.total_bookings > 0 && (
+                              <div className="text-xs text-gray-500">
+                                {pooja.total_bookings}+ bookings
+                              </div>
+                            )}
+                          </div>
+
+                          {pooja.purpose && (
+                            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                              {pooja.purpose}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </Link>
