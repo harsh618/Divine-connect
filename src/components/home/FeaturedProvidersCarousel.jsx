@@ -7,14 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Star, Loader2 } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 import { cn } from "@/lib/utils";
 
 export default function FeaturedProvidersCarousel() {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    loop: true, 
-    align: 'center',
-    slidesToScroll: 1
-  });
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { 
+      loop: true, 
+      align: 'center',
+      slidesToScroll: 1,
+      dragFree: false,
+      containScroll: 'trimSnaps'
+    },
+    [Autoplay({ delay: 3000, stopOnInteraction: false })]
+  );
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 
