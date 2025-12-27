@@ -92,6 +92,8 @@ export default function TempleDetail() {
   const [selectedPrasadItems, setSelectedPrasadItems] = useState([]);
   const [showDonationTypeModal, setShowDonationTypeModal] = useState(false);
   const [showItineraryModal, setShowItineraryModal] = useState(false);
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const [viewerImageIndex, setViewerImageIndex] = useState(0);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -421,28 +423,28 @@ export default function TempleDetail() {
 
         {/* Image Grid */}
         {images.length === 1 ? (
-          <div className="relative aspect-[21/9]">
+          <div className="relative aspect-[21/9] cursor-pointer" onClick={() => { setViewerImageIndex(0); setShowImageViewer(true); }}>
             <img
               src={images[0]}
               alt={temple.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:brightness-95 transition-all"
             />
           </div>
         ) : images.length === 2 ? (
           <div className="grid grid-cols-2 gap-2 aspect-[21/9]">
             {images.slice(0, 2).map((img, idx) => (
-              <div key={idx} className="relative overflow-hidden cursor-pointer" onClick={() => setCurrentImageIndex(idx)}>
+              <div key={idx} className="relative overflow-hidden cursor-pointer" onClick={() => { setViewerImageIndex(idx); setShowImageViewer(true); }}>
                 <img src={img} alt={`${temple.name} ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
               </div>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-4 gap-2 aspect-[21/9]">
-            <div className="col-span-2 row-span-2 relative overflow-hidden cursor-pointer" onClick={() => setCurrentImageIndex(0)}>
+            <div className="col-span-2 row-span-2 relative overflow-hidden cursor-pointer" onClick={() => { setViewerImageIndex(0); setShowImageViewer(true); }}>
               <img src={images[0]} alt={temple.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
             </div>
             {images.slice(1, 5).map((img, idx) => (
-              <div key={idx} className="relative overflow-hidden cursor-pointer" onClick={() => setCurrentImageIndex(idx + 1)}>
+              <div key={idx} className="relative overflow-hidden cursor-pointer" onClick={() => { setViewerImageIndex(idx + 1); setShowImageViewer(true); }}>
                 <img src={img} alt={`${temple.name} ${idx + 2}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                 {idx === 3 && images.length > 5 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
@@ -1210,7 +1212,38 @@ export default function TempleDetail() {
         isOpen={showItineraryModal}
         onClose={() => setShowItineraryModal(false)}
         temple={temple}
-      />
-    </div>
-  );
-}
+        />
+
+        {/* Image Viewer Modal */}
+        <Dialog open={showImageViewer} onOpenChange={setShowImageViewer}>
+        <DialogContent className="max-w-7xl h-[90vh] p-0">
+          <div className="relative w-full h-full bg-black flex items-center justify-center">
+            <button
+              onClick={() => setViewerImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 flex items-center justify-center text-white transition-all"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            <img
+              src={images[viewerImageIndex]}
+              alt={`${temple.name} ${viewerImageIndex + 1}`}
+              className="max-w-full max-h-full object-contain"
+            />
+
+            <button
+              onClick={() => setViewerImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 flex items-center justify-center text-white transition-all"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm">
+              {viewerImageIndex + 1} / {images.length}
+            </div>
+          </div>
+        </DialogContent>
+        </Dialog>
+        </div>
+        );
+        }
