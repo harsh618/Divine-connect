@@ -162,11 +162,14 @@ export default function TempleDetail() {
     queryKey: ['temple-bookings', templeId],
     queryFn: async () => {
       const user = await base44.auth.me();
-      return base44.entities.Booking.filter({ 
+      const allBookings = await base44.entities.Booking.filter({ 
         user_id: user.id,
         temple_id: templeId,
         is_deleted: false 
-      }, '-created_date');
+      }, '-date');
+      // Filter only upcoming bookings
+      const now = new Date();
+      return allBookings.filter(b => new Date(b.date) >= now).slice(0, 2);
     },
     enabled: !!templeId
   });
@@ -781,62 +784,6 @@ export default function TempleDetail() {
 
           {/* Sidebar */}
           <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            {/* Saved Itineraries */}
-            {savedItineraries?.length > 0 && (
-              <Card className="p-6 border-0 shadow-sm">
-                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Your Planned Trips</h3>
-                <div className="space-y-3">
-                  {savedItineraries.map((itinerary) => (
-                    <div key={itinerary.id} className="p-3 bg-muted/30 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-medium">
-                          {format(new Date(itinerary.start_date), 'MMM d')} - {format(new Date(itinerary.end_date), 'MMM d, yyyy')}
-                        </p>
-                        <Badge variant="secondary" className="text-xs">
-                          {itinerary.itinerary_data?.days?.length || 0} days
-                        </Badge>
-                      </div>
-                      {itinerary.preferences?.vibe && (
-                        <p className="text-xs text-muted-foreground">
-                          {itinerary.preferences.vibe}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
-            {/* Temple Bookings */}
-            {templeBookings?.length > 0 && (
-              <Card className="p-6 border-0 shadow-sm">
-                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Your Bookings</h3>
-                <div className="space-y-3">
-                  {templeBookings.map((booking) => (
-                    <div key={booking.id} className="p-3 bg-muted/30 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-medium">
-                          {format(new Date(booking.date), 'MMM d, yyyy')}
-                        </p>
-                        <Badge 
-                          variant={booking.status === 'confirmed' ? 'default' : 'secondary'}
-                          className="text-xs"
-                        >
-                          {booking.status}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">{booking.time_slot}</p>
-                      {booking.num_devotees > 1 && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {booking.num_devotees} devotees
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
             {/* Info Card */}
             <Card className="p-6 border-0 shadow-sm">
               <h3 className="font-normal text-lg text-foreground mb-6 tracking-wide">Temple Information</h3>
@@ -874,6 +821,69 @@ export default function TempleDetail() {
                 Get Directions
               </Button>
             </Card>
+
+            {/* Saved Itineraries */}
+            {savedItineraries?.length > 0 && (
+              <Card className="p-6 border-0 shadow-sm">
+                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Planned Trips</h3>
+                <div className="space-y-3">
+                  {savedItineraries.map((itinerary) => (
+                    <div key={itinerary.id} className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">
+                          {format(new Date(itinerary.start_date), 'MMM d')} - {format(new Date(itinerary.end_date), 'MMM d, yyyy')}
+                        </p>
+                        <Badge variant="secondary" className="text-xs">
+                          {itinerary.itinerary_data?.days?.length || 0} days
+                        </Badge>
+                      </div>
+                      {itinerary.preferences?.vibe && (
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {itinerary.preferences.vibe}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Upcoming Bookings */}
+            {templeBookings?.length > 0 && (
+              <Card className="p-6 border-0 shadow-sm">
+                <h3 className="font-normal text-lg text-foreground mb-4 tracking-wide">Upcoming Visits</h3>
+                <div className="space-y-3">
+                  {templeBookings.map((booking) => (
+                    <Link key={booking.id} to={createPageUrl('MyBookings')}>
+                      <div className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-medium">
+                            {format(new Date(booking.date), 'MMM d, yyyy')}
+                          </p>
+                          <Badge 
+                            variant={booking.status === 'confirmed' ? 'default' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {booking.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{booking.time_slot}</p>
+                        {booking.num_devotees > 1 && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {booking.num_devotees} devotees
+                          </p>
+                        )}
+                        {booking.provider_id && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Priest assigned
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             {/* Prasad Preview */}
             {prasadItems?.length > 0 && (
