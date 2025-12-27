@@ -747,7 +747,7 @@ export default function TempleDetail() {
             {/* Right Column - Sticky Sidebar (1/3) */}
             <div className="lg:col-span-1 space-y-6">
               {/* Quick Info Card - Sticky */}
-              <Card className="p-8 bg-white shadow-xl border-gray-100 lg:sticky lg:top-24">
+              <Card className="p-8 bg-white shadow-xl border-gray-100">
                 <h3 className="text-xl font-serif text-amber-600 mb-6">Temple Information</h3>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
