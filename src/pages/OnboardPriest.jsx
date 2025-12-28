@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,15 +19,19 @@ import { Flame, CheckCircle, Loader2, Plus, X, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import BackButton from '../components/ui/BackButton';
 
-const COMMON_POOJAS = [
-  'Grih Pravesh', 'Satyanarayan', 'Ganesh Puja', 'Lakshmi Puja', 'Navgraha',
-  'Rudrabhishek', 'Marriage', 'Mundan', 'Shradh', 'Pitru Paksha', 'Havan',
-  'Durga Puja', 'Navaratri', 'Diwali Puja', 'Vastu Shanti', 'Kaal Sarp Dosh'
-];
-
 const LANGUAGES = ['Hindi', 'English', 'Sanskrit', 'Tamil', 'Telugu', 'Malayalam', 'Kannada', 'Marathi', 'Bengali', 'Gujarati'];
 
 export default function OnboardPriest() {
+  // Fetch temples and poojas from database
+  const { data: temples, isLoading: loadingTemples } = useQuery({
+    queryKey: ['temples-list'],
+    queryFn: () => base44.entities.Temple.filter({ is_deleted: false, is_hidden: false })
+  });
+
+  const { data: poojas, isLoading: loadingPoojas } = useQuery({
+    queryKey: ['poojas-list'],
+    queryFn: () => base44.entities.Pooja.filter({ is_deleted: false })
+  });
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     // Personal Info
@@ -60,7 +64,7 @@ export default function OnboardPriest() {
     availability_slots: []
   });
 
-  const [tempTemple, setTempTemple] = useState({ temple_name: '', city: '', role: '', years_serving: '' });
+  const [tempTemple, setTempTemple] = useState({ temple_id: '', temple_name: '', city: '', role: '', years_serving: '' });
   const [tempPooja, setTempPooja] = useState({ name: '', mode: 'in_person', duration: '', dakshina_min: '', dakshina_max: '', samagri: 'devotee' });
   const [customPooja, setCustomPooja] = useState('');
 
@@ -89,12 +93,12 @@ export default function OnboardPriest() {
   };
 
   const addAssociatedTemple = () => {
-    if (tempTemple.temple_name && tempTemple.city) {
+    if (tempTemple.temple_id && tempTemple.temple_name) {
       setFormData(prev => ({
         ...prev,
         associated_temples: [...prev.associated_temples, { ...tempTemple }]
       }));
-      setTempTemple({ temple_name: '', city: '', role: '', years_serving: '' });
+      setTempTemple({ temple_id: '', temple_name: '', city: '', role: '', years_serving: '' });
     }
   };
 
@@ -334,47 +338,83 @@ export default function OnboardPriest() {
 
               <Card className="p-4 bg-orange-50 border-orange-200">
                 <h3 className="font-semibold mb-3">Primary Mandir *</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <Input
-                    placeholder="Temple name"
-                    value={formData.primary_temple.name}
-                    onChange={(e) => updateField('primary_temple', { ...formData.primary_temple, name: e.target.value })}
-                  />
-                  <Input
-                    placeholder="City"
-                    value={formData.primary_temple.city}
-                    onChange={(e) => updateField('primary_temple', { ...formData.primary_temple, city: e.target.value })}
-                  />
-                  <Input
-                    placeholder="Your role"
-                    value={formData.primary_temple.role}
-                    onChange={(e) => updateField('primary_temple', { ...formData.primary_temple, role: e.target.value })}
-                  />
-                </div>
+                <p className="text-sm text-gray-600 mb-3">Select from our registered temples</p>
+                {loadingTemples ? (
+                  <p className="text-sm text-gray-500">Loading temples...</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Select
+                      value={formData.primary_temple.temple_id}
+                      onValueChange={(value) => {
+                        const temple = temples.find(t => t.id === value);
+                        updateField('primary_temple', {
+                          temple_id: value,
+                          name: temple?.name || '',
+                          city: temple?.city || '',
+                          role: formData.primary_temple.role
+                        });
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select temple" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {temples?.map(temple => (
+                          <SelectItem key={temple.id} value={temple.id}>
+                            {temple.name} - {temple.city}, {temple.state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="Your role (e.g., Head Priest, Purohit)"
+                      value={formData.primary_temple.role}
+                      onChange={(e) => updateField('primary_temple', { ...formData.primary_temple, role: e.target.value })}
+                    />
+                  </div>
+                )}
               </Card>
 
               <div>
                 <h3 className="font-semibold mb-3">Other Associated Temples (Optional)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
-                  <Input
-                    placeholder="Temple name"
-                    value={tempTemple.temple_name}
-                    onChange={(e) => setTempTemple({ ...tempTemple, temple_name: e.target.value })}
-                  />
-                  <Input
-                    placeholder="City"
-                    value={tempTemple.city}
-                    onChange={(e) => setTempTemple({ ...tempTemple, city: e.target.value })}
-                  />
-                  <Input
-                    placeholder="Role"
-                    value={tempTemple.role}
-                    onChange={(e) => setTempTemple({ ...tempTemple, role: e.target.value })}
-                  />
-                  <Button onClick={addAssociatedTemple} variant="outline">
-                    <Plus className="w-4 h-4 mr-1" /> Add
-                  </Button>
-                </div>
+                <p className="text-sm text-gray-600 mb-3">Select additional temples where you serve</p>
+                {loadingTemples ? (
+                  <p className="text-sm text-gray-500">Loading temples...</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                    <Select
+                      value={tempTemple.temple_id}
+                      onValueChange={(value) => {
+                        const temple = temples.find(t => t.id === value);
+                        setTempTemple({
+                          ...tempTemple,
+                          temple_id: value,
+                          temple_name: temple?.name || '',
+                          city: temple?.city || ''
+                        });
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select temple" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {temples?.map(temple => (
+                          <SelectItem key={temple.id} value={temple.id}>
+                            {temple.name} - {temple.city}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="Your role"
+                      value={tempTemple.role}
+                      onChange={(e) => setTempTemple({ ...tempTemple, role: e.target.value })}
+                    />
+                    <Button onClick={addAssociatedTemple} variant="outline" disabled={!tempTemple.temple_id}>
+                      <Plus className="w-4 h-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                )}
 
                 {formData.associated_temples.length > 0 && (
                   <div className="space-y-2">
@@ -435,24 +475,28 @@ export default function OnboardPriest() {
                 <p className="text-gray-600">Select all the poojas you can perform</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {COMMON_POOJAS.map(pooja => (
-                  <label
-                    key={pooja}
-                    className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                      formData.selected_poojas[pooja]
-                        ? 'border-orange-500 bg-orange-50'
-                        : 'border-gray-200 hover:border-orange-300'
-                    }`}
-                  >
-                    <Checkbox
-                      checked={!!formData.selected_poojas[pooja]}
-                      onCheckedChange={() => togglePooja(pooja)}
-                    />
-                    <span className="text-sm font-medium">{pooja}</span>
-                  </label>
-                ))}
-              </div>
+              {loadingPoojas ? (
+                <p className="text-sm text-gray-500">Loading poojas...</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {poojas?.map(pooja => (
+                    <label
+                      key={pooja.id}
+                      className={`flex items-center gap-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                        formData.selected_poojas[pooja.name]
+                          ? 'border-orange-500 bg-orange-50'
+                          : 'border-gray-200 hover:border-orange-300'
+                      }`}
+                    >
+                      <Checkbox
+                        checked={!!formData.selected_poojas[pooja.name]}
+                        onCheckedChange={() => togglePooja(pooja.name)}
+                      />
+                      <span className="text-sm font-medium">{pooja.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
 
               {Object.keys(formData.selected_poojas).length > 0 && (
                 <Card className="p-4 bg-gray-50">
