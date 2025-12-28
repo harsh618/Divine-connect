@@ -9,11 +9,11 @@ function TempleCard({ temple }) {
   
   return (
     <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
-      <div className="group relative h-[400px] w-full overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:border-amber-500/50 hover:shadow-[0_0_40px_-10px_rgba(217,119,6,0.3)] cursor-pointer">
+      <div className="group relative h-[400px] w-full overflow-hidden rounded-[40px] border border-white/10 bg-gradient-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/10 backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:border-amber-500/70 hover:shadow-[0_0_50px_-5px_rgba(217,119,6,0.6)] cursor-pointer">
         <img 
           src={temple.images?.[0] || temple.thumbnail_url || defaultImage}
           alt={temple.name}
-          className="absolute inset-0 h-full w-full object-cover opacity-60 grayscale transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-110"
+          className="absolute inset-0 h-full w-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-100 group-hover:scale-110"
         />
         
         <div className="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent p-8 translate-y-4 transition-transform duration-500 group-hover:translate-y-0">
