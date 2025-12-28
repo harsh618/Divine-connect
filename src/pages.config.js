@@ -9,6 +9,7 @@ import BecomeProvider from './pages/BecomeProvider';
 import CampaignDetail from './pages/CampaignDetail';
 import Dashboard from './pages/Dashboard';
 import Donate from './pages/Donate';
+import EnhancedPoojaBooking from './pages/EnhancedPoojaBooking';
 import Home from './pages/Home';
 import KundliGenerator from './pages/KundliGenerator';
 import MatchMaking from './pages/MatchMaking';
@@ -24,10 +25,9 @@ import PriestDashboard from './pages/PriestDashboard';
 import PriestProfile from './pages/PriestProfile';
 import Priests from './pages/Priests';
 import Profile from './pages/Profile';
+import ProviderOnboarding from './pages/ProviderOnboarding';
 import TempleDetail from './pages/TempleDetail';
 import Temples from './pages/Temples';
-import EnhancedPoojaBooking from './pages/EnhancedPoojaBooking';
-import ProviderOnboarding from './pages/ProviderOnboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -43,6 +43,7 @@ export const PAGES = {
     "CampaignDetail": CampaignDetail,
     "Dashboard": Dashboard,
     "Donate": Donate,
+    "EnhancedPoojaBooking": EnhancedPoojaBooking,
     "Home": Home,
     "KundliGenerator": KundliGenerator,
     "MatchMaking": MatchMaking,
@@ -58,10 +59,9 @@ export const PAGES = {
     "PriestProfile": PriestProfile,
     "Priests": Priests,
     "Profile": Profile,
+    "ProviderOnboarding": ProviderOnboarding,
     "TempleDetail": TempleDetail,
     "Temples": Temples,
-    "EnhancedPoojaBooking": EnhancedPoojaBooking,
-    "ProviderOnboarding": ProviderOnboarding,
 }
 
 export const pagesConfig = {

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -11,17 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, Video, X, Sparkles } from 'lucide-react';
+import { Search, MapPin, Video, Sparkles, Compass, X } from 'lucide-react';
 import TempleCard from '../components/temple/TempleCard';
 import TempleCardSkeleton from '../components/temple/TempleCardSkeleton';
 
-const templeImages = [
+const TEMPLE_HERO_IMAGES = [
   'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/b2c47aca5_pexels-koushalya-karthikeyan-605468635-18362045.jpg',
-  'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/44b522447_WhatsAppImage2025-12-08at131011_839c7371.jpg'
+  'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/44b522447_WhatsAppImage2025-12-08at131011_839c7371.jpg',
+  'https://images.unsplash.com/photo-1598890777032-bde835ba27c0?q=80&w=2070&auto=format&fit=crop'
 ];
 
-const deities = ['All', 'Shiva', 'Vishnu', 'Ganesha', 'Hanuman', 'Durga', 'Krishna', 'Ram', 'Lakshmi'];
-const states = ['All', 'Tamil Nadu', 'Uttar Pradesh', 'Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat', 'Kerala'];
+const DEITIES = ['All', 'Shiva', 'Vishnu', 'Ganesha', 'Hanuman', 'Durga', 'Krishna', 'Ram', 'Lakshmi'];
+const STATES = ['All', 'Tamil Nadu', 'Uttar Pradesh', 'Maharashtra', 'Karnataka', 'Rajasthan', 'Gujarat', 'Kerala'];
 
 export default function Temples() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -32,8 +31,8 @@ export default function Temples() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % templeImages.length);
-    }, 5000);
+      setCurrentImageIndex((prev) => (prev + 1) % TEMPLE_HERO_IMAGES.length);
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 
@@ -58,156 +57,154 @@ export default function Temples() {
     setShowLiveOnly(false);
   };
 
-  const hasFilters = searchQuery || selectedDeity !== 'All' || selectedState !== 'All' || showLiveOnly;
+  const activeFilterCount = (selectedDeity !== 'All' ? 1 : 0) + (selectedState !== 'All' ? 1 : 0) + (showLiveOnly ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-white pb-24 md:pb-8">
-      {/* Hero Section with Rotating Images */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Images with Transition */}
-        <div className="absolute inset-0 z-0">
-          {templeImages.map((image, index) => (
-            <img
+    <div className="min-h-screen bg-[#FAFAF9] pb-24 font-sans">
+      
+      {/* 1. Cinematic Hero Section */}
+      <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
+        {/* Background Layer */}
+        <div className="absolute inset-0 z-0 bg-black">
+          {TEMPLE_HERO_IMAGES.map((image, index) => (
+            <div
               key={image}
-              src={image}
-              alt={`Temple ${index + 1}`}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
               }`}
+              style={{ backgroundImage: `url(${image})` }}
             />
           ))}
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#FAFAF9]" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-4xl">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-orange-200 text-sm mb-8">
-            <Sparkles className="w-4 h-4" />
+        {/* Hero Content */}
+        <div className="relative z-10 text-center px-6 max-w-4xl w-full mt-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-medium uppercase tracking-widest mb-6 animate-fade-in">
+            <Sparkles className="w-3 h-3 text-amber-400" />
             Sacred Destinations
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight" style={{ 
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 107, 53, 0.3)' 
-          }}>
-            Discover Divine Temples
+          <h1 className="text-5xl md:text-7xl font-serif text-white mb-8 leading-tight drop-shadow-2xl">
+            Find Your <span className="text-amber-200 italic">Sanctuary</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
-            Explore sacred temples across India and book your spiritual journey
-          </p>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
-          <span className="text-xs">Explore</span>
-          <div className="w-1 h-3 bg-white/50 rounded-full" />
+          {/* Integrated Search Bar (Glassmorphism) */}
+          <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-xl border border-white/20 p-2 rounded-full flex items-center shadow-2xl">
+            <div className="pl-4">
+               <Search className="w-5 h-5 text-white/70" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search 'Kashi Vishwanath' or 'Ayodhya'..."
+              className="w-full bg-transparent border-none text-white placeholder-white/60 focus:ring-0 px-4 h-12 text-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+               <button onClick={() => setSearchQuery('')} className="p-2 text-white/50 hover:text-white">
+                  <X className="w-4 h-4" />
+               </button>
+            )}
+          </div>
+          
+          <div className="mt-4 flex justify-center gap-6 text-white/60 text-sm font-light">
+             <span className="flex items-center gap-1"><Compass className="w-3 h-3" /> 100+ Temples</span>
+             <span className="flex items-center gap-1"><Video className="w-3 h-3" /> Live Darshan</span>
+          </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-6 py-16">
-        {/* Search & Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Search by temple name or city..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 border-gray-200"
-              />
-            </div>
-            
-            <Select value={selectedDeity} onValueChange={setSelectedDeity}>
-              <SelectTrigger className="w-full md:w-48 h-12">
-                <SelectValue placeholder="Deity" />
-              </SelectTrigger>
-              <SelectContent>
-                {deities.map(deity => (
-                  <SelectItem key={deity} value={deity}>{deity}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* 2. Sticky Filter Bar (Airbnb Style) */}
+      <div className="sticky top-16 z-30 bg-[#FAFAF9]/95 backdrop-blur-md border-b border-gray-200/50 py-4 shadow-sm">
+        <div className="container mx-auto px-6 max-w-7xl">
+           <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
+              
+              {/* Deity Horizontal Scroll (Primary Filter) */}
+              <div className="w-full md:w-auto overflow-x-auto scrollbar-hide">
+                 <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2">Deity:</span>
+                    {DEITIES.map(deity => (
+                       <button
+                          key={deity}
+                          onClick={() => setSelectedDeity(deity)}
+                          className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                             selectedDeity === deity
+                             ? 'bg-amber-600 text-white shadow-lg shadow-amber-200'
+                             : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+                          }`}
+                       >
+                          {deity}
+                       </button>
+                    ))}
+                 </div>
+              </div>
 
-            <Select value={selectedState} onValueChange={setSelectedState}>
-              <SelectTrigger className="w-full md:w-48 h-12">
-                <SelectValue placeholder="State" />
-              </SelectTrigger>
-              <SelectContent>
-                {states.map(state => (
-                  <SelectItem key={state} value={state}>{state}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {/* Utility Filters (State & Live) */}
+              <div className="flex items-center gap-3 w-full md:w-auto border-l border-gray-200 pl-0 md:pl-6">
+                 <Select value={selectedState} onValueChange={setSelectedState}>
+                    <SelectTrigger className="w-[180px] rounded-full border-gray-200 bg-white h-10">
+                       <div className="flex items-center gap-2 text-gray-600">
+                          <MapPin className="w-3 h-3" />
+                          <SelectValue placeholder="State" />
+                       </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                       {STATES.map(state => (
+                          <SelectItem key={state} value={state}>{state}</SelectItem>
+                       ))}
+                    </SelectContent>
+                 </Select>
 
-            <Button
-              variant={showLiveOnly ? "default" : "outline"}
-              onClick={() => setShowLiveOnly(!showLiveOnly)}
-              className={`h-12 ${showLiveOnly ? 'bg-red-500 hover:bg-red-600' : ''}`}
-            >
-              <Video className="w-4 h-4 mr-2" />
-              Live Darshan
-            </Button>
-          </div>
+                 <Button
+                    variant={showLiveOnly ? "default" : "outline"}
+                    onClick={() => setShowLiveOnly(!showLiveOnly)}
+                    className={`rounded-full h-10 border-gray-200 px-4 ${showLiveOnly ? 'bg-red-500 hover:bg-red-600 border-red-500 text-white' : 'bg-white text-gray-600'}`}
+                 >
+                    <Video className={`w-3 h-3 mr-2 ${showLiveOnly && 'animate-pulse'}`} />
+                    Live Only
+                 </Button>
+              </div>
+           </div>
+        </div>
+      </div>
 
-          {hasFilters && (
-            <div className="flex items-center gap-2 mt-4 pt-4 border-t">
-              <span className="text-sm text-gray-500">Active filters:</span>
-              {searchQuery && (
-                <Badge variant="secondary" className="gap-1">
-                  Search: {searchQuery}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery('')} />
-                </Badge>
-              )}
-              {selectedDeity !== 'All' && (
-                <Badge variant="secondary" className="gap-1">
-                  {selectedDeity}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedDeity('All')} />
-                </Badge>
-              )}
-              {selectedState !== 'All' && (
-                <Badge variant="secondary" className="gap-1">
-                  {selectedState}
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedState('All')} />
-                </Badge>
-              )}
-              {showLiveOnly && (
-                <Badge variant="secondary" className="gap-1 bg-red-100 text-red-700">
-                  Live Only
-                  <X className="w-3 h-3 cursor-pointer" onClick={() => setShowLiveOnly(false)} />
-                </Badge>
-              )}
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-500">
-                Clear all
-              </Button>
-            </div>
-          )}
+      {/* 3. Results Section */}
+      <div className="container mx-auto px-6 max-w-7xl py-12">
+        
+        {/* Results Header */}
+        <div className="flex items-center justify-between mb-8">
+           <h2 className="text-2xl font-serif text-gray-900">
+              {activeFilterCount > 0 ? 'Filtered Results' : 'Sacred Sites'}
+           </h2>
+           {!isLoading && (
+              <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-100">
+                 {filteredTemples?.length || 0} temples found
+              </span>
+           )}
         </div>
 
-        {/* Results Count */}
-        {!isLoading && (
-          <p className="text-gray-500 mb-6">
-            {filteredTemples?.length || 0} temples found
-          </p>
-        )}
-
         {/* Temple Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => <TempleCardSkeleton key={i} />)
           ) : filteredTemples?.length > 0 ? (
             filteredTemples.map((temple) => (
-              <TempleCard key={temple.id} temple={temple} />
+              <div key={temple.id} className="transform hover:-translate-y-1 transition-transform duration-300">
+                 <TempleCard temple={temple} />
+              </div>
             ))
           ) : (
-            <div className="col-span-full text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
-                <Search className="w-10 h-10 text-orange-400" />
+            <div className="col-span-full py-24 text-center">
+              <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-stone-100 flex items-center justify-center">
+                <Compass className="w-10 h-10 text-stone-300" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No temples found</h3>
-              <p className="text-gray-500 mb-4">Try adjusting your filters or search query</p>
-              <Button onClick={clearFilters} variant="outline">
-                Clear Filters
+              <h3 className="text-xl font-serif text-gray-900 mb-2">No sacred sites found</h3>
+              <p className="text-gray-500 mb-6 font-light">
+                 We couldn't find any temples matching your specific criteria.
+              </p>
+              <Button onClick={clearFilters} variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-50">
+                Clear All Filters
               </Button>
             </div>
           )}
