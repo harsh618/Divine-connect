@@ -96,6 +96,7 @@ export default function TempleDetail() {
   const [viewerImageIndex, setViewerImageIndex] = useState(0);
   const [selectedPriest, setSelectedPriest] = useState(null);
   const [availablePriests, setAvailablePriests] = useState([]);
+  const [viewingItinerary, setViewingItinerary] = useState(null);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -825,10 +826,7 @@ export default function TempleDetail() {
                   {savedItineraries.map((itinerary) => (
                     <button
                       key={itinerary.id}
-                      onClick={() => {
-                        toast.info('Opening saved itinerary...');
-                        // Future: Open in itinerary viewer modal
-                      }}
+                      onClick={() => setViewingItinerary(itinerary)}
                       className="w-full p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer text-left"
                     >
                       <div className="flex items-center justify-between mb-2">
@@ -1386,7 +1384,77 @@ export default function TempleDetail() {
         isOpen={showItineraryModal}
         onClose={() => setShowItineraryModal(false)}
         temple={temple}
-        />
+      />
+
+      {/* View Saved Itinerary Modal */}
+      <Dialog open={!!viewingItinerary} onOpenChange={() => setViewingItinerary(null)}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Your Trip Itinerary</DialogTitle>
+            <DialogDescription>
+              {viewingItinerary && (
+                <>
+                  {format(new Date(viewingItinerary.start_date), 'MMM d')} - {format(new Date(viewingItinerary.end_date), 'MMM d, yyyy')}
+                  {viewingItinerary.preferences?.vibe && (
+                    <span className="ml-2 capitalize">• {viewingItinerary.preferences.vibe}</span>
+                  )}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {viewingItinerary?.itinerary_data?.days?.map((day, dayIdx) => (
+              <div key={dayIdx} className="space-y-4">
+                <div className="sticky top-0 bg-primary/10 backdrop-blur-sm px-4 py-3 -mx-4 z-10">
+                  <h3 className="font-normal text-lg tracking-wide">
+                    {day.title}
+                  </h3>
+                </div>
+                <div className="space-y-3 relative pl-8 border-l-2 border-border ml-2">
+                  {day.activities?.map((activity, actIdx) => (
+                    <div key={actIdx} className="relative">
+                      <div className="absolute -left-[2.3rem] top-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <Clock className="w-3 h-3 text-primary-foreground" />
+                      </div>
+                      <Card className="p-4 hover:border-primary/50 transition-all">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-light mb-1">
+                              {activity.time}
+                            </p>
+                            <h4 className="font-normal text-base">{activity.name}</h4>
+                          </div>
+                          {activity.category && (
+                            <Badge variant="secondary" className="text-xs font-light">
+                              {activity.category}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground font-light leading-relaxed">
+                          {activity.description}
+                        </p>
+                        {activity.location && (
+                          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                            <MapPin className="w-3 h-3" />
+                            {activity.location}
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setViewingItinerary(null)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
         {/* Image Viewer Modal */}
         <Dialog open={showImageViewer} onOpenChange={setShowImageViewer}>
