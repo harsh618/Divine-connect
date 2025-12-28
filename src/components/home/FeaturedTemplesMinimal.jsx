@@ -8,7 +8,7 @@ function TempleCard({ temple }) {
   const defaultImage = "https://images.unsplash.com/photo-1548013146-72479768bada?w=800";
   
   return (
-    <Link to={createPageUrl('TempleDetail', { templeId: temple.id })}>
+    <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
       <div className="group relative h-[400px] w-full overflow-hidden rounded-[40px] border border-white/10 bg-white/5 backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:border-amber-500/50 hover:shadow-[0_0_40px_-10px_rgba(217,119,6,0.3)] cursor-pointer">
         <img 
           src={temple.images?.[0] || temple.thumbnail_url || defaultImage}

@@ -823,7 +823,14 @@ export default function TempleDetail() {
                   <h3 className="font-semibold text-gray-900 mb-4">Planned Trips</h3>
                 <div className="space-y-3">
                   {savedItineraries.map((itinerary) => (
-                    <div key={itinerary.id} className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                    <button
+                      key={itinerary.id}
+                      onClick={() => {
+                        toast.info('Opening saved itinerary...');
+                        // Future: Open in itinerary viewer modal
+                      }}
+                      className="w-full p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer text-left"
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-medium">
                           {format(new Date(itinerary.start_date), 'MMM d')} - {format(new Date(itinerary.end_date), 'MMM d, yyyy')}
@@ -837,7 +844,7 @@ export default function TempleDetail() {
                           {itinerary.preferences.vibe}
                         </p>
                       )}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </Card>

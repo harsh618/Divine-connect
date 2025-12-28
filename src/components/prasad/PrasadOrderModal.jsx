@@ -34,7 +34,8 @@ const PRASAD_STAGES = {
   CONFIRMATION: 4
 };
 
-export default function PrasadOrderModal({ open, onClose, templeId, prasadItems }) {
+export default function PrasadOrderModal({ isOpen, onClose, templeId, templeName, initialItems }) {
+  const prasadItems = initialItems || [];
   const queryClient = useQueryClient();
   const [currentStage, setCurrentStage] = useState(PRASAD_STAGES.SELECT_ITEMS);
   const [selectedItems, setSelectedItems] = useState({});
@@ -154,7 +155,7 @@ export default function PrasadOrderModal({ open, onClose, templeId, prasadItems 
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
