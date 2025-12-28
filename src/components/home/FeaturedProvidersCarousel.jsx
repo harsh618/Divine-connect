@@ -116,47 +116,47 @@ export default function FeaturedProvidersCarousel() {
               return (
                 <div 
                   key={provider.id} 
-                  className={cn(
-                    "flex-[0_0_280px] md:flex-[0_0_320px] px-3 transition-all duration-500 ease-out",
-                    {
-                      'scale-110 opacity-100 z-10': isActive,
-                      'scale-90 opacity-40': !isActive,
-                    }
-                  )}
+                  className="flex-[0_0_280px] md:flex-[0_0_320px] px-3"
                 >
                   <Link to={createPageUrl(profileUrl)}>
-                    <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-amber-500/50 transition-all">
-                      <div className="relative mx-auto w-24 h-24 -mt-12 mb-4">
-                        {provider.is_available_now && (
-                          <div className="absolute -inset-1 rounded-full bg-green-500 animate-ping opacity-75" />
-                        )}
-                        <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 opacity-50 blur" />
-                        <img
-                          src={provider.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600'}
-                          alt={provider.display_name}
-                          className="relative h-full w-full rounded-full object-cover border-2 border-white/20"
-                        />
-                        {provider.is_available_now && (
-                          <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-neutral-950 animate-pulse" />
-                        )}
-                      </div>
-                      <div className="text-center">
-                        <h3 className="text-lg font-serif font-semibold text-white mb-1">{provider.display_name}</h3>
-                        <p className="text-sm text-white/60 mb-3">
+                    <div className="relative bg-gradient-to-br from-zinc-900 via-neutral-900 to-zinc-900 border border-white/10 rounded-3xl p-6 hover:border-amber-500/50 hover:shadow-[0_0_40px_-8px_rgba(217,119,6,0.4)] transition-all h-full">
+                      <div className="flex flex-col items-center">
+                        <div className="relative w-20 h-20 mb-4">
+                          {provider.avatar_url ? (
+                            <img
+                              src={provider.avatar_url}
+                              alt={provider.display_name}
+                              className="w-full h-full rounded-full object-cover border-3 border-amber-500/20 shadow-xl"
+                            />
+                          ) : (
+                            <div className="w-full h-full rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center border-3 border-amber-500/20">
+                              <span className="text-2xl text-amber-400">
+                                {provider.display_name?.[0]?.toUpperCase() || 'P'}
+                              </span>
+                            </div>
+                          )}
+                          {provider.is_available_now && (
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-zinc-900 flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                            </div>
+                          )}
+                        </div>
+                        <h3 className="text-lg font-medium text-white mb-1 text-center">{provider.display_name}</h3>
+                        <p className="text-sm text-gray-400 mb-2 text-center">
                           {specialization}
                         </p>
-                        <div className="inline-flex px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-mono font-semibold tracking-wider uppercase border border-amber-500/30 mb-3">
+                        <div className="inline-flex px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold tracking-wider border border-amber-500/30 mb-3">
                           {provider.years_of_experience || 0}+ YRS
                         </div>
                         {provider.rating_average > 0 && (
-                          <div className="flex items-center justify-center gap-1 text-sm text-white/70 mb-4">
-                            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                            <span className="font-medium">{provider.rating_average.toFixed(1)}</span>
+                          <div className="flex items-center gap-1 mb-4">
+                            <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                            <span className="text-sm text-white/80 font-medium">{provider.rating_average.toFixed(1)}</span>
                           </div>
                         )}
                         <Button 
                           size="sm" 
-                          className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold border-0"
+                          className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-bold rounded-xl text-sm py-2"
                         >
                           Connect Now
                         </Button>
