@@ -384,7 +384,8 @@ export default function TempleDetail() {
 
   const handleGetDirections = () => {
     const address = encodeURIComponent(`${temple.name}, ${temple.location || temple.city + ', ' + temple.state}`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, '_blank');
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${address}`;
+    window.open(mapsUrl, '_blank');
   };
 
   const handleReviewSubmit = () => {
@@ -494,7 +495,14 @@ export default function TempleDetail() {
       {/* Floating Ritual Dock */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/10 shadow-2xl">
         <Button
-          onClick={() => setShowBookingModal(true)}
+          onClick={async () => {
+            const isAuth = await base44.auth.isAuthenticated();
+            if (!isAuth) {
+              base44.auth.redirectToLogin();
+              return;
+            }
+            setShowBookingModal(true);
+          }}
           disabled={!temple.visit_booking_enabled}
           className="rounded-full bg-amber-500 hover:bg-amber-600 text-black font-bold px-6 h-12"
         >
@@ -503,7 +511,14 @@ export default function TempleDetail() {
         </Button>
         <Button
           variant="ghost"
-          onClick={() => setShowDonationTypeModal(true)}
+          onClick={async () => {
+            const isAuth = await base44.auth.isAuthenticated();
+            if (!isAuth) {
+              base44.auth.redirectToLogin();
+              return;
+            }
+            setShowDonationTypeModal(true);
+          }}
           className="rounded-full text-white border border-white/20 hover:bg-white/10 px-6 h-12"
         >
           <Heart className="w-4 h-4 mr-2" />
@@ -511,7 +526,14 @@ export default function TempleDetail() {
         </Button>
         <Button
           variant="ghost"
-          onClick={() => setShowItineraryModal(true)}
+          onClick={async () => {
+            const isAuth = await base44.auth.isAuthenticated();
+            if (!isAuth) {
+              base44.auth.redirectToLogin();
+              return;
+            }
+            setShowItineraryModal(true);
+          }}
           className="rounded-full text-white hover:text-amber-400 hover:bg-white/5 px-4 h-12"
         >
           <MapPin className="w-4 h-4 mr-2" />
@@ -520,12 +542,17 @@ export default function TempleDetail() {
         <div className="h-8 w-[1px] bg-white/20 mx-1" />
         <Button
           variant="ghost"
-          onClick={() => {
+          onClick={async () => {
+            const isAuth = await base44.auth.isAuthenticated();
+            if (!isAuth) {
+              base44.auth.redirectToLogin();
+              return;
+            }
             if (prasadItems?.length > 0) {
               setSelectedPrasadItems(prasadItems);
               setShowPrasadOrderModal(true);
             } else {
-              toast.error('No prasad items available');
+              toast.error('No prasad items available at this temple');
             }
           }}
           size="icon"
@@ -928,32 +955,47 @@ export default function TempleDetail() {
               </Select>
             </div>
 
-            {availablePriests.length > 0 && selectedDate && selectedTimeSlot && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <Label className="mb-2 block text-sm font-medium">Available Priest</Label>
-                <Select value={selectedPriest} onValueChange={setSelectedPriest}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a priest" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availablePriests.map((priest) => (
-                      <SelectItem key={priest.id} value={priest.id}>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>{priest.display_name}</span>
-                          {priest.years_of_experience && (
-                            <span className="text-xs text-muted-foreground">
-                              ({priest.years_of_experience} yrs exp)
-                            </span>
-                          )}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-green-700 mt-2">
-                  {availablePriests.length} priest{availablePriests.length > 1 ? 's' : ''} available for this slot
-                </p>
+            {selectedDate && selectedTimeSlot && (
+              <div className={`border rounded-lg p-4 ${availablePriests.length > 0 ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+                <Label className="mb-2 block text-sm font-medium">Priest Assignment</Label>
+                {availablePriests.length > 0 ? (
+                  <>
+                    <Select value={selectedPriest} onValueChange={setSelectedPriest}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a priest (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">Auto-assign available priest</SelectItem>
+                        {availablePriests.map((priest) => (
+                          <SelectItem key={priest.id} value={priest.id}>
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4" />
+                              <span>{priest.display_name}</span>
+                              {priest.years_of_experience && (
+                                <span className="text-xs text-muted-foreground">
+                                  ({priest.years_of_experience} yrs exp)
+                                </span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-green-700 mt-2">
+                      ✓ {availablePriests.length} priest{availablePriests.length > 1 ? 's' : ''} available for this time slot
+                    </p>
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-blue-900 bg-blue-100 rounded-md p-3">
+                      <Users className="w-4 h-4" />
+                      <span>No priests currently available for this slot</span>
+                    </div>
+                    <p className="text-xs text-blue-700">
+                      Don't worry! We'll connect you with an available priest after booking confirmation.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
