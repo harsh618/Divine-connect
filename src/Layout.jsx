@@ -38,9 +38,9 @@ function LayoutContent({ children, currentPageName }) {
 
   const navLinks = [
     { name: 'Temples', icon: Building2, page: 'Temples' },
-    { name: 'Poojas', icon: Flame, page: 'Poojas' },
+    { name: 'Pooja', icon: Flame, page: 'Pooja' },
     { name: 'Astrology', icon: Stars, page: 'Astrology' },
-    { name: 'Priests', icon: Users, page: 'Priests' },
+    { name: 'Priest/Pandit', icon: Users, page: 'Priest/Pandit' },
     { name: 'Donate', icon: Heart, page: 'Donate' },
     { name: 'Yatra', icon: Compass, page: 'Yatra' },
   ];
