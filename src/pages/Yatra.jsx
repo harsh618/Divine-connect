@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import VirtualTempleWalkModal from '../components/yatra/VirtualTempleWalkModal';
+import AgentAssistChat from '../components/yatra/AgentAssistChat';
+import { DivineCartProvider, useDivineCart } from '../components/yatra/DivineCartContext';
 import {
   Select,
   SelectContent,
@@ -31,7 +34,9 @@ import {
   Star,
   ChevronRight,
   Sparkles,
-  Clock
+  Clock,
+  Eye,
+  ShoppingBag
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -51,9 +56,11 @@ const UPCOMING_FESTIVALS = [
   { date: '2025-04-10', name: 'Ram Navami', deity: 'Ram' }
 ];
 
-export default function Yatra() {
+function YatraContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState('temples');
+  const [selectedTempleFor360, setSelectedTempleFor360] = useState(null);
+  const { cartItems, addToCart } = useDivineCart();
 
   const { data: temples } = useQuery({
     queryKey: ['yatra-temples'],
@@ -66,6 +73,21 @@ export default function Yatra() {
 
   return (
     <div className="min-h-screen bg-neutral-950">
+      
+      {/* Divine Cart Indicator */}
+      {cartItems.length > 0 && (
+        <div className="fixed top-24 right-8 z-40">
+          <Link to={createPageUrl('DivineCart')}>
+            <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-2xl relative">
+              <ShoppingBag className="w-5 h-5 mr-2" />
+              Divine Cart ({cartItems.length})
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold text-white animate-pulse">
+                {cartItems.length}
+              </div>
+            </Button>
+          </Link>
+        </div>
+      )}
       
       {/* Cinematic Hero with Omni-Search */}
       <section className="relative h-[80vh] overflow-hidden">
@@ -188,23 +210,34 @@ export default function Yatra() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {temples?.map((temple) => (
-              <Link key={temple.id} to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
-                <Card className="group overflow-hidden border-white/10 bg-neutral-800 hover:border-amber-500/50 transition-all h-full">
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={temple.images?.[0] || temple.thumbnail_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400'}
-                      alt={temple.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 right-3">
-                      {temple.live_darshan_url && (
-                        <Badge className="bg-red-500/80 backdrop-blur-sm text-white border-0">
-                          <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse" />
-                          Live
-                        </Badge>
-                      )}
-                    </div>
+              <Card key={temple.id} className="group overflow-hidden border-white/10 bg-neutral-800 hover:border-amber-500/50 transition-all h-full">
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={temple.images?.[0] || temple.thumbnail_url || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400'}
+                    alt={temple.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    {temple.live_darshan_url && (
+                      <Badge className="bg-red-500/80 backdrop-blur-sm text-white border-0">
+                        <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse" />
+                        Live
+                      </Badge>
+                    )}
                   </div>
+                  
+                  {/* 360° View Button */}
+                  <button
+                    onClick={() => setSelectedTempleFor360(temple)}
+                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                  >
+                    <div className="bg-amber-500 rounded-full p-4 transform scale-90 group-hover:scale-100 transition-transform">
+                      <Eye className="w-6 h-6 text-black" />
+                    </div>
+                    <span className="absolute bottom-4 text-white text-sm font-bold">360° Virtual Walk</span>
+                  </button>
+                </div>
+                <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
                   <div className="p-4">
                     <h3 className="text-lg font-serif text-white mb-2 line-clamp-1">{temple.name}</h3>
                     <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
@@ -217,8 +250,8 @@ export default function Yatra() {
                       </Badge>
                     </div>
                   </div>
-                </Card>
-              </Link>
+                </Link>
+              </Card>
             ))}
           </div>
         </div>
@@ -269,43 +302,86 @@ export default function Yatra() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {temples?.slice(0, 3).map((temple) => (
-              <Card key={temple.id} className="bg-neutral-800 border-white/10 p-6 hover:border-amber-500/50 transition-all">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-serif text-white mb-1">{temple.name}</h3>
-                    <p className="text-sm text-white/60">{temple.city}</p>
+            {temples?.slice(0, 3).map((temple, idx) => {
+              const availability = ['available', 'limited', 'full'][idx % 3];
+              const availabilityConfig = {
+                available: { color: 'green', text: 'Available', slots: ['6:00 AM', '10:00 AM', '4:00 PM'] },
+                limited: { color: 'yellow', text: 'Limited', slots: ['6:00 AM', '4:00 PM'] },
+                full: { color: 'red', text: 'Full', slots: [] }
+              };
+              const config = availabilityConfig[availability];
+              
+              return (
+                <Card key={temple.id} className="bg-neutral-800 border-white/10 p-6 hover:border-amber-500/50 transition-all">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-serif text-white mb-1">{temple.name}</h3>
+                      <p className="text-sm text-white/60">{temple.city}</p>
+                    </div>
+                    <Badge className={`bg-${config.color}-500/20 text-${config.color}-400 border-${config.color}-500/30`}>
+                      <div className={`w-2 h-2 bg-${config.color}-400 rounded-full mr-2 ${availability !== 'full' && 'animate-pulse'}`} />
+                      {config.text}
+                    </Badge>
                   </div>
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse" />
-                    Available
-                  </Badge>
-                </div>
 
-                <div className="space-y-2 mb-4">
-                  {['6:00 AM', '10:00 AM', '4:00 PM'].map((slot) => (
-                    <button
-                      key={slot}
-                      className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-left"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>{slot}</span>
-                        <ChevronRight className="w-4 h-4 text-amber-400" />
+                  <div className="space-y-2 mb-4">
+                    {config.slots.length > 0 ? (
+                      config.slots.map((slot) => (
+                        <button
+                          key={slot}
+                          onClick={() => addToCart({ 
+                            id: `${temple.id}-${slot}`, 
+                            temple: temple.name, 
+                            slot, 
+                            date: format(new Date(), 'MMM d, yyyy') 
+                          })}
+                          className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-sm text-white hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{slot}</span>
+                            <ChevronRight className="w-4 h-4 text-amber-400" />
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+                        <p className="text-sm text-red-400">All slots booked for today</p>
                       </div>
-                    </button>
-                  ))}
-                </div>
+                    )}
+                  </div>
 
-                <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
-                  <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-bold">
-                    Book Now
-                  </Button>
-                </Link>
-              </Card>
-            ))}
+                  <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
+                    <Button 
+                      className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-bold"
+                      disabled={availability === 'full'}
+                    >
+                      {availability === 'full' ? 'Check Other Dates' : 'Book Now'}
+                    </Button>
+                  </Link>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
+
+      {/* Virtual Temple Walk Modal */}
+      <VirtualTempleWalkModal
+        isOpen={!!selectedTempleFor360}
+        onClose={() => setSelectedTempleFor360(null)}
+        temple={selectedTempleFor360}
+      />
+
+      {/* Agent Assist Chat */}
+      <AgentAssistChat />
     </div>
+  );
+}
+
+export default function Yatra() {
+  return (
+    <DivineCartProvider>
+      <YatraContent />
+    </DivineCartProvider>
   );
 }

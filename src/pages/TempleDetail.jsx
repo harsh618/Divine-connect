@@ -57,6 +57,8 @@ import DonationTypeModal from '../components/temple/DonationTypeModal';
 import ItineraryPlannerModal from '../components/temple/ItineraryPlannerModal';
 import JournalsSection from '../components/temple/JournalsSection';
 import ReactMarkdown from 'react-markdown';
+import LiveQueueTracker from '../components/yatra/LiveQueueTracker';
+import AgentAssistChat from '../components/yatra/AgentAssistChat';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -774,6 +776,9 @@ export default function TempleDetail() {
 
             {/* Right Column - Sticky Sidebar (1/3) */}
             <div className="lg:col-span-1 space-y-6">
+              {/* Live Queue Tracker */}
+              <LiveQueueTracker templeName={temple.name} />
+
               {/* Quick Info Card - Sticky */}
               <Card className="p-8 bg-white shadow-xl border-gray-100">
                 <h3 className="text-xl font-serif text-amber-600 mb-6">Temple Information</h3>
@@ -1486,6 +1491,9 @@ export default function TempleDetail() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
+
+      {/* Agent Assist Chat */}
+      <AgentAssistChat />
+      </div>
+      );
+      }
