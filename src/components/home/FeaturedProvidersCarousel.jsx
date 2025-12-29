@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, Star, Loader2 } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { cn } from "@/lib/utils";
+import KarmaScore from '../yatra/KarmaScore';
 
 export default function FeaturedProvidersCarousel() {
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -148,12 +149,9 @@ export default function FeaturedProvidersCarousel() {
                         <div className="inline-flex px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold tracking-wider border border-amber-500/30 mb-3">
                           {provider.years_of_experience || 0}+ YRS
                         </div>
-                        {provider.rating_average > 0 && (
-                          <div className="flex items-center gap-1 mb-4">
-                            <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
-                            <span className="text-sm text-white/80 font-medium">{provider.rating_average.toFixed(1)}</span>
-                          </div>
-                        )}
+                        <div className="mb-4">
+                          <KarmaScore score={provider.karma_score} size="sm" />
+                        </div>
                         <Button 
                           size="sm" 
                           className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-bold rounded-xl text-sm py-2"
