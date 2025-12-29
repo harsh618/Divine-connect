@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Star, Video } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import KarmaScore from '../yatra/KarmaScore';
 
 export default function TempleCard({ temple }) {
   const defaultImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800";
@@ -43,7 +44,7 @@ export default function TempleCard({ temple }) {
         </div>
         
         <div className="p-5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-semibold text-orange-700 bg-orange-50 px-3 py-1.5 rounded-full">
               {temple.primary_deity}
             </span>
@@ -53,6 +54,9 @@ export default function TempleCard({ temple }) {
                 Bookings Open
               </span>
             )}
+          </div>
+          <div className="flex justify-end">
+            <KarmaScore score={temple.karma_score} size="sm" showLabel={false} />
           </div>
         </div>
       </Card>
