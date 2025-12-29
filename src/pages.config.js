@@ -28,6 +28,7 @@ import Profile from './pages/Profile';
 import ProviderOnboarding from './pages/ProviderOnboarding';
 import TempleDetail from './pages/TempleDetail';
 import Temples from './pages/Temples';
+import Yatra from './pages/Yatra';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +63,7 @@ export const PAGES = {
     "ProviderOnboarding": ProviderOnboarding,
     "TempleDetail": TempleDetail,
     "Temples": Temples,
+    "Yatra": Yatra,
 }
 
 export const pagesConfig = {

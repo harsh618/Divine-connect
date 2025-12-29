@@ -27,7 +27,8 @@ import {
   Users, 
   Heart,
   Search,
-  Settings
+  Settings,
+  Compass
 } from 'lucide-react';
 
 function LayoutContent({ children, currentPageName }) {
@@ -41,6 +42,7 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'Astrology', icon: Stars, page: 'Astrology' },
     { name: 'Priests', icon: Users, page: 'Priests' },
     { name: 'Donate', icon: Heart, page: 'Donate' },
+    { name: 'Yatra', icon: Compass, page: 'Yatra' },
   ];
 
   useEffect(() => {
