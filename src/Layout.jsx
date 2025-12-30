@@ -40,7 +40,7 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'Temples', icon: Building2, page: 'Temples' },
     { name: 'Pooja', icon: Flame, page: 'Pooja' },
     { name: 'Astrology', icon: Stars, page: 'Astrology' },
-    { name: 'Priest/Pandit', icon: Users, page: 'Priest/Pandit' },
+    { name: 'Priest/Pandit', icon: Users, page: 'PriestPandit' },
     { name: 'Donate', icon: Heart, page: 'Donate' },
     { name: 'Yatra', icon: Compass, page: 'Yatra' },
   ];
