@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import VirtualTempleWalkModal from '../components/yatra/VirtualTempleWalkModal';
-import AgentAssistChat from '../components/yatra/AgentAssistChat';
 import { DivineCartProvider, useDivineCart } from '../components/yatra/DivineCartContext';
 import {
   Select,
@@ -371,9 +370,6 @@ function YatraContent() {
         onClose={() => setSelectedTempleFor360(null)}
         temple={selectedTempleFor360}
       />
-
-      {/* Agent Assist Chat */}
-      <AgentAssistChat />
     </div>
   );
 }
