@@ -58,7 +58,6 @@ import ItineraryPlannerModal from '../components/temple/ItineraryPlannerModal';
 import JournalsSection from '../components/temple/JournalsSection';
 import ReactMarkdown from 'react-markdown';
 import LiveQueueTracker from '../components/yatra/LiveQueueTracker';
-import AgentAssistChat from '../components/yatra/AgentAssistChat';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -1491,9 +1490,6 @@ export default function TempleDetail() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Agent Assist Chat */}
-      <AgentAssistChat />
       </div>
       );
       }

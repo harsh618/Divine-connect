@@ -6,16 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
 
 const MOCK_RESPONSES = [
-  "I'd be happy to help you plan your yatra! Which temple are you interested in visiting?",
-  "Great choice! I can help you with darshan booking, accommodation, and travel arrangements.",
-  "The best time to visit is during early morning hours (6-8 AM) to avoid crowds.",
-  "I've added some recommended hotels near the temple to your itinerary. Would you like to see them?"
+  "Namaste! I can help you with temple visits, pooja bookings, astrology consultations, and connecting with priests. What are you looking for?",
+  "I'd be happy to help! Are you interested in visiting a temple, booking a pooja, or consulting with an astrologer?",
+  "Great! Let me help you find the perfect priest for your ritual. What type of pooja are you planning?",
+  "I can assist you with darshan booking, accommodation, travel arrangements, and more. How can I help today?",
+  "For temple visits, I recommend booking early morning slots (6-8 AM) to avoid crowds. Would you like me to help you book?",
+  "We have verified priests and astrologers available. Would you like to connect with one of them?",
+  "I can help you explore donation campaigns, order prasad, or plan a complete yatra. What interests you?"
 ];
 
 export default function AgentAssistChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Namaste! 🙏 I\'m your Divine Travel Assistant. How can I help plan your pilgrimage today?' }
+    { type: 'bot', text: 'Namaste! 🙏 I\'m your Divine Assistant. I can help you with temples, poojas, astrology, priests, donations, and more. How can I assist you today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
 
