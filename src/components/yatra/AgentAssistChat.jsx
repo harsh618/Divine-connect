@@ -3,36 +3,37 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
-
-const MOCK_RESPONSES = [
-  "Namaste! I can help you with temple visits, pooja bookings, astrology consultations, and connecting with priests. What are you looking for?",
-  "I'd be happy to help! Are you interested in visiting a temple, booking a pooja, or consulting with an astrologer?",
-  "Great! Let me help you find the perfect priest for your ritual. What type of pooja are you planning?",
-  "I can assist you with darshan booking, accommodation, travel arrangements, and more. How can I help today?",
-  "For temple visits, I recommend booking early morning slots (6-8 AM) to avoid crowds. Would you like me to help you book?",
-  "We have verified priests and astrologers available. Would you like to connect with one of them?",
-  "I can help you explore donation campaigns, order prasad, or plan a complete yatra. What interests you?"
-];
+import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 export default function AgentAssistChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Namaste! 🙏 I\'m your Divine Assistant. I can help you with temples, poojas, astrology, priests, donations, and more. How can I assist you today?' }
+    { type: 'bot', text: 'Namaste! 🙏 I\'m your Divine Assistant powered by AI. I can help you with temples, poojas, astrology, priests, donations, and yatra planning based on our platform data. How can I assist you today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading) return;
 
-    setMessages(prev => [...prev, { type: 'user', text: inputValue }]);
-    
-    setTimeout(() => {
-      const randomResponse = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
-      setMessages(prev => [...prev, { type: 'bot', text: randomResponse }]);
-    }, 800);
-
+    const userMessage = inputValue.trim();
+    setMessages(prev => [...prev, { type: 'user', text: userMessage }]);
     setInputValue('');
+    setIsLoading(true);
+    
+    try {
+      const response = await base44.functions.invoke('divineAssistant', { message: userMessage });
+      setMessages(prev => [...prev, { type: 'bot', text: response.data.reply }]);
+    } catch (error) {
+      console.error('Assistant error:', error);
+      setMessages(prev => [...prev, { 
+        type: 'bot', 
+        text: 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment. 🙏' 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -104,16 +105,22 @@ export default function AgentAssistChat() {
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Ask anything about your yatra..."
+                onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSend()}
+                placeholder="Ask anything..."
+                disabled={isLoading}
                 className="flex-1"
               />
               <Button 
                 onClick={handleSend}
                 className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
                 size="icon"
+                disabled={isLoading}
               >
-                <Send className="w-4 h-4" />
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
               </Button>
             </div>
           </div>
