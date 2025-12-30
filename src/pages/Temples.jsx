@@ -60,7 +60,7 @@ export default function Temples() {
   const activeFilterCount = (selectedDeity !== 'All' ? 1 : 0) + (selectedState !== 'All' ? 1 : 0) + (showLiveOnly ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] pb-24 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
       
       {/* 1. Cinematic Hero Section */}
       <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">

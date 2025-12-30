@@ -77,14 +77,14 @@ function LayoutContent({ children, currentPageName }) {
   const isHomePage = currentPageName === 'Home';
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
       {/* Desktop Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-orange-200 shadow-lg">
         <div className="container mx-auto px-8 max-w-7xl">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-              <span className="text-xl font-serif tracking-wide text-white">
+              <span className="text-xl font-serif tracking-wide bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent font-bold">
                 Divine
               </span>
             </Link>
@@ -93,10 +93,10 @@ function LayoutContent({ children, currentPageName }) {
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
                 <Link key={link.name} to={createPageUrl(link.page)}>
-                  <span className={`text-xs hover:text-white transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
+                  <span className={`text-xs transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
                     currentPageName === link.page 
-                      ? 'text-amber-400 border-amber-400 font-semibold' 
-                      : 'text-white/60 border-transparent hover:border-amber-400/50'
+                      ? 'text-orange-600 border-orange-600 font-semibold' 
+                      : 'text-gray-700 border-transparent hover:text-orange-500 hover:border-orange-400'
                   }`}>
                     {link.name}
                   </span>
@@ -112,7 +112,7 @@ function LayoutContent({ children, currentPageName }) {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="rounded-full bg-white hover:bg-white/90 text-black"
+                      className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg"
                     >
                       <User className="w-4 h-4" />
                     </Button>
@@ -189,7 +189,7 @@ function LayoutContent({ children, currentPageName }) {
               ) : (
                 <Button
                   onClick={() => base44.auth.redirectToLogin()}
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black rounded-md px-5 text-xs uppercase tracking-wider font-semibold transition-all border-0"
+                  className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-md px-5 text-xs uppercase tracking-wider font-semibold transition-all border-0 shadow-lg"
                 >
                   Sign In
                 </Button>

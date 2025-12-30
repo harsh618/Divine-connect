@@ -75,19 +75,19 @@ export default function FeaturedProvidersCarousel() {
   }
 
   return (
-    <div className="py-20 bg-neutral-950 relative">
+    <div className="py-20 bg-gradient-to-br from-amber-100 via-orange-50 to-amber-50 relative">
       <div className="container mx-auto px-8 max-w-7xl relative z-10">
         <div className="flex items-center justify-between mb-12">
           <div>
-            <h2 className="text-3xl font-serif font-semibold text-white tracking-tight mb-2">Live Lounge</h2>
-            <p className="text-white/60">Connect with spiritual guides in real-time</p>
+            <h2 className="text-3xl font-serif font-semibold text-orange-900 tracking-tight mb-2">Live Lounge</h2>
+            <p className="text-orange-700/70">Connect with spiritual guides in real-time</p>
           </div>
           <div className="flex gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={scrollPrev}
-              className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-full w-10 h-10 backdrop-blur-sm"
+              className="bg-white border border-orange-200 hover:bg-orange-50 text-orange-600 rounded-full w-10 h-10 shadow-md"
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
@@ -95,7 +95,7 @@ export default function FeaturedProvidersCarousel() {
               variant="ghost"
               size="icon"
               onClick={scrollNext}
-              className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-full w-10 h-10 backdrop-blur-sm"
+              className="bg-white border border-orange-200 hover:bg-orange-50 text-orange-600 rounded-full w-10 h-10 shadow-md"
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
@@ -120,7 +120,7 @@ export default function FeaturedProvidersCarousel() {
                   className="flex-[0_0_280px] md:flex-[0_0_320px] px-3"
                 >
                   <Link to={createPageUrl(profileUrl)}>
-                    <div className="relative bg-gradient-to-br from-zinc-900 via-neutral-900 to-zinc-900 border border-white/10 rounded-3xl p-6 hover:border-amber-500/50 hover:shadow-[0_0_40px_-8px_rgba(217,119,6,0.4)] transition-all h-full">
+                    <div className="relative bg-white border border-orange-200 rounded-3xl p-6 hover:border-orange-400 hover:shadow-xl transition-all h-full">
                       <div className="flex flex-col items-center">
                         <div className="relative w-20 h-20 mb-4">
                           {provider.avatar_url ? (
@@ -142,8 +142,8 @@ export default function FeaturedProvidersCarousel() {
                             </div>
                           )}
                         </div>
-                        <h3 className="text-lg font-medium text-white mb-1 text-center">{provider.display_name}</h3>
-                        <p className="text-sm text-gray-400 mb-2 text-center">
+                        <h3 className="text-lg font-medium text-orange-900 mb-1 text-center">{provider.display_name}</h3>
+                        <p className="text-sm text-orange-700/70 mb-2 text-center">
                           {specialization}
                         </p>
                         <div className="inline-flex px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold tracking-wider border border-amber-500/30 mb-3">

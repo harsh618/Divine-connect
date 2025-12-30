@@ -46,17 +46,17 @@ function TempleCardSkeleton() {
 
 export default function FeaturedTemplesMinimal({ temples, isLoading }) {
   return (
-    <section className="py-24 px-6 bg-neutral-950 relative">
+    <section className="py-24 px-6 bg-gradient-to-br from-orange-100 via-amber-100 to-orange-50 relative">
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="flex items-start justify-between mb-12">
           <div>
-            <h2 className="text-4xl md:text-5xl font-serif font-semibold text-white mb-3 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-serif font-semibold text-orange-900 mb-3 tracking-tight">
               Sacred Portals
             </h2>
-            <p className="text-white/60">Discover divine temples across the cosmos</p>
+            <p className="text-orange-700/70">Discover divine temples across the cosmos</p>
           </div>
           <Link to={createPageUrl('Temples')}>
-            <button className="hidden md:flex items-center gap-2 text-amber-400 hover:text-amber-300 font-medium text-sm hover:gap-3 transition-all">
+            <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
               View all
               <ArrowRight className="w-4 h-4" />
             </button>

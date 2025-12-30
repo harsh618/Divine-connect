@@ -72,7 +72,7 @@ function YatraContent() {
   });
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
       
       {/* Divine Cart Indicator */}
       {cartItems.length > 0 && (
