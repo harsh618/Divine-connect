@@ -16,7 +16,8 @@ import {
   TrendingUp,
   DollarSign,
   UserCheck,
-  AlertCircle
+  AlertCircle,
+  Hotel
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -31,12 +32,14 @@ import AdminBookings from '@/components/admin/AdminBookings';
 import AdminDonations from '@/components/admin/AdminDonations';
 import AdminArticles from '@/components/admin/AdminArticles';
 import AdminAuspiciousDays from '@/components/admin/AdminAuspiciousDays';
+import AdminHotels from '@/components/admin/AdminHotels';
 import AdminTrash from '@/components/admin/AdminTrash';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'temples', label: 'Temples', icon: Building2 },
+  { id: 'hotels', label: 'Hotels', icon: Hotel },
   { id: 'poojas', label: 'Poojas', icon: Settings },
   { id: 'pooja_bookings', label: 'Pooja Bookings', icon: Calendar },
   { id: 'providers', label: 'Providers', icon: UserCheck },
@@ -121,6 +124,11 @@ export default function AdminDashboard() {
           {/* Temples */}
           <TabsContent value="temples" className="mt-0">
             <AdminTemples />
+          </TabsContent>
+
+          {/* Hotels */}
+          <TabsContent value="hotels" className="mt-0">
+            <AdminHotels />
           </TabsContent>
 
           {/* Poojas */}
