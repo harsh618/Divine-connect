@@ -36,7 +36,7 @@ export default function PriestProfile() {
 
   const { data: provider, isLoading } = useQuery({
     queryKey: ['provider-profile', providerId],
-    queryFn: () => base44.entities.ProviderProfile.filter({ id: providerId, is_deleted: false }),
+    queryFn: () => base44.entities.ProviderProfile.filter({ id: providerId }),
     select: (data) => data[0]
   });
 
