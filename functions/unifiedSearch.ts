@@ -192,10 +192,36 @@ Return a categorized breakdown of what they might be searching for.`,
       }
     });
 
-    // Limit to top 20 results
+    // Score and rank results
+    const scoredResults = results.map(result => {
+      let score = 0;
+      
+      // Exact title match gets highest score
+      if (result.title.toLowerCase() === searchTerm) score += 100;
+      else if (result.title.toLowerCase().includes(searchTerm)) score += 50;
+      
+      // Subtitle/category match
+      if (result.subtitle.toLowerCase().includes(searchTerm)) score += 30;
+      
+      // Boost based on type preference from AI
+      if (semanticContext?.category === result.type) score += 40;
+      
+      // Featured items get slight boost
+      score += Math.random() * 5; // Small randomization for variety
+      
+      return { ...result, score };
+    });
+
+    // Sort by score and limit
+    const sortedResults = scoredResults
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20)
+      .map(({ score, ...result }) => result);
+
     return Response.json({ 
-      results: results.slice(0, 20),
-      total: results.length
+      results: sortedResults,
+      total: results.length,
+      intent: semanticContext?.intent
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

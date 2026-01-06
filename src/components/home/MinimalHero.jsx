@@ -159,31 +159,50 @@ export default function MinimalHero() {
 
           {/* Search Results Dropdown */}
           {showResults && searchResults.length > 0 && (
-            <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-h-96 overflow-y-auto">
+            <div className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-h-[500px] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="p-3 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
+                <p className="text-xs font-semibold text-orange-900 uppercase tracking-wide">
+                  Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                </p>
+              </div>
               {searchResults.map((result) => {
                 const Icon = getResultIcon(result.type);
                 return (
                   <div
                     key={`${result.type}-${result.id}`}
                     onClick={() => handleResultClick(result)}
-                    className="flex items-center gap-4 p-4 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                    className="group flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 cursor-pointer border-b border-gray-100 last:border-0 transition-all duration-200"
                   >
-                    {result.image ? (
-                      <img 
-                        src={result.image} 
-                        alt={result.title}
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-white" />
+                    <div className="relative">
+                      {result.image ? (
+                        <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
+                          <img 
+                            src={result.image} 
+                            alt={result.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">
+                          <Icon className="w-8 h-8 text-white" />
+                        </div>
+                      )}
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm">
+                        <Icon className="w-3 h-3 text-orange-500" />
                       </div>
-                    )}
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900">{result.title}</p>
-                      <p className="text-sm text-gray-600">{result.subtitle}</p>
                     </div>
-                    <Icon className="w-5 h-5 text-gray-400" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors truncate">
+                        {result.title}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-0.5 truncate">{result.subtitle}</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-xs font-medium">View</span>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   </div>
                 );
               })}
@@ -192,9 +211,19 @@ export default function MinimalHero() {
 
           {/* No Results */}
           {showResults && searchQuery.length >= 2 && searchResults.length === 0 && !isSearching && (
-            <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-6 text-center">
-              <p className="text-gray-600">No results found for "{searchQuery}"</p>
-              <p className="text-sm text-gray-500 mt-2">Try searching for temples, poojas, priests, or campaigns</p>
+            <div className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 text-center animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-orange-500" />
+              </div>
+              <p className="text-gray-900 font-semibold mb-2">No results found for "{searchQuery}"</p>
+              <p className="text-sm text-gray-600 mb-4">Try searching for:</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium">Temples</span>
+                <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">Poojas</span>
+                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">Priests</span>
+                <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">Astrologers</span>
+                <span className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-medium">Donations</span>
+              </div>
             </div>
           )}
         </div>
