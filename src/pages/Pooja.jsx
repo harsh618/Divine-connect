@@ -35,7 +35,7 @@ function PoojaCard({ pooja }) {
 
   return (
     <Link to={createPageUrl(`PoojaDetail?id=${pooja.id}`)} className="group block h-full">
-      <Card className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
         
         {/* Image Section */}
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
@@ -96,7 +96,7 @@ function PoojaCard({ pooja }) {
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </Link>
   );
 }

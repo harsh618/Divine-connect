@@ -35,9 +35,10 @@ import {
   ShieldCheck,
   Calendar,
   Flame,
-  Check
+  Check,
+  MapPin
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import FAQSection from '../components/faq/FAQSection';
 import { toast } from 'sonner';
@@ -54,10 +55,10 @@ const timeSlots = [
 ];
 
 export default function PoojaDetail() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const poojaId = urlParams.get('id');
-  
   const [activeTab, setActiveTab] = useState('about');
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -187,8 +188,13 @@ export default function PoojaDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAFAF9]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 animate-spin text-amber-600" />
-          <p className="text-amber-900 font-serif">Loading pooja details...</p>
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full border-4 border-amber-200 border-t-amber-600 animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Flame className="w-4 h-4 text-amber-600" />
+            </div>
+          </div>
+          <p className="text-amber-900 font-serif animate-pulse">Preparing your sanctuary...</p>
         </div>
       </div>
     );
@@ -197,10 +203,10 @@ export default function PoojaDetail() {
   if (!pooja) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAFAF9]">
-        <h2 className="text-3xl font-serif text-gray-900 mb-4">Pooja Not Found</h2>
-        <Link to={createPageUrl('Pooja')}>
+        <h2 className="text-3xl font-serif text-gray-900 mb-4">Ritual Not Found</h2>
+        <Link to={createPageUrl('Poojas')}>
           <Button variant="outline" className="border-amber-600 text-amber-900 hover:bg-amber-50">
-            Return to Poojas
+            Return to Directory
           </Button>
         </Link>
       </div>
@@ -211,29 +217,33 @@ export default function PoojaDetail() {
   const poojaImage = pooja.image_url || defaultImage;
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] selection:bg-amber-100 pb-24">
+    <div className="min-h-screen bg-[#FAFAF9] selection:bg-amber-100">
       
-      {/* Cinematic Hero */}
+      {/* 1. Cinematic Hero Section (Dark Mode) */}
       <div className="relative h-[65vh] w-full overflow-hidden bg-black group">
         
+        {/* Navigation Overlay */}
         <div className="absolute top-6 left-6 z-50">
           <button 
             onClick={() => window.history.back()}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 transition-all group-hover:pl-3"
           >
             <ChevronLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back</span>
           </button>
         </div>
 
+        {/* Hero Image with Slow Zoom */}
         <div 
           className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-in-out scale-100 group-hover:scale-110"
           style={{ backgroundImage: `url(${poojaImage})` }}
         />
         
+        {/* Gradients */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#FAFAF9] via-black/40 to-black/30" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
 
+        {/* Title Content */}
         <div className="absolute bottom-0 left-0 w-full p-8 pb-20 md:p-16 md:pb-24">
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col items-start gap-4">
@@ -272,11 +282,11 @@ export default function PoojaDetail() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-6 max-w-7xl -mt-12 relative z-10">
+      {/* 2. Main Content Grid */}
+      <div className="container mx-auto px-6 max-w-7xl -mt-12 relative z-10 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           
-          {/* Left Column */}
+          {/* Left Column: Storytelling (8 Cols) */}
           <div className="lg:col-span-8 space-y-12">
             
             {/* Navigation Tabs */}
@@ -297,7 +307,7 @@ export default function PoojaDetail() {
             </div>
 
             {/* About Section */}
-            <section id="about" className="space-y-6">
+            <section id="about" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <div className="prose prose-lg prose-stone max-w-none">
                 <p className="text-xl leading-relaxed text-gray-600 font-light first-letter:text-6xl first-letter:font-serif first-letter:text-amber-600 first-letter:mr-3 first-letter:float-left">
                   {pooja.description || "Experience the divine energy through this sacred ritual, performed with strict adherence to Vedic traditions."}
@@ -315,7 +325,7 @@ export default function PoojaDetail() {
               )}
             </section>
 
-            {/* Benefits */}
+            {/* Benefits Grid */}
             {pooja.benefits?.length > 0 && (
               <section id="benefits">
                 <h3 className="font-serif text-2xl text-gray-900 mb-6">Divine Blessings</h3>
@@ -333,7 +343,7 @@ export default function PoojaDetail() {
             )}
 
             {/* Items Checklist */}
-            {pooja.required_items?.length > 0 && (
+            {(pooja.required_items?.length > 0) && (
               <section id="items" className="bg-stone-100 rounded-3xl p-8">
                 <div className="flex items-center justify-between mb-8">
                    <h3 className="font-serif text-2xl text-gray-900">Samagri (Items)</h3>
@@ -370,6 +380,7 @@ export default function PoojaDetail() {
                   <span className="text-gray-400 text-sm">(Verified)</span>
                 </div>
               </div>
+              {/* Simple Review Card */}
               <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <p className="text-gray-600 italic mb-4">"The atmosphere created by the priests was absolutely divine. I felt a deep sense of peace after the Sankalp."</p>
                 <div className="flex items-center gap-3">
@@ -386,10 +397,11 @@ export default function PoojaDetail() {
 
           </div>
 
-          {/* Right Column: Booking Card */}
+          {/* Right Column: Sticky Booking Ticket (4 Cols) */}
           <div className="lg:col-span-4 relative">
              <div className="sticky top-24 space-y-6">
                 
+                {/* The Booking Card */}
                 <Card className="border-0 shadow-2xl shadow-stone-200/50 rounded-[2rem] overflow-hidden bg-white ring-1 ring-black/5">
                   <div className="bg-[#1C1917] p-6 text-center relative overflow-hidden">
                      <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]" />
@@ -448,6 +460,7 @@ export default function PoojaDetail() {
                         )}
                      </div>
 
+                     {/* Action Button */}
                      <Button 
                         onClick={openBookingModal}
                         className="w-full h-14 bg-black hover:bg-stone-800 text-white rounded-xl text-lg font-medium shadow-lg shadow-stone-300 transition-transform active:scale-95"
@@ -455,6 +468,7 @@ export default function PoojaDetail() {
                         Book Now
                      </Button>
 
+                     {/* Trust Badges */}
                      <div className="pt-4 border-t border-gray-100 flex flex-col gap-2">
                         <div className="flex items-center gap-2 text-xs text-gray-500">
                            <ShieldCheck className="w-4 h-4 text-green-600" />
@@ -468,6 +482,7 @@ export default function PoojaDetail() {
                   </div>
                 </Card>
 
+                {/* Priest Info (Optional) */}
                 <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-4">
                    <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
                       <img src="https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=200" className="w-full h-full object-cover" alt="Priest" />
@@ -484,7 +499,7 @@ export default function PoojaDetail() {
         </div>
       </div>
       
-      {/* Mobile Sticky Bottom */}
+      {/* Mobile Sticky Bottom Bar (Visible only on mobile) */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 lg:hidden z-50 flex items-center justify-between">
          <div>
             <p className="text-xs text-gray-500 uppercase">Total Dakshina</p>
@@ -503,7 +518,9 @@ export default function PoojaDetail() {
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-serif">Book {pooja.name}</DialogTitle>
-            <DialogDescription>Select your preferred date, time, and service mode</DialogDescription>
+            <DialogDescription>
+              Select your preferred date, time, and service mode
+            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
@@ -556,6 +573,7 @@ export default function PoojaDetail() {
               </div>
             </div>
 
+            {/* Date Selection */}
             <div>
               <Label className="mb-2 block text-sm font-medium">Select Date</Label>
               <CalendarComp
@@ -567,6 +585,7 @@ export default function PoojaDetail() {
               />
             </div>
 
+            {/* Time Slot Selection */}
             <div>
               <Label className="mb-2 block text-sm font-medium">Select Time Slot</Label>
               <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
@@ -581,6 +600,7 @@ export default function PoojaDetail() {
               </Select>
             </div>
 
+            {/* Available Priest */}
             {availablePriests.length > 0 && selectedDate && selectedTimeSlot && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <Label className="mb-2 block text-sm font-medium">Available Priest</Label>
@@ -591,7 +611,15 @@ export default function PoojaDetail() {
                   <SelectContent>
                     {availablePriests.map((priest) => (
                       <SelectItem key={priest.id} value={priest.id}>
-                        {priest.display_name}
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>{priest.display_name}</span>
+                          {priest.years_of_experience && (
+                            <span className="text-xs text-muted-foreground">
+                              ({priest.years_of_experience} yrs exp)
+                            </span>
+                          )}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -602,6 +630,7 @@ export default function PoojaDetail() {
               </div>
             )}
 
+            {/* Location (for in-person) */}
             {selectedMode === 'in_person' && (
               <div>
                 <Label className="mb-2 block text-sm font-medium">Your Location</Label>
@@ -613,6 +642,7 @@ export default function PoojaDetail() {
               </div>
             )}
 
+            {/* Number of Devotees */}
             <div>
               <Label className="mb-2 block text-sm font-medium">Number of Devotees</Label>
               <Input
@@ -624,6 +654,7 @@ export default function PoojaDetail() {
               />
             </div>
 
+            {/* Items Arrangement */}
             {pooja.items_arrangement_cost > 0 && (
               <div>
                 <Label className="mb-2 block text-sm font-medium">Pooja Items</Label>
@@ -641,6 +672,7 @@ export default function PoojaDetail() {
               </div>
             )}
 
+            {/* Special Requirements */}
             <div>
               <Label className="mb-2 block text-sm font-medium">Special Requirements (Optional)</Label>
               <Textarea
