@@ -18,12 +18,10 @@ import MyJourney from './pages/MyJourney';
 import MyKundalis from './pages/MyKundalis';
 import OnboardAstrologer from './pages/OnboardAstrologer';
 import OnboardPriest from './pages/OnboardPriest';
-import Pooja from './pages/Pooja';
 import PoojaBooking from './pages/PoojaBooking';
 import PoojaDetail from './pages/PoojaDetail';
 import Poojas from './pages/Poojas';
 import PriestDashboard from './pages/PriestDashboard';
-import PriestPandit from './pages/PriestPandit';
 import PriestProfile from './pages/PriestProfile';
 import Priests from './pages/Priests';
 import Profile from './pages/Profile';
@@ -31,9 +29,8 @@ import ProviderOnboarding from './pages/ProviderOnboarding';
 import TempleDetail from './pages/TempleDetail';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
-import Hotels from './pages/Hotels';
-import HotelDetail from './pages/HotelDetail';
-import ItineraryBooking from './pages/ItineraryBooking';
+import Pooja from './pages/Pooja';
+import PriestPandit from './pages/PriestPandit';
 import __Layout from './Layout.jsx';
 
 
@@ -58,12 +55,10 @@ export const PAGES = {
     "MyKundalis": MyKundalis,
     "OnboardAstrologer": OnboardAstrologer,
     "OnboardPriest": OnboardPriest,
-    "Pooja": Pooja,
     "PoojaBooking": PoojaBooking,
     "PoojaDetail": PoojaDetail,
     "Poojas": Poojas,
     "PriestDashboard": PriestDashboard,
-    "PriestPandit": PriestPandit,
     "PriestProfile": PriestProfile,
     "Priests": Priests,
     "Profile": Profile,
@@ -71,9 +66,8 @@ export const PAGES = {
     "TempleDetail": TempleDetail,
     "Temples": Temples,
     "Yatra": Yatra,
-    "Hotels": Hotels,
-    "HotelDetail": HotelDetail,
-    "ItineraryBooking": ItineraryBooking,
+    "Pooja": Pooja,
+    "PriestPandit": PriestPandit,
 }
 
 export const pagesConfig = {
