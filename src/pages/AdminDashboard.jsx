@@ -36,6 +36,7 @@ import AdminTrash from '@/components/admin/AdminTrash';
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'users', label: 'Users', icon: Users },
+  { id: 'user_analytics', label: 'User Analytics', icon: TrendingUp },
   { id: 'temples', label: 'Temples', icon: Building2 },
   { id: 'poojas', label: 'Poojas', icon: Settings },
   { id: 'pooja_bookings', label: 'Pooja Bookings', icon: Calendar },
@@ -116,6 +117,21 @@ export default function AdminDashboard() {
           {/* Users */}
           <TabsContent value="users" className="mt-0">
             <AdminUsers />
+          </TabsContent>
+
+          {/* User Analytics */}
+          <TabsContent value="user_analytics" className="mt-0">
+            <div className="text-center py-12 bg-white rounded-lg">
+              <TrendingUp className="w-16 h-16 text-orange-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">User Analytics Dashboard</h3>
+              <p className="text-gray-600 mb-6">View detailed user behavior, engagement metrics, and interaction patterns</p>
+              <Link to={createPageUrl('AdminUserAnalytics')}>
+                <Button className="bg-orange-500 hover:bg-orange-600">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Open User Analytics
+                </Button>
+              </Link>
+            </div>
           </TabsContent>
 
           {/* Temples */}
