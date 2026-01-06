@@ -192,66 +192,8 @@ function YatraContent() {
         </div>
       </section>
 
-      {/* Featured Hotels */}
-      <section className="py-20 bg-neutral-900">
-        <div className="container mx-auto px-8 max-w-7xl">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h2 className="text-3xl font-serif text-white mb-2">Featured Accommodations</h2>
-              <p className="text-white/60">Comfortable stays near sacred sites</p>
-            </div>
-            <Link to={createPageUrl('Hotels')}>
-              <Button variant="outline" className="border-white/20 text-white hover:bg-white/5">
-                View All <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
-            {useQuery({
-              queryKey: ['featured-hotels'],
-              queryFn: () => base44.entities.Hotel.filter({ 
-                is_featured: true,
-                is_deleted: false, 
-                is_hidden: false 
-              }, '-rating_average', 3),
-              initialData: []
-            }).data?.map((hotel) => (
-              <Card key={hotel.id} className="group overflow-hidden border-white/10 bg-neutral-800 hover:border-amber-500/50 transition-all">
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={hotel.images?.[0] || hotel.thumbnail_url || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400'}
-                    alt={hotel.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <Badge className="absolute top-3 right-3 bg-amber-500 text-white">Featured</Badge>
-                </div>
-                <Link to={createPageUrl(`HotelDetail?id=${hotel.id}`)}>
-                  <div className="p-4">
-                    <h3 className="text-lg font-serif text-white mb-2 line-clamp-1">{hotel.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-white/60 mb-3">
-                      <MapPin className="w-3 h-3" />
-                      {hotel.city}, {hotel.state}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                        <span className="text-white/80">{hotel.rating_average || 4.5}</span>
-                      </div>
-                      <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border-amber-500/30">
-                        ₹{hotel.room_types?.[0]?.price_per_night}/night
-                      </Badge>
-                    </div>
-                  </div>
-                </Link>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Popular Destinations */}
-      <section className="py-20 bg-neutral-950">
+      <section className="py-20 bg-neutral-900">
         <div className="container mx-auto px-8 max-w-7xl">
           <div className="flex items-center justify-between mb-12">
             <div>
