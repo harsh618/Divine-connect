@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
@@ -57,8 +57,12 @@ const timeSlots = [
 export default function PoojaDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const urlParams = new URLSearchParams(window.location.search);
-  const poojaId = urlParams.get('id');
+  
+  // Capture the ID once on initial mount to prevent it from being lost on re-renders
+  const poojaId = useMemo(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+  }, []);
   const [activeTab, setActiveTab] = useState('about');
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);

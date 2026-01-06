@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -54,9 +54,11 @@ export default function CampaignDetail() {
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
 
-  // Get campaignId from URL query params
-  const urlParams = new URLSearchParams(window.location.search);
-  const campaignId = urlParams.get('campaignId');
+  // Capture the ID once on initial mount to prevent it from being lost on re-renders
+  const campaignId = useMemo(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('campaignId');
+  }, []);
 
   const { data: campaign, isLoading } = useQuery({
     queryKey: ['campaign', campaignId],

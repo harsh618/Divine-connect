@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,11 @@ import { Star, MapPin, Languages, Award, Calendar, MessageCircle, Video, Phone, 
 import { toast } from 'sonner';
 
 export default function PriestProfile() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const providerId = urlParams.get('id');
+  // Capture the ID once on initial mount to prevent it from being lost on re-renders
+  const providerId = useMemo(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+  }, []);
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
