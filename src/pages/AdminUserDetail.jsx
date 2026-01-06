@@ -18,7 +18,10 @@ import {
   Loader2,
   TrendingUp,
   Tag,
-  RefreshCw
+  RefreshCw,
+  FileText,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -31,6 +34,9 @@ export default function AdminUserDetail() {
   }, []);
 
   const [isExporting, setIsExporting] = useState(false);
+  const [isExportingLog, setIsExportingLog] = useState(false);
+  const [showFullLog, setShowFullLog] = useState(false);
+  const [logLimit, setLogLimit] = useState(50);
   const queryClient = useQueryClient();
 
   const { data: analyticsData, isLoading } = useQuery({
@@ -76,6 +82,29 @@ export default function AdminUserDetail() {
       toast.error('Failed to export data');
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  const handleExportActivityLog = async () => {
+    setIsExportingLog(true);
+    try {
+      const response = await base44.functions.invoke('exportUserActivityLog', { userId });
+      
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `user_${userId}_activity_log_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      
+      toast.success('Activity log exported successfully!');
+    } catch (error) {
+      toast.error('Failed to export activity log');
+    } finally {
+      setIsExportingLog(false);
     }
   };
 
@@ -370,6 +399,114 @@ export default function AdminUserDetail() {
             </div>
           </Card>
         </div>
+
+        {/* Complete Activity Log */}
+        <Card className="p-6 mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <FileText className="w-5 h-5 text-indigo-500" />
+              Complete Activity Log
+              <Badge variant="outline" className="ml-2">
+                {analytics.recentActivities?.length || 0} total events
+              </Badge>
+            </h2>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowFullLog(!showFullLog)}
+                variant="outline"
+                size="sm"
+              >
+                {showFullLog ? (
+                  <>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Collapse
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4 mr-2" />
+                    Expand All
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={handleExportActivityLog}
+                disabled={isExportingLog}
+                size="sm"
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {isExportingLog ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 mr-2" />
+                )}
+                Export Log
+              </Button>
+            </div>
+          </div>
+
+          {analytics.recentActivities?.length > 0 ? (
+            <>
+              <div className="space-y-1 mb-4">
+                {analytics.recentActivities.slice(0, showFullLog ? logLimit : 20).map((activity, idx) => (
+                  <div 
+                    key={idx} 
+                    className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm transition-colors border border-transparent hover:border-indigo-200"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <Badge 
+                        variant="outline" 
+                        className={`capitalize shrink-0 ${
+                          activity.event_type === 'page_view' ? 'border-blue-300 text-blue-700' :
+                          activity.event_type === 'button_click' ? 'border-green-300 text-green-700' :
+                          activity.event_type === 'service_booked' ? 'border-orange-300 text-orange-700' :
+                          activity.event_type === 'donation_made' ? 'border-purple-300 text-purple-700' :
+                          'border-gray-300 text-gray-700'
+                        }`}
+                      >
+                        {activity.event_type.replace(/_/g, ' ')}
+                      </Badge>
+                      <span className="text-gray-900 font-medium truncate">{activity.page_name}</span>
+                      {activity.entity_name && (
+                        <span className="text-gray-600 truncate">→ {activity.entity_name}</span>
+                      )}
+                      {activity.duration_seconds && (
+                        <Badge variant="secondary" className="shrink-0">
+                          {activity.duration_seconds}s
+                        </Badge>
+                      )}
+                      {activity.device_type && (
+                        <Badge variant="outline" className="shrink-0 capitalize">
+                          {activity.device_type}
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-gray-500 text-xs shrink-0 ml-4">
+                      {new Date(activity.created_date).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {showFullLog && analytics.recentActivities.length > logLimit && (
+                <div className="text-center">
+                  <Button
+                    onClick={() => setLogLimit(prev => prev + 50)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Load More ({analytics.recentActivities.length - logLimit} remaining)
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-lg">
+              <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 font-medium mb-1">No activity logs available</p>
+              <p className="text-sm text-gray-400">Activity will appear here once the user interacts with the app</p>
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );
