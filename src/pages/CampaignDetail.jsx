@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import BackButton from '../components/ui/BackButton';
 import {
   Dialog,
   DialogContent,
@@ -20,16 +19,17 @@ import {
   MapPin, 
   Users, 
   CheckCircle2, 
-  Calendar,
-  Info,
   Loader2,
   PieChart,
   FileText,
   Award,
-  DollarSign
+  DollarSign,
+  ChevronLeft,
+  Info
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 import moment from 'moment';
 
 const categoryConfig = {
@@ -54,7 +54,6 @@ export default function CampaignDetail() {
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
 
-  // Get campaignId from URL query params
   const urlParams = new URLSearchParams(window.location.search);
   const campaignId = urlParams.get('campaignId');
 
@@ -84,7 +83,8 @@ export default function CampaignDetail() {
       });
 
       await base44.entities.DonationCampaign.update(campaignId, {
-        raised_amount: (campaign.raised_amount || 0) + parseFloat(amount)
+        raised_amount: (campaign.raised_amount || 0) + parseFloat(amount),
+        donor_count: (campaign.donor_count || 0) + 1
       });
     },
     onSuccess: () => {
@@ -126,7 +126,13 @@ export default function CampaignDetail() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">Campaign not found</p>
+          <p className="text-gray-500 mb-4">Campaign not found</p>
+          <Link to={createPageUrl('Donate')}>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back to Campaigns
+            </Button>
+          </Link>
         </div>
       </div>
     );
@@ -139,12 +145,18 @@ export default function CampaignDetail() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <BackButton to={createPageUrl('Donate') + '#campaigns'} label="Back to Campaigns" />
+        <Button
+          variant="ghost"
+          onClick={() => window.history.back()}
+          className="mb-6"
+        >
+          <ChevronLeft className="w-4 h-4 mr-2" />
+          Back to Campaigns
+        </Button>
 
         <div className="grid md:grid-cols-3 gap-8 mt-6">
           {/* Main Content */}
           <div className="md:col-span-2 space-y-6">
-            {/* Campaign Overview Card */}
             <Card className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
               <div className="flex items-start gap-4 mb-4">
                 <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-3xl">
@@ -190,7 +202,6 @@ export default function CampaignDetail() {
                 )}
               </div>
 
-              {/* Progress Bar */}
               <div className="mt-4">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-gray-600">Goal: ₹{campaign.goal_amount.toLocaleString('en-IN')}</span>
@@ -199,7 +210,7 @@ export default function CampaignDetail() {
                 <Progress value={progress} className="h-3" />
               </div>
             </Card>
-            {/* Hero Image Gallery */}
+            
             <Card className="overflow-hidden">
               <div className="relative">
                 <img
@@ -215,7 +226,6 @@ export default function CampaignDetail() {
               </div>
             </Card>
 
-            {/* Description - Short Overview */}
             {campaign.description && (
               <Card className="p-6 bg-white border-l-4 border-l-blue-500">
                 <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -228,7 +238,6 @@ export default function CampaignDetail() {
               </Card>
             )}
 
-            {/* Impact Breakdown - What Your Donation Achieves */}
             {campaign.impact_breakdown && campaign.impact_breakdown.length > 0 && (
               <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                 <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -251,7 +260,6 @@ export default function CampaignDetail() {
               </Card>
             )}
 
-            {/* Purpose */}
             {campaign.purpose && (
               <Card className="p-6 bg-white border-l-4 border-l-purple-500">
                 <div className="flex items-center gap-2 mb-4">
@@ -266,7 +274,6 @@ export default function CampaignDetail() {
               </Card>
             )}
 
-            {/* Detailed Description */}
             {campaign.detailed_description && (
               <Card className="p-6 bg-white">
                 <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -281,20 +288,6 @@ export default function CampaignDetail() {
               </Card>
             )}
 
-            {/* Seva Details */}
-            {campaign.seva_details && (
-              <Card className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
-                <div className="flex items-center gap-2 mb-4">
-                  <Heart className="w-6 h-6 text-orange-500" />
-                  <h2 className="text-2xl font-bold text-orange-900">Seva Details</h2>
-                </div>
-                <p className="text-orange-900/80 leading-relaxed whitespace-pre-line">
-                  {campaign.seva_details}
-                </p>
-              </Card>
-            )}
-
-            {/* Fund Utilization */}
             {campaign.fund_utilization && campaign.fund_utilization.length > 0 && (
               <Card className="p-6">
                 <div className="flex items-center gap-2 mb-6">
@@ -315,25 +308,6 @@ export default function CampaignDetail() {
               </Card>
             )}
 
-            {/* Impact Metrics */}
-            {campaign.impact_metrics && campaign.impact_metrics.length > 0 && (
-              <Card className="p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <TrendingUp className="w-6 h-6 text-purple-500" />
-                  <h2 className="text-2xl font-bold">Expected Impact</h2>
-                </div>
-                <div className="space-y-3">
-                  {campaign.impact_metrics.map((metric, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-gray-700">{metric}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
-            {/* Beneficiary Info */}
             {campaign.beneficiary_organization && (
               <Card className="p-6 bg-blue-50 border-blue-200">
                 <div className="flex items-center gap-2 mb-4">
@@ -356,9 +330,7 @@ export default function CampaignDetail() {
                   {campaign.beneficiary_contact && (
                     <div>
                       <p className="text-sm text-blue-600 mb-1">Contact Information</p>
-                      <p className="text-blue-800 font-medium">
-                        {campaign.beneficiary_contact}
-                      </p>
+                      <p className="text-blue-800 font-medium">{campaign.beneficiary_contact}</p>
                     </div>
                   )}
                   {campaign.beneficiary_count > 0 && (
@@ -379,7 +351,6 @@ export default function CampaignDetail() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Donation Card */}
             <Card className="p-6 sticky top-24">
               <div className="mb-6">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -401,36 +372,19 @@ export default function CampaignDetail() {
               </Button>
 
               <div className="grid grid-cols-3 gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setDonationAmount('500');
-                    setShowDonateModal(true);
-                  }}
-                  className="text-sm"
-                >
-                  ₹500
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setDonationAmount('1000');
-                    setShowDonateModal(true);
-                  }}
-                  className="text-sm"
-                >
-                  ₹1000
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setDonationAmount('5000');
-                    setShowDonateModal(true);
-                  }}
-                  className="text-sm"
-                >
-                  ₹5000
-                </Button>
+                {[500, 1000, 5000].map((amount) => (
+                  <Button
+                    key={amount}
+                    variant="outline"
+                    onClick={() => {
+                      setDonationAmount(amount.toString());
+                      setShowDonateModal(true);
+                    }}
+                    className="text-sm"
+                  >
+                    ₹{amount}
+                  </Button>
+                ))}
               </div>
 
               <div className="mt-6 pt-6 border-t space-y-3 text-sm text-gray-600">

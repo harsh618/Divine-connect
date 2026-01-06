@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -39,7 +38,6 @@ import {
   BookOpen,
   Share2,
   Navigation,
-  CalendarDays,
   Building2,
   Globe,
   FileText,
@@ -49,9 +47,7 @@ import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
-import ArticlesList from '../components/temple/ArticlesList';
 import PriestArticleForm from '../components/temple/PriestArticleForm';
-import BackButton from '../components/ui/BackButton';
 import PrasadOrderModal from '../components/prasad/PrasadOrderModal';
 import FAQSection from '../components/faq/FAQSection';
 import DonationTypeModal from '../components/temple/DonationTypeModal';
@@ -75,7 +71,6 @@ export default function TempleDetail() {
   const templeId = urlParams.get('id');
   const queryClient = useQueryClient();
 
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -100,56 +95,18 @@ export default function TempleDetail() {
   const [availablePriests, setAvailablePriests] = useState([]);
   const [viewingItinerary, setViewingItinerary] = useState(null);
 
-  // Debug: Log the templeId
-  React.useEffect(() => {
-    console.log('Temple ID from URL:', templeId);
-    console.log('Full URL:', window.location.href);
-    console.log('Search params:', window.location.search);
-  }, [templeId]);
-
-  const { data: temple, isLoading, error } = useQuery({
+  const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
     queryFn: async () => {
-      console.log('Fetching temple with ID:', templeId);
       const temples = await base44.entities.Temple.filter({ id: templeId });
-      console.log('Fetched temples:', temples);
-      if (!temples || temples.length === 0) {
-        throw new Error('Temple not found');
-      }
       return temples[0];
     },
-    enabled: !!templeId && templeId !== 'null' && templeId !== 'undefined',
-    retry: false
+    enabled: !!templeId
   });
 
   const { data: prasadItems } = useQuery({
     queryKey: ['prasad', templeId],
     queryFn: () => base44.entities.PrasadItem.filter({ temple_id: templeId, is_deleted: false }),
-    enabled: !!temple
-  });
-
-  const { data: articles, isLoading: loadingArticles } = useQuery({
-    queryKey: ['temple-articles', templeId],
-    queryFn: () => base44.entities.Article.filter({ 
-      temple_id: templeId, 
-      is_published: true,
-      is_deleted: false 
-    }, '-created_date'),
-    enabled: !!temple
-  });
-
-  const { data: maxArticles } = useQuery({
-    queryKey: ['temple-article-settings', templeId],
-    queryFn: () => 5,
-    enabled: !!temple
-  });
-
-  const { data: events } = useQuery({
-    queryKey: ['temple-events', templeId],
-    queryFn: () => base44.entities.TempleEvent.filter({ 
-      temple_id: templeId, 
-      is_deleted: false 
-    }, 'event_date'),
     enabled: !!temple
   });
 
@@ -183,7 +140,6 @@ export default function TempleDetail() {
         temple_id: templeId,
         is_deleted: false 
       }, '-date');
-      // Filter only upcoming bookings
       const now = new Date();
       return allBookings.filter(b => new Date(b.date) >= now).slice(0, 2);
     },
@@ -215,7 +171,6 @@ export default function TempleDetail() {
         });
         setIsPriest(provider.length > 0);
         
-        // Check if temple is favorited
         const favorites = await base44.entities.FavoriteTemple.filter({
           user_id: user.id,
           temple_id: templeId
@@ -248,29 +203,10 @@ export default function TempleDetail() {
     }
   });
 
-  const donationMutation = useMutation({
-    mutationFn: async (donationData) => {
-      const user = await base44.auth.me();
-      return base44.entities.Donation.create({
-        ...donationData,
-        user_id: user.id,
-        temple_id: templeId,
-        donor_name: user.full_name,
-        donor_email: user.email
-      });
-    },
-    onSuccess: () => {
-      toast.success('Thank you for your generous donation!');
-      setShowDonationModal(false);
-      setDonationAmount('');
-    }
-  });
-
   const checkPriestAvailability = async (date, timeSlot) => {
     if (!date || !timeSlot || !temple) return;
 
     try {
-      // Find priests associated with this temple
       const templePriests = await base44.entities.ProviderProfile.filter({
         provider_type: 'priest',
         is_deleted: false,
@@ -278,14 +214,12 @@ export default function TempleDetail() {
         is_hidden: false
       });
 
-      // Filter priests who serve this temple
       const eligiblePriests = templePriests.filter(priest => {
         const templeMatch = priest.associated_temples?.some(t => t.temple_id === templeId);
         const cityMatch = priest.city === temple.city;
         return templeMatch || cityMatch;
       });
 
-      // Check their bookings for this date/time
       const dateStr = format(date, 'yyyy-MM-dd');
       const bookingsOnDate = await base44.entities.Booking.filter({
         date: dateStr,
@@ -293,7 +227,6 @@ export default function TempleDetail() {
         status: ['confirmed', 'in_progress']
       });
 
-      // Find available priests
       const bookedPriestIds = bookingsOnDate.map(b => b.provider_id);
       const available = eligiblePriests.filter(p => !bookedPriestIds.includes(p.id));
 
@@ -330,17 +263,6 @@ export default function TempleDetail() {
       special_requirements: specialRequirements,
       provider_id: selectedPriest,
       total_amount: 0
-    });
-  };
-
-  const handleDonate = () => {
-    if (!donationAmount || Number(donationAmount) <= 0) {
-      toast.error('Please enter a valid donation amount');
-      return;
-    }
-    donationMutation.mutate({
-      amount: Number(donationAmount),
-      is_anonymous: isAnonymous
     });
   };
 
@@ -416,12 +338,9 @@ export default function TempleDetail() {
     });
   };
 
-
-
   const defaultImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200";
   const images = temple?.images?.length > 0 ? temple.images : [defaultImage];
 
-  // Show loading while fetching
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
@@ -433,16 +352,12 @@ export default function TempleDetail() {
     );
   }
 
-  // Show error or not found
-  if (error || !temple) {
+  if (!temple) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 p-8">
         <div className="text-center max-w-md">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Temple not found</h2>
-          <p className="text-gray-600 mb-2">We couldn't find the temple you're looking for.</p>
-          {templeId && (
-            <p className="text-sm text-gray-500 mb-6">Temple ID: {templeId}</p>
-          )}
+          <p className="text-gray-600 mb-6">We couldn't find the temple you're looking for.</p>
           <Link to={createPageUrl('Temples')}>
             <Button className="bg-orange-500 hover:bg-orange-600">
               <ChevronLeft className="w-4 h-4 mr-2" />
@@ -456,19 +371,16 @@ export default function TempleDetail() {
 
   return (
     <div className="min-h-screen bg-[#09090b] pb-24 md:pb-8">
-      {/* Hero - The Sanctum Sanctorum */}
+      {/* Hero */}
       <div className="relative w-full h-[90vh] overflow-hidden">
-        {/* Slow Zoom Background */}
         <img
           src={images[0]}
           alt={temple.name}
           className="absolute inset-0 w-full h-full object-cover animate-[zoomSlow_20s_ease-in-out_infinite]"
         />
         
-        {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-        {/* Sticky Action Bar Overlay */}
         <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between">
           <Button
             variant="ghost"
@@ -499,7 +411,6 @@ export default function TempleDetail() {
           </div>
         </div>
 
-        {/* Play Video Button (if live darshan available) */}
         {temple.live_darshan_url && (
           <button
             onClick={() => window.open(temple.live_darshan_url, '_blank')}
@@ -509,7 +420,6 @@ export default function TempleDetail() {
           </button>
         )}
 
-        {/* Title at Bottom */}
         <div className="absolute bottom-0 left-0 right-0 p-12 z-10">
           <h1 className="text-6xl md:text-8xl font-serif font-bold text-white mb-4 tracking-tight leading-none drop-shadow-2xl">
             {temple.name}
@@ -523,7 +433,7 @@ export default function TempleDetail() {
         </div>
       </div>
 
-      {/* Floating Ritual Dock */}
+      {/* Floating Action Dock */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-2 rounded-full bg-black/30 backdrop-blur-md border border-white/10 shadow-2xl">
         <Button
           onClick={async () => {
@@ -594,14 +504,13 @@ export default function TempleDetail() {
         </Button>
       </div>
 
-      {/* Light Mode Body Content */}
+      {/* Main Content */}
       <div className="bg-[#FAFAF9] py-16">
         <div className="container mx-auto px-8 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Left Column - Narrative (2/3) */}
+            {/* Left Column */}
             <div className="lg:col-span-2 space-y-12">
 
-            {/* Priest Article Seva */}
             {isPriest && (
               <Card className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
                 <div className="flex items-center justify-between">
@@ -624,7 +533,6 @@ export default function TempleDetail() {
               </Card>
             )}
 
-              {/* About Section */}
               <Card className="p-10 bg-white shadow-sm border-gray-100">
                 <h2 className="text-3xl font-serif text-amber-600 mb-6">About This Temple</h2>
                 <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
@@ -654,9 +562,7 @@ export default function TempleDetail() {
                   <div className="mt-10 pt-8 border-t border-gray-200">
                     <h3 className="text-2xl font-serif text-amber-600 mb-4">Significance</h3>
                     <div className="prose max-w-none text-gray-700 leading-relaxed">
-                      <ReactMarkdown>
-                        {temple.significance}
-                      </ReactMarkdown>
+                      <ReactMarkdown>{temple.significance}</ReactMarkdown>
                     </div>
                   </div>
                 )}
@@ -665,15 +571,12 @@ export default function TempleDetail() {
                   <div className="mt-10 pt-8 border-t border-gray-200">
                     <h3 className="text-2xl font-serif text-amber-600 mb-4">History</h3>
                     <div className="prose max-w-none text-gray-700 leading-relaxed">
-                      <ReactMarkdown>
-                        {temple.history}
-                      </ReactMarkdown>
+                      <ReactMarkdown>{temple.history}</ReactMarkdown>
                     </div>
                   </div>
                 )}
               </Card>
 
-              {/* Upcoming Festivals - Timeline */}
               <Card className="p-10 bg-white shadow-sm border-gray-100">
                 <h2 className="text-3xl font-serif text-amber-600 mb-8">Upcoming Festivals</h2>
                 {loadingFestivals ? (
@@ -682,25 +585,15 @@ export default function TempleDetail() {
                   </div>
                 ) : upcomingFestivals?.length > 0 ? (
                   <div className="relative pl-8">
-                    {/* Vertical Line */}
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-gray-300/0 via-gray-300 to-gray-300/0" />
-                    
                     <div className="space-y-8">
                       {upcomingFestivals.map((festival, idx) => (
                         <div key={idx} className="relative group">
-                          {/* Timeline Dot */}
                           <div className="absolute -left-8 top-2 w-4 h-4 bg-amber-500 rounded-full shadow-md group-hover:scale-125 transition-all" />
-                          
-                          {/* Festival Card */}
                           <div className="group-hover:bg-amber-50/50 p-5 rounded-lg transition-all">
                             <h3 className="text-xl font-serif text-gray-900 mb-2">{festival.name}</h3>
                             <p className="font-mono text-xs tracking-widest uppercase text-amber-600 mb-3">{festival.date}</p>
                             <p className="text-sm text-gray-600 leading-relaxed">{festival.description}</p>
-                            {festival.significance && (
-                              <p className="text-xs text-gray-500 mt-2 italic">
-                                {festival.significance}
-                              </p>
-                            )}
                           </div>
                         </div>
                       ))}
@@ -710,7 +603,6 @@ export default function TempleDetail() {
                   <p className="text-gray-400 text-center py-8">Loading festival information...</p>
                 )}
 
-              {/* Static Festivals */}
               {temple.festivals?.length > 0 && (
                 <div className="mt-6 pt-6 border-t">
                   <p className="text-sm text-muted-foreground mb-3 uppercase tracking-wider font-light">Annual Festivals:</p>
@@ -725,17 +617,14 @@ export default function TempleDetail() {
               )}
             </Card>
 
-            {/* FAQs */}
             <FAQSection entityType="temple" entityId={templeId} entityData={temple} />
 
-            {/* Journals & Stories */}
             <JournalsSection 
               templeId={templeId} 
               templeName={temple.name}
               primaryDeity={temple.primary_deity}
             />
 
-            {/* Reviews & Ratings */}
             <Card className="p-8 border-0 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-normal tracking-wide">Reviews & Ratings</h2>
@@ -784,7 +673,6 @@ export default function TempleDetail() {
               )}
             </Card>
 
-            {/* Live Darshan */}
             {temple.live_darshan_url && (
               <Card className="p-6 border-0 shadow-sm">
                 <h2 className="text-xl font-normal mb-4 flex items-center tracking-wide">
@@ -802,12 +690,10 @@ export default function TempleDetail() {
             )}
           </div>
 
-            {/* Right Column - Sticky Sidebar (1/3) */}
+            {/* Right Column - Sidebar */}
             <div className="lg:col-span-1 space-y-6">
-              {/* Live Queue Tracker */}
               <LiveQueueTracker templeName={temple.name} />
 
-              {/* Quick Info Card - Sticky */}
               <Card className="p-8 bg-white shadow-xl border-gray-100">
                 <h3 className="text-xl font-serif text-amber-600 mb-6">Temple Information</h3>
                 <div className="space-y-6">
@@ -851,7 +737,6 @@ export default function TempleDetail() {
                 </Button>
               </Card>
 
-              {/* Saved Itineraries */}
               {savedItineraries?.length > 0 && (
                 <Card className="p-6 bg-white shadow-xl border-gray-100">
                   <h3 className="font-semibold text-gray-900 mb-4">Planned Trips</h3>
@@ -870,18 +755,12 @@ export default function TempleDetail() {
                           {itinerary.itinerary_data?.days?.length || 0} days
                         </Badge>
                       </div>
-                      {itinerary.preferences?.vibe && (
-                        <p className="text-xs text-muted-foreground capitalize">
-                          {itinerary.preferences.vibe}
-                        </p>
-                      )}
                     </button>
                   ))}
                 </div>
               </Card>
             )}
 
-              {/* Upcoming Bookings */}
               {templeBookings?.length > 0 && (
                 <Card className="p-6 bg-white shadow-xl border-gray-100">
                   <h3 className="font-semibold text-gray-900 mb-4">Upcoming Visits</h3>
@@ -901,16 +780,6 @@ export default function TempleDetail() {
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground">{booking.time_slot}</p>
-                        {booking.num_devotees > 1 && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {booking.num_devotees} devotees
-                          </p>
-                        )}
-                        {booking.provider_id && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Priest assigned
-                          </p>
-                        )}
                       </div>
                     </Link>
                   ))}
@@ -918,7 +787,6 @@ export default function TempleDetail() {
               </Card>
             )}
 
-              {/* Prasad Preview */}
               {prasadItems?.length > 0 && (
                 <Card className="p-6 bg-white shadow-xl border-gray-100">
                   <div className="flex items-center justify-between mb-4">
@@ -962,9 +830,7 @@ export default function TempleDetail() {
         <DialogContent className="sm:max-w-lg max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>Schedule Your Visit</DialogTitle>
-            <DialogDescription>
-              Book your darshan at {temple?.name}
-            </DialogDescription>
+            <DialogDescription>Book your darshan at {temple?.name}</DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
@@ -993,47 +859,21 @@ export default function TempleDetail() {
               </Select>
             </div>
 
-            {selectedDate && selectedTimeSlot && (
-              <div className={`border rounded-lg p-4 ${availablePriests.length > 0 ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
-                <Label className="mb-2 block text-sm font-medium">Priest Assignment</Label>
-                {availablePriests.length > 0 ? (
-                  <>
-                    <Select value={selectedPriest} onValueChange={setSelectedPriest}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a priest (optional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="auto">Auto-assign available priest</SelectItem>
-                        {availablePriests.map((priest) => (
-                          <SelectItem key={priest.id} value={priest.id}>
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4" />
-                              <span>{priest.display_name}</span>
-                              {priest.years_of_experience && (
-                                <span className="text-xs text-muted-foreground">
-                                  ({priest.years_of_experience} yrs exp)
-                                </span>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-green-700 mt-2">
-                      ✓ {availablePriests.length} priest{availablePriests.length > 1 ? 's' : ''} available for this time slot
-                    </p>
-                  </>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-blue-900 bg-blue-100 rounded-md p-3">
-                      <Users className="w-4 h-4" />
-                      <span>No priests currently available for this slot</span>
-                    </div>
-                    <p className="text-xs text-blue-700">
-                      Don't worry! We'll connect you with an available priest after booking confirmation.
-                    </p>
-                  </div>
-                )}
+            {selectedDate && selectedTimeSlot && availablePriests.length > 0 && (
+              <div className="bg-green-50 border-green-200 rounded-lg p-4">
+                <Label className="mb-2 block text-sm font-medium">Available Priest</Label>
+                <Select value={selectedPriest} onValueChange={setSelectedPriest}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a priest (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePriests.map((priest) => (
+                      <SelectItem key={priest.id} value={priest.id}>
+                        {priest.display_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
@@ -1078,275 +918,6 @@ export default function TempleDetail() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Donation Modal - The Karmic Card */}
-      <Dialog open={showDonationModal} onOpenChange={setShowDonationModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-zinc-900 border border-amber-500/30">
-          <DialogHeader>
-            <DialogTitle className="text-2xl bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              Make an Offering
-            </DialogTitle>
-            <DialogDescription className="text-white/60">
-              Your offering supports {temple?.name}'s sacred activities
-            </DialogDescription>
-          </DialogHeader>
-
-          {temple?.donation_details ? (
-            <div className="space-y-6 py-4">
-              {/* UPI Details */}
-              {temple.donation_details.upi_id && (
-                <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
-                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-orange-600" />
-                    Donate Using UPI
-                  </h3>
-                  <div className="bg-white p-3 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">UPI ID</p>
-                    <p className="font-mono text-lg font-semibold text-gray-900">
-                      {temple.donation_details.upi_id}
-                    </p>
-                  </div>
-                  {temple.donation_details.qr_code_url && (
-                    <div className="mt-3 text-center">
-                      <img 
-                        src={temple.donation_details.qr_code_url} 
-                        alt="UPI QR Code" 
-                        className="w-48 h-48 mx-auto border-2 border-orange-200 rounded-lg"
-                      />
-                      <p className="text-xs text-gray-600 mt-2">Scan to pay</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Bank Account Details */}
-              {temple.donation_details.bank_accounts && temple.donation_details.bank_accounts.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-blue-600" />
-                    Bank Transfer (NEFT/RTGS/IMPS)
-                  </h3>
-                  {temple.donation_details.bank_accounts.map((account, idx) => (
-                    <Card key={idx} className="p-4 bg-blue-50 border-blue-200">
-                      <h4 className="font-semibold text-blue-900 mb-3">{account.bank_name}</h4>
-                      <div className="space-y-2 text-sm">
-                        {account.account_name && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Account Name:</span>
-                            <span className="font-semibold text-gray-900">{account.account_name}</span>
-                          </div>
-                        )}
-                        {account.account_number && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Account Number:</span>
-                            <span className="font-mono font-semibold text-gray-900">{account.account_number}</span>
-                          </div>
-                        )}
-                        {account.ifsc_code && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">IFSC Code:</span>
-                            <span className="font-mono font-semibold text-gray-900">{account.ifsc_code}</span>
-                          </div>
-                        )}
-                        {account.swift_code && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">SWIFT Code:</span>
-                            <span className="font-mono font-semibold text-gray-900">{account.swift_code}</span>
-                          </div>
-                        )}
-                        {account.branch && (
-                          <div>
-                            <p className="text-gray-600 mb-1">Branch:</p>
-                            <p className="font-medium text-gray-900">{account.branch}</p>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-
-              {/* FCRA Account for Foreign Donations */}
-              {temple.donation_details.fcra_account && (
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-lg mb-3 flex items-center gap-2 text-green-900">
-                    <Globe className="w-5 h-5 text-green-600" />
-                    For Non-Indian Passport Holders (FCRA Account)
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    {temple.donation_details.fcra_account.account_name && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Account Name:</span>
-                        <span className="font-semibold text-gray-900">{temple.donation_details.fcra_account.account_name}</span>
-                      </div>
-                    )}
-                    {temple.donation_details.fcra_account.account_number && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Account Number:</span>
-                        <span className="font-mono font-semibold text-gray-900">{temple.donation_details.fcra_account.account_number}</span>
-                      </div>
-                    )}
-                    {temple.donation_details.fcra_account.ifsc_code && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">IFSC Code:</span>
-                        <span className="font-mono font-semibold text-gray-900">{temple.donation_details.fcra_account.ifsc_code}</span>
-                      </div>
-                    )}
-                    {temple.donation_details.fcra_account.swift_code && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">SWIFT Code:</span>
-                        <span className="font-mono font-semibold text-gray-900">{temple.donation_details.fcra_account.swift_code}</span>
-                      </div>
-                    )}
-                    {temple.donation_details.fcra_account.branch && (
-                      <div>
-                        <p className="text-gray-600 mb-1">Branch:</p>
-                        <p className="font-medium text-gray-900">{temple.donation_details.fcra_account.branch}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Tax Exemption Details */}
-              {temple.donation_details.tax_exemption_details && (
-                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                  <h4 className="font-semibold text-yellow-900 mb-2 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    Tax Benefits
-                  </h4>
-                  <p className="text-sm text-yellow-900 whitespace-pre-line">
-                    {temple.donation_details.tax_exemption_details}
-                  </p>
-                </div>
-              )}
-
-              {/* Donation Note */}
-              {temple.donation_details.donation_note && (
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-900 whitespace-pre-line">
-                    {temple.donation_details.donation_note}
-                  </p>
-                </div>
-              )}
-
-              {/* Official Donation Link */}
-              {temple.donation_details.official_donation_url && (
-                <div className="text-center pt-4 border-t">
-                  <a
-                    href={temple.donation_details.official_donation_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Visit Official Donation Page
-                  </a>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-6 py-4">
-              {/* Gold Coin Amounts */}
-              <div className="grid grid-cols-4 gap-3">
-                {[100, 500, 1000, 5000].map((amount) => (
-                  <button
-                    key={amount}
-                    onClick={() => setDonationAmount(String(amount))}
-                    className={`relative h-20 rounded-full border-2 transition-all ${
-                      donationAmount === String(amount)
-                        ? 'bg-amber-500 border-amber-400 scale-110 shadow-[0_0_30px_rgba(217,119,6,0.5)]'
-                        : 'bg-white/5 border-white/10 hover:border-amber-500/50'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center justify-center h-full">
-                      <span className={`text-2xl font-bold ${
-                        donationAmount === String(amount) ? 'text-black' : 'text-white'
-                      }`}>
-                        ₹{amount}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              <div>
-                <Label className="mb-2 block text-white/70">Custom Amount</Label>
-                <Input
-                  type="number"
-                  placeholder="Enter amount"
-                  value={donationAmount}
-                  onChange={(e) => setDonationAmount(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
-                />
-              </div>
-
-              {/* Dynamic Impact Text */}
-              {donationAmount && Number(donationAmount) > 0 && (
-                <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                  <p className="text-sm text-amber-400">
-                    Your ₹{donationAmount} offering will support {temple?.name}'s sacred rituals and community service
-                  </p>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="anonymous"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="rounded border-white/20 bg-white/5"
-                />
-                <Label htmlFor="anonymous" className="cursor-pointer text-white/70">Make this offering anonymous</Label>
-              </div>
-
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowDonationModal(false)} 
-                  className="flex-1 border-white/20 text-white hover:bg-white/5"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleDonate}
-                  disabled={donationMutation.isPending}
-                  className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-bold relative overflow-hidden group"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                  {donationMutation.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Heart className="w-4 h-4 mr-2" />
-                  )}
-                  <span className="relative">Offer Now</span>
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Priest Article Form */}
-      {showPriestArticleForm && (
-        <PriestArticleForm
-          templeId={templeId}
-          templeName={temple?.name}
-          onClose={() => setShowPriestArticleForm(false)}
-        />
-      )}
-
-      {/* Prasad Order Modal */}
-      {showPrasadOrderModal && (
-        <PrasadOrderModal
-          isOpen={showPrasadOrderModal}
-          onClose={() => setShowPrasadOrderModal(false)}
-          templeId={templeId}
-          templeName={temple?.name}
-          initialItems={selectedPrasadItems}
-        />
-      )}
 
       {/* Review Modal */}
       <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
@@ -1404,7 +975,24 @@ export default function TempleDetail() {
         </DialogContent>
       </Dialog>
 
-      {/* Donation Type Modal */}
+      {showPriestArticleForm && (
+        <PriestArticleForm
+          templeId={templeId}
+          templeName={temple?.name}
+          onClose={() => setShowPriestArticleForm(false)}
+        />
+      )}
+
+      {showPrasadOrderModal && (
+        <PrasadOrderModal
+          isOpen={showPrasadOrderModal}
+          onClose={() => setShowPrasadOrderModal(false)}
+          templeId={templeId}
+          templeName={temple?.name}
+          initialItems={selectedPrasadItems}
+        />
+      )}
+
       <DonationTypeModal
         isOpen={showDonationTypeModal}
         onClose={() => setShowDonationTypeModal(false)}
@@ -1412,113 +1000,47 @@ export default function TempleDetail() {
         templeName={temple?.name}
       />
 
-      {/* Itinerary Planner Modal */}
       <ItineraryPlannerModal
         isOpen={showItineraryModal}
         onClose={() => setShowItineraryModal(false)}
         temple={temple}
       />
 
-      {/* View Saved Itinerary Modal */}
-      <Dialog open={!!viewingItinerary} onOpenChange={() => setViewingItinerary(null)}>
-        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Your Trip Itinerary</DialogTitle>
-            <DialogDescription>
-              {viewingItinerary && (
-                <>
-                  {format(new Date(viewingItinerary.start_date), 'MMM d')} - {format(new Date(viewingItinerary.end_date), 'MMM d, yyyy')}
-                  {viewingItinerary.preferences?.vibe && (
-                    <span className="ml-2 capitalize">• {viewingItinerary.preferences.vibe}</span>
-                  )}
-                </>
-              )}
-            </DialogDescription>
-          </DialogHeader>
+      {viewingItinerary && (
+        <Dialog open={!!viewingItinerary} onOpenChange={() => setViewingItinerary(null)}>
+          <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Your Trip Itinerary</DialogTitle>
+              <DialogDescription>
+                {format(new Date(viewingItinerary.start_date), 'MMM d')} - {format(new Date(viewingItinerary.end_date), 'MMM d, yyyy')}
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="space-y-6 py-4">
-            {viewingItinerary?.itinerary_data?.days?.map((day, dayIdx) => (
-              <div key={dayIdx} className="space-y-4">
-                <div className="sticky top-0 bg-primary/10 backdrop-blur-sm px-4 py-3 -mx-4 z-10">
-                  <h3 className="font-normal text-lg tracking-wide">
-                    {day.title}
-                  </h3>
-                </div>
-                <div className="space-y-3 relative pl-8 border-l-2 border-border ml-2">
-                  {day.activities?.map((activity, actIdx) => (
-                    <div key={actIdx} className="relative">
-                      <div className="absolute -left-[2.3rem] top-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <Clock className="w-3 h-3 text-primary-foreground" />
-                      </div>
-                      <Card className="p-4 hover:border-primary/50 transition-all">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-light mb-1">
-                              {activity.time}
-                            </p>
-                            <h4 className="font-normal text-base">{activity.name}</h4>
-                          </div>
-                          {activity.category && (
-                            <Badge variant="secondary" className="text-xs font-light">
-                              {activity.category}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground font-light leading-relaxed">
-                          {activity.description}
-                        </p>
-                        {activity.location && (
-                          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-                            <MapPin className="w-3 h-3" />
-                            {activity.location}
-                          </div>
-                        )}
+            <div className="space-y-6 py-4">
+              {viewingItinerary?.itinerary_data?.days?.map((day, dayIdx) => (
+                <div key={dayIdx} className="space-y-4">
+                  <div className="sticky top-0 bg-primary/10 backdrop-blur-sm px-4 py-3 -mx-4 z-10">
+                    <h3 className="font-normal text-lg tracking-wide">{day.title}</h3>
+                  </div>
+                  <div className="space-y-3 relative pl-8 border-l-2 border-border ml-2">
+                    {day.activities?.map((activity, actIdx) => (
+                      <Card key={actIdx} className="p-4">
+                        <p className="text-xs text-muted-foreground uppercase mb-1">{activity.time}</p>
+                        <h4 className="font-normal text-base">{activity.name}</h4>
+                        <p className="text-sm text-muted-foreground">{activity.description}</p>
                       </Card>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={() => setViewingItinerary(null)}>
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-        {/* Image Viewer Modal */}
-        <Dialog open={showImageViewer} onOpenChange={setShowImageViewer}>
-        <DialogContent className="max-w-7xl h-[90vh] p-0 overflow-hidden">
-          <div className="relative w-full h-full bg-black flex items-center justify-center">
-            <button
-              onClick={() => setViewerImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-              className="absolute left-6 top-1/2 -translate-y-1/2 z-10 w-14 h-14 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 flex items-center justify-center text-white transition-all shadow-xl"
-            >
-              <ChevronLeft className="w-7 h-7" />
-            </button>
-
-            <img
-              src={images[viewerImageIndex]}
-              alt={`${temple.name} ${viewerImageIndex + 1}`}
-              className="max-w-full max-h-full object-contain"
-            />
-
-            <button
-              onClick={() => setViewerImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-              className="absolute right-6 top-1/2 -translate-y-1/2 z-10 w-14 h-14 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 flex items-center justify-center text-white transition-all shadow-xl"
-            >
-              <ChevronRight className="w-7 h-7" />
-            </button>
-
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md px-5 py-2.5 rounded-full text-white text-sm font-light">
-              {viewerImageIndex + 1} / {images.length}
+              ))}
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => setViewingItinerary(null)}>Close</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
       </div>
       );
       }
