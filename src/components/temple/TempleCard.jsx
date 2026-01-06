@@ -10,10 +10,8 @@ export default function TempleCard({ temple }) {
   const defaultImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800";
   
   return (
-    <Card 
-      className="group overflow-hidden border-0 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white cursor-pointer rounded-2xl"
-      onClick={() => window.location.href = createPageUrl(`TempleDetail?id=${temple.id}`)}
-    >
+    <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
+      <Card className="group overflow-hidden border-0 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white cursor-pointer rounded-2xl">
         <div className="relative aspect-[3/2] overflow-hidden">
           <img
             src={temple.thumbnail_url || temple.images?.[0] || defaultImage}
@@ -62,5 +60,6 @@ export default function TempleCard({ temple }) {
           </div>
         </div>
       </Card>
+    </Link>
   );
 }
