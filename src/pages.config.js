@@ -1,4 +1,6 @@
 import AdminDashboard from './pages/AdminDashboard';
+import AdminUserAnalytics from './pages/AdminUserAnalytics';
+import AdminUserDetail from './pages/AdminUserDetail';
 import ArticleDetail from './pages/ArticleDetail';
 import Articles from './pages/Articles';
 import AstrologerDashboard from './pages/AstrologerDashboard';
@@ -31,13 +33,13 @@ import ProviderOnboarding from './pages/ProviderOnboarding';
 import TempleDetail from './pages/TempleDetail';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
-import AdminUserAnalytics from './pages/AdminUserAnalytics';
-import AdminUserDetail from './pages/AdminUserDetail';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
+    "AdminUserAnalytics": AdminUserAnalytics,
+    "AdminUserDetail": AdminUserDetail,
     "ArticleDetail": ArticleDetail,
     "Articles": Articles,
     "AstrologerDashboard": AstrologerDashboard,
@@ -70,8 +72,6 @@ export const PAGES = {
     "TempleDetail": TempleDetail,
     "Temples": Temples,
     "Yatra": Yatra,
-    "AdminUserAnalytics": AdminUserAnalytics,
-    "AdminUserDetail": AdminUserDetail,
 }
 
 export const pagesConfig = {

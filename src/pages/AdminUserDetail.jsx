@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,9 @@ import {
   Monitor,
   Tablet,
   Loader2,
-  TrendingUp
+  TrendingUp,
+  Tag,
+  RefreshCw
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -29,6 +31,7 @@ export default function AdminUserDetail() {
   }, []);
 
   const [isExporting, setIsExporting] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: analyticsData, isLoading } = useQuery({
     queryKey: ['user-analytics', userId],
@@ -37,6 +40,20 @@ export default function AdminUserDetail() {
       return response.data;
     },
     enabled: !!userId
+  });
+
+  const updateLabelsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('updateUserLabels', { userId });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['user-analytics', userId]);
+      toast.success('User labels updated!');
+    },
+    onError: () => {
+      toast.error('Failed to update labels');
+    }
   });
 
   const handleExportUser = async () => {
@@ -86,6 +103,25 @@ export default function AdminUserDetail() {
     desktop: Monitor
   };
 
+  const labelColors = {
+    high_value: 'bg-purple-500',
+    medium_value: 'bg-purple-300',
+    repeat_customer: 'bg-green-500',
+    high_intent_new: 'bg-orange-500',
+    engaged: 'bg-blue-500',
+    power_user: 'bg-indigo-500',
+    browser: 'bg-gray-400',
+    at_risk: 'bg-red-500',
+    inactive: 'bg-slate-400',
+    quick_converter: 'bg-emerald-500',
+    new_visitor: 'bg-cyan-400',
+    window_shopper: 'bg-amber-400',
+    deep_researcher: 'bg-teal-500',
+    mobile_user: 'bg-pink-400',
+    donation_focused: 'bg-rose-500',
+    service_seeker: 'bg-violet-500'
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="container mx-auto max-w-7xl">
@@ -105,19 +141,59 @@ export default function AdminUserDetail() {
               {user.role}
             </Badge>
           </div>
-          <Button 
-            onClick={handleExportUser}
-            disabled={isExporting}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            {isExporting ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4 mr-2" />
-            )}
-            Export User Data
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => updateLabelsMutation.mutate()}
+              disabled={updateLabelsMutation.isPending}
+              variant="outline"
+              className="border-orange-500 text-orange-600 hover:bg-orange-50"
+            >
+              {updateLabelsMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2" />
+              )}
+              Update Labels
+            </Button>
+            <Button 
+              onClick={handleExportUser}
+              disabled={isExporting}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isExporting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 mr-2" />
+              )}
+              Export Data
+            </Button>
+          </div>
         </div>
+
+        {/* User Labels */}
+        {user.user_labels && user.user_labels.length > 0 && (
+          <Card className="p-6 mb-8">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Tag className="w-5 h-5 text-orange-500" />
+              User Intent Labels
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {user.user_labels.map((label, idx) => (
+                <Badge 
+                  key={idx} 
+                  className={`${labelColors[label] || 'bg-gray-500'} text-white px-4 py-2 text-sm`}
+                >
+                  {label.replace(/_/g, ' ').toUpperCase()}
+                </Badge>
+              ))}
+            </div>
+            {user.last_label_update && (
+              <p className="text-xs text-gray-500 mt-3">
+                Last updated: {new Date(user.last_label_update).toLocaleString()}
+              </p>
+            )}
+          </Card>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,9 @@ import {
   Calendar,
   Eye,
   DollarSign,
-  Loader2
+  Loader2,
+  Tag,
+  RefreshCw
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -22,10 +24,25 @@ import { toast } from 'sonner';
 export default function AdminUserAnalytics() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isExporting, setIsExporting] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list('-created_date')
+  });
+
+  const updateLabelsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('updateUserLabels', { updateAll: true });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['all-users']);
+      toast.success('User labels updated successfully!');
+    },
+    onError: () => {
+      toast.error('Failed to update labels');
+    }
   });
 
   const { data: activities } = useQuery({
@@ -111,18 +128,33 @@ export default function AdminUserAnalytics() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">User Analytics</h1>
             <p className="text-gray-600">Track user behavior, engagement, and transactions</p>
           </div>
-          <Button 
-            onClick={handleExportAll}
-            disabled={isExporting}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            {isExporting ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4 mr-2" />
-            )}
-            Export All Users CSV
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => updateLabelsMutation.mutate()}
+              disabled={updateLabelsMutation.isPending}
+              variant="outline"
+              className="border-orange-500 text-orange-600 hover:bg-orange-50"
+            >
+              {updateLabelsMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2" />
+              )}
+              Update All Labels
+            </Button>
+            <Button 
+              onClick={handleExportAll}
+              disabled={isExporting}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isExporting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 mr-2" />
+              )}
+              Export CSV
+            </Button>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -195,6 +227,7 @@ export default function AdminUserAnalytics() {
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">User</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Labels</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Role</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Page Views</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Bookings</th>
@@ -207,12 +240,41 @@ export default function AdminUserAnalytics() {
               <tbody className="divide-y">
                 {filteredUsers?.map((user) => {
                   const stats = getUserStats(user.id);
+                  const labelColors = {
+                    high_value: 'bg-purple-100 text-purple-700',
+                    repeat_customer: 'bg-green-100 text-green-700',
+                    high_intent_new: 'bg-orange-100 text-orange-700',
+                    engaged: 'bg-blue-100 text-blue-700',
+                    power_user: 'bg-indigo-100 text-indigo-700',
+                    browser: 'bg-gray-100 text-gray-700',
+                    at_risk: 'bg-red-100 text-red-700',
+                    inactive: 'bg-slate-100 text-slate-600',
+                    quick_converter: 'bg-emerald-100 text-emerald-700'
+                  };
                   return (
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-medium text-gray-900">{user.full_name || 'N/A'}</p>
                           <p className="text-sm text-gray-500">{user.email}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {user.user_labels?.slice(0, 3).map((label, idx) => (
+                            <Badge 
+                              key={idx} 
+                              className={`text-xs ${labelColors[label] || 'bg-gray-100 text-gray-700'}`}
+                            >
+                              {label.replace(/_/g, ' ')}
+                            </Badge>
+                          ))}
+                          {!user.user_labels?.length && (
+                            <Badge variant="outline" className="text-xs">
+                              <Tag className="w-3 h-3 mr-1" />
+                              No labels
+                            </Badge>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
