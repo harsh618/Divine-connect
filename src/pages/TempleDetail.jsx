@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
@@ -70,8 +70,11 @@ const timeSlots = [
 ];
 
 export default function TempleDetail() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const templeId = urlParams.get('id');
+  // Capture the ID once on initial mount to prevent it from being lost on re-renders
+  const templeId = useMemo(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
+  }, []);
   const queryClient = useQueryClient();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
