@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -99,19 +100,32 @@ export default function TempleDetail() {
   const [availablePriests, setAvailablePriests] = useState([]);
   const [viewingItinerary, setViewingItinerary] = useState(null);
 
-  const { data: temple, isLoading } = useQuery({
+  // Debug: Log the templeId
+  React.useEffect(() => {
+    console.log('Temple ID from URL:', templeId);
+    console.log('Full URL:', window.location.href);
+    console.log('Search params:', window.location.search);
+  }, [templeId]);
+
+  const { data: temple, isLoading, error } = useQuery({
     queryKey: ['temple', templeId],
     queryFn: async () => {
+      console.log('Fetching temple with ID:', templeId);
       const temples = await base44.entities.Temple.filter({ id: templeId });
+      console.log('Fetched temples:', temples);
+      if (!temples || temples.length === 0) {
+        throw new Error('Temple not found');
+      }
       return temples[0];
     },
-    enabled: !!templeId
+    enabled: !!templeId && templeId !== 'null' && templeId !== 'undefined',
+    retry: false
   });
 
   const { data: prasadItems } = useQuery({
     queryKey: ['prasad', templeId],
     queryFn: () => base44.entities.PrasadItem.filter({ temple_id: templeId, is_deleted: false }),
-    enabled: !!templeId
+    enabled: !!temple
   });
 
   const { data: articles, isLoading: loadingArticles } = useQuery({
@@ -121,13 +135,13 @@ export default function TempleDetail() {
       is_published: true,
       is_deleted: false 
     }, '-created_date'),
-    enabled: !!templeId
+    enabled: !!temple
   });
 
   const { data: maxArticles } = useQuery({
     queryKey: ['temple-article-settings', templeId],
     queryFn: () => 5,
-    enabled: !!templeId
+    enabled: !!temple
   });
 
   const { data: events } = useQuery({
@@ -136,7 +150,7 @@ export default function TempleDetail() {
       temple_id: templeId, 
       is_deleted: false 
     }, 'event_date'),
-    enabled: !!templeId
+    enabled: !!temple
   });
 
   const { data: reviews } = useQuery({
@@ -144,7 +158,7 @@ export default function TempleDetail() {
     queryFn: () => base44.entities.Review.filter({ 
       temple_id: templeId 
     }, '-created_date'),
-    enabled: !!templeId
+    enabled: !!temple
   });
 
   const { data: savedItineraries } = useQuery({
@@ -157,7 +171,7 @@ export default function TempleDetail() {
         is_deleted: false 
       }, '-created_date');
     },
-    enabled: !!templeId
+    enabled: !!temple
   });
 
   const { data: templeBookings } = useQuery({
@@ -173,7 +187,7 @@ export default function TempleDetail() {
       const now = new Date();
       return allBookings.filter(b => new Date(b.date) >= now).slice(0, 2);
     },
-    enabled: !!templeId
+    enabled: !!temple
   });
 
   const { data: upcomingFestivals, isLoading: loadingFestivals } = useQuery({
@@ -191,6 +205,7 @@ export default function TempleDetail() {
 
   React.useEffect(() => {
     const checkPriestStatus = async () => {
+      if (!temple) return;
       try {
         const user = await base44.auth.me();
         const provider = await base44.entities.ProviderProfile.filter({ 
@@ -212,7 +227,7 @@ export default function TempleDetail() {
       }
     };
     checkPriestStatus();
-  }, [templeId]);
+  }, [temple, templeId]);
 
   const bookingMutation = useMutation({
     mutationFn: async (bookingData) => {
@@ -252,7 +267,7 @@ export default function TempleDetail() {
   });
 
   const checkPriestAvailability = async (date, timeSlot) => {
-    if (!date || !timeSlot) return;
+    if (!date || !timeSlot || !temple) return;
 
     try {
       // Find priests associated with this temple
@@ -297,10 +312,10 @@ export default function TempleDetail() {
   };
 
   React.useEffect(() => {
-    if (selectedDate && selectedTimeSlot) {
+    if (selectedDate && selectedTimeSlot && temple) {
       checkPriestAvailability(selectedDate, selectedTimeSlot);
     }
-  }, [selectedDate, selectedTimeSlot]);
+  }, [selectedDate, selectedTimeSlot, temple]);
 
   const handleBookVisit = async () => {
     if (!selectedDate || !selectedTimeSlot) {
@@ -406,21 +421,35 @@ export default function TempleDetail() {
   const defaultImage = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200";
   const images = temple?.images?.length > 0 ? temple.images : [defaultImage];
 
+  // Show loading while fetching
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-orange-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading temple details...</p>
+        </div>
       </div>
     );
   }
 
-  if (!temple) {
+  // Show error or not found
+  if (error || !temple) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Temple not found</h2>
-        <Link to={createPageUrl('Temples')}>
-          <Button>Back to Temples</Button>
-        </Link>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 p-8">
+        <div className="text-center max-w-md">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Temple not found</h2>
+          <p className="text-gray-600 mb-2">We couldn't find the temple you're looking for.</p>
+          {templeId && (
+            <p className="text-sm text-gray-500 mb-6">Temple ID: {templeId}</p>
+          )}
+          <Link to={createPageUrl('Temples')}>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back to Temples
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
