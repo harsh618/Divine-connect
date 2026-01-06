@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import VirtualTempleWalkModal from '../components/yatra/VirtualTempleWalkModal';
+import YatraItineraryBuilder from '../components/yatra/YatraItineraryBuilder';
+import HotelBookingModal from '../components/yatra/HotelBookingModal';
 import { DivineCartProvider, useDivineCart } from '../components/yatra/DivineCartContext';
 import {
   Select,
@@ -59,6 +61,9 @@ function YatraContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState('temples');
   const [selectedTempleFor360, setSelectedTempleFor360] = useState(null);
+  const [showItineraryBuilder, setShowItineraryBuilder] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [itineraryTemple, setItineraryTemple] = useState(null);
   const { cartItems, addToCart } = useDivineCart();
 
   const { data: temples } = useQuery({
@@ -227,7 +232,10 @@ function YatraContent() {
                   
                   {/* 360° View Button */}
                   <button
-                    onClick={() => setSelectedTempleFor360(temple)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setSelectedTempleFor360(temple);
+                    }}
                     className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                   >
                     <div className="bg-amber-500 rounded-full p-4 transform scale-90 group-hover:scale-100 transition-transform">
@@ -250,6 +258,19 @@ function YatraContent() {
                     </div>
                   </div>
                 </Link>
+                <div className="px-4 pb-4">
+                  <Button
+                    onClick={() => {
+                      setItineraryTemple(temple);
+                      setShowItineraryBuilder(true);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                  >
+                    Plan Yatra
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
