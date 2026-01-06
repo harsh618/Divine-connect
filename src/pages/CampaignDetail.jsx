@@ -61,8 +61,8 @@ export default function CampaignDetail() {
   const { data: campaign, isLoading } = useQuery({
     queryKey: ['campaign', campaignId],
     queryFn: async () => {
-      const allCampaigns = await base44.entities.DonationCampaign.list();
-      return allCampaigns.find(c => c.id === campaignId) || null;
+      const campaigns = await base44.entities.DonationCampaign.filter({ is_deleted: false, is_hidden: false });
+      return campaigns.find(c => c.id === campaignId) || null;
     },
     enabled: !!campaignId
   });

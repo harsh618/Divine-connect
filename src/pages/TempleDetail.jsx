@@ -102,9 +102,8 @@ export default function TempleDetail() {
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
     queryFn: async () => {
-      const allTemples = await base44.entities.Temple.list();
-      const foundTemple = allTemples.find(t => t.id === templeId);
-      return foundTemple || null;
+      const temples = await base44.entities.Temple.filter({ is_deleted: false, is_hidden: false });
+      return temples.find(t => t.id === templeId) || null;
     },
     enabled: !!templeId
   });
