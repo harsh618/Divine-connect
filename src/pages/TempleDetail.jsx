@@ -421,11 +421,25 @@ export default function TempleDetail() {
 
   if (!temple) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Temple not found</h2>
-        <Link to={createPageUrl('Temples')}>
-          <Button>Back to Temples</Button>
-        </Link>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
+        <div className="text-center p-8">
+          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Building2 className="w-10 h-10 text-orange-500" />
+          </div>
+          <h2 className="text-2xl font-serif text-gray-900 mb-2">Temple Not Found</h2>
+          <p className="text-gray-600 mb-6">
+            {!templeId 
+              ? "No temple ID was provided. Please select a temple from the list."
+              : "This temple may have been removed or the link is incorrect."
+            }
+          </p>
+          <Link to={createPageUrl('Temples')}>
+            <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Browse All Temples
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
