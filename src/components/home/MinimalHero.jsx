@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Sparkles } from 'lucide-react';
-import HeroSearch from './HeroSearch';
+import { Sparkles, Loader2, MapPin, Flame, Users, Heart } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 const heroImages = [
 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/8cd80df37_pexels-thash-11656202.jpg',
@@ -15,6 +15,13 @@ const heroImages = [
 export default function MinimalHero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [typedText, setTypedText] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
+  const navigate = useNavigate();
+  
   const placeholders = [
     'I want to visit Kashi Vishwanath...',
     'Book a Puja for peace...',
@@ -39,6 +46,60 @@ export default function MinimalHero() {
     }, 50);
     return () => clearInterval(timer);
   }, [currentImageIndex]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const performSearch = async () => {
+      if (searchQuery.length < 2) {
+        setSearchResults([]);
+        setShowResults(false);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const response = await base44.functions.invoke('unifiedSearch', { 
+          query: searchQuery 
+        });
+        setSearchResults(response.data.results || []);
+        setShowResults(true);
+      } catch (error) {
+        console.error('Search error:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const debounce = setTimeout(performSearch, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
+
+  const handleResultClick = (result) => {
+    navigate(createPageUrl(result.page) + `?${result.params}`);
+    setSearchQuery('');
+    setShowResults(false);
+  };
+
+  const getResultIcon = (type) => {
+    switch (type) {
+      case 'temple': return MapPin;
+      case 'pooja': return Flame;
+      case 'priest':
+      case 'astrologer': return Users;
+      case 'campaign': return Heart;
+      default: return Sparkles;
+    }
+  };
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -72,20 +133,70 @@ export default function MinimalHero() {
         </p>
 
         {/* Floating Omnibox */}
-        <div className="relative max-w-2xl mx-auto">
+        <div className="relative max-w-2xl mx-auto" ref={searchRef}>
           <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-2 shadow-[0_0_60px_-15px_rgba(217,119,6,0.3)] animate-[breathing_4s_ease-in-out_infinite]">
             <div className="flex items-center gap-4 px-6 py-4">
               <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={typedText}
                 className="flex-1 bg-transparent border-0 text-white placeholder:text-white/50 focus:outline-none text-base"
               />
-              <Button className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold px-6 py-2 text-sm">
-                Search
-              </Button>
+              {isSearching ? (
+                <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />
+              ) : (
+                <Button 
+                  onClick={() => searchResults.length > 0 && handleResultClick(searchResults[0])}
+                  className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold px-6 py-2 text-sm"
+                >
+                  Search
+                </Button>
+              )}
             </div>
           </div>
+
+          {/* Search Results Dropdown */}
+          {showResults && searchResults.length > 0 && (
+            <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 overflow-hidden max-h-96 overflow-y-auto">
+              {searchResults.map((result) => {
+                const Icon = getResultIcon(result.type);
+                return (
+                  <div
+                    key={`${result.type}-${result.id}`}
+                    onClick={() => handleResultClick(result)}
+                    className="flex items-center gap-4 p-4 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                  >
+                    {result.image ? (
+                      <img 
+                        src={result.image} 
+                        alt={result.title}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center">
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">{result.title}</p>
+                      <p className="text-sm text-gray-600">{result.subtitle}</p>
+                    </div>
+                    <Icon className="w-5 h-5 text-gray-400" />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* No Results */}
+          {showResults && searchQuery.length >= 2 && searchResults.length === 0 && !isSearching && (
+            <div className="absolute top-full mt-4 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-6 text-center">
+              <p className="text-gray-600">No results found for "{searchQuery}"</p>
+              <p className="text-sm text-gray-500 mt-2">Try searching for temples, poojas, priests, or campaigns</p>
+            </div>
+          )}
         </div>
       </div>
 
