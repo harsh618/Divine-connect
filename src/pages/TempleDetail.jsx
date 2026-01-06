@@ -102,8 +102,9 @@ export default function TempleDetail() {
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
     queryFn: async () => {
-      const temples = await base44.entities.Temple.filter({ id: templeId });
-      return temples[0] || null;
+      const allTemples = await base44.entities.Temple.list();
+      const foundTemple = allTemples.find(t => t.id === templeId);
+      return foundTemple || null;
     },
     enabled: !!templeId
   });

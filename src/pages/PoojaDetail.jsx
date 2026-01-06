@@ -74,8 +74,9 @@ export default function PoojaDetail() {
   const { data: pooja, isLoading } = useQuery({
     queryKey: ['pooja', poojaId],
     queryFn: async () => {
-      const poojas = await base44.entities.Pooja.filter({ id: poojaId });
-      return poojas[0] || null;
+      const allPoojas = await base44.entities.Pooja.list();
+      const foundPooja = allPoojas.find(p => p.id === poojaId);
+      return foundPooja || null;
     },
     enabled: !!poojaId
   });
