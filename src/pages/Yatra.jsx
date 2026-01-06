@@ -370,6 +370,23 @@ function YatraContent() {
         onClose={() => setSelectedTempleFor360(null)}
         temple={selectedTempleFor360}
       />
+
+      {/* Itinerary Builder */}
+      <YatraItineraryBuilder
+        isOpen={showItineraryBuilder}
+        onClose={() => {
+          setShowItineraryBuilder(false);
+          setItineraryTemple(null);
+        }}
+        preselectedTemple={itineraryTemple}
+      />
+
+      {/* Hotel Booking Modal */}
+      <HotelBookingModal
+        isOpen={!!selectedHotel}
+        onClose={() => setSelectedHotel(null)}
+        hotel={selectedHotel}
+      />
     </div>
   );
 }
