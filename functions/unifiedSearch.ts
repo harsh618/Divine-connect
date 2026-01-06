@@ -11,6 +11,43 @@ Deno.serve(async (req) => {
 
     const searchTerm = query.toLowerCase();
 
+    // Use AI to understand intent and generate semantic matches
+    let semanticContext = null;
+    try {
+      const aiResponse = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze this search query: "${query}"
+
+Identify what the user is looking for and provide relevant keywords and context.
+Return a categorized breakdown of what they might be searching for.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            intent: { type: "string" },
+            category: { 
+              type: "string",
+              enum: ["temple", "pooja", "priest", "astrologer", "donation", "general"]
+            },
+            keywords: { 
+              type: "array",
+              items: { type: "string" }
+            },
+            deity_references: {
+              type: "array",
+              items: { type: "string" }
+            },
+            location_references: {
+              type: "array",
+              items: { type: "string" }
+            }
+          }
+        }
+      });
+      semanticContext = aiResponse;
+    } catch (error) {
+      // Fallback to basic search if AI fails
+      console.log('AI search enhancement failed, using basic search');
+    }
+
     // Search across all entities in parallel
     const [temples, poojas, providers, campaigns] = await Promise.all([
       base44.entities.Temple.filter({ is_deleted: false, is_hidden: false }),
@@ -25,14 +62,44 @@ Deno.serve(async (req) => {
 
     const results = [];
 
-    // Search Temples
+    // Helper function for semantic matching
+    const semanticMatch = (text, additionalFields = []) => {
+      if (!text) return false;
+      const lowerText = text.toLowerCase();
+      
+      // Direct match
+      if (lowerText.includes(searchTerm)) return true;
+      
+      // Semantic match with AI keywords
+      if (semanticContext?.keywords) {
+        if (semanticContext.keywords.some(kw => lowerText.includes(kw.toLowerCase()))) {
+          return true;
+        }
+      }
+      
+      // Check additional fields
+      return additionalFields.some(field => 
+        field && field.toLowerCase().includes(searchTerm)
+      );
+    };
+
+    // Search Temples with semantic understanding
     temples.forEach(temple => {
+      const deityMatch = semanticContext?.deity_references?.some(deity => 
+        temple.primary_deity?.toLowerCase().includes(deity.toLowerCase())
+      );
+      
+      const locationMatch = semanticContext?.location_references?.some(loc => 
+        temple.city?.toLowerCase().includes(loc.toLowerCase()) ||
+        temple.state?.toLowerCase().includes(loc.toLowerCase())
+      );
+      
       const matches = 
-        temple.name?.toLowerCase().includes(searchTerm) ||
-        temple.primary_deity?.toLowerCase().includes(searchTerm) ||
-        temple.city?.toLowerCase().includes(searchTerm) ||
-        temple.state?.toLowerCase().includes(searchTerm) ||
-        temple.location?.toLowerCase().includes(searchTerm);
+        semanticMatch(temple.name, [temple.primary_deity, temple.city, temple.state]) ||
+        deityMatch ||
+        locationMatch ||
+        temple.description?.toLowerCase().includes(searchTerm) ||
+        temple.significance?.toLowerCase().includes(searchTerm);
       
       if (matches) {
         results.push({
@@ -47,13 +114,16 @@ Deno.serve(async (req) => {
       }
     });
 
-    // Search Poojas
+    // Search Poojas with semantic understanding
     poojas.forEach(pooja => {
       const matches = 
-        pooja.name?.toLowerCase().includes(searchTerm) ||
-        pooja.category?.toLowerCase().includes(searchTerm) ||
+        semanticMatch(pooja.name, [pooja.category, pooja.purpose]) ||
         pooja.description?.toLowerCase().includes(searchTerm) ||
-        pooja.purpose?.toLowerCase().includes(searchTerm);
+        pooja.benefits?.some(b => b.toLowerCase().includes(searchTerm)) ||
+        (semanticContext?.keywords?.some(kw => 
+          pooja.purpose?.toLowerCase().includes(kw) ||
+          pooja.description?.toLowerCase().includes(kw)
+        ));
       
       if (matches) {
         results.push({
@@ -68,14 +138,20 @@ Deno.serve(async (req) => {
       }
     });
 
-    // Search Providers (Priests & Astrologers)
+    // Search Providers (Priests & Astrologers) with semantic understanding
     providers.forEach(provider => {
+      const typeMatch = semanticContext?.category === provider.provider_type ||
+        (semanticContext?.category === 'priest' && provider.provider_type === 'priest') ||
+        (semanticContext?.category === 'astrologer' && provider.provider_type === 'astrologer');
+      
       const matches = 
-        provider.display_name?.toLowerCase().includes(searchTerm) ||
-        provider.full_name?.toLowerCase().includes(searchTerm) ||
-        provider.city?.toLowerCase().includes(searchTerm) ||
-        provider.specializations?.some(s => s.toLowerCase().includes(searchTerm)) ||
-        provider.languages?.some(l => l.toLowerCase().includes(searchTerm));
+        semanticMatch(provider.display_name, [provider.full_name, provider.city]) ||
+        provider.specializations?.some(s => 
+          s.toLowerCase().includes(searchTerm) ||
+          semanticContext?.keywords?.some(kw => s.toLowerCase().includes(kw.toLowerCase()))
+        ) ||
+        provider.bio?.toLowerCase().includes(searchTerm) ||
+        typeMatch;
       
       if (matches) {
         results.push({
@@ -90,13 +166,18 @@ Deno.serve(async (req) => {
       }
     });
 
-    // Search Campaigns
+    // Search Campaigns with semantic understanding
     campaigns.forEach(campaign => {
+      const donationIntent = semanticContext?.category === 'donation' ||
+        semanticContext?.keywords?.some(kw => 
+          ['donate', 'donation', 'charity', 'help', 'support'].includes(kw.toLowerCase())
+        );
+      
       const matches = 
-        campaign.title?.toLowerCase().includes(searchTerm) ||
-        campaign.category?.toLowerCase().includes(searchTerm) ||
+        semanticMatch(campaign.title, [campaign.category, campaign.beneficiary_organization]) ||
         campaign.description?.toLowerCase().includes(searchTerm) ||
-        campaign.beneficiary_organization?.toLowerCase().includes(searchTerm);
+        campaign.detailed_description?.toLowerCase().includes(searchTerm) ||
+        (donationIntent && campaign.category?.toLowerCase().includes(searchTerm));
       
       if (matches) {
         results.push({
