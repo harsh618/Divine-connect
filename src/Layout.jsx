@@ -39,7 +39,7 @@ function LayoutContent({ children, currentPageName }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Temples', icon: Building2, page: 'Temples' },
+    { name: 'Temple', icon: Building2, page: 'Temples' },
     { name: 'Pooja', icon: Flame, page: 'Pooja' },
     { name: 'Yatra', icon: Compass, page: 'Yatra' },
     { name: 'Priest/Pandit', icon: Users, page: 'PriestPandit' },
