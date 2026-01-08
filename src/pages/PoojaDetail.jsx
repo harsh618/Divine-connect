@@ -65,7 +65,8 @@ export default function PoojaDetail() {
   }, []);
   const [activeTab, setActiveTab] = useState('about');
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
   const [selectedMode, setSelectedMode] = useState('temple');
   const [selectedPriest, setSelectedPriest] = useState(null);
@@ -120,10 +121,10 @@ export default function PoojaDetail() {
   };
 
   useEffect(() => {
-    if (selectedDate && selectedTimeSlot) {
-      checkPriestAvailability(selectedDate, selectedTimeSlot);
+    if (startDate && selectedTimeSlot) {
+      checkPriestAvailability(startDate, selectedTimeSlot);
     }
-  }, [selectedDate, selectedTimeSlot]);
+  }, [startDate, selectedTimeSlot]);
 
   const bookingMutation = useMutation({
     mutationFn: async (bookingData) => {
@@ -145,8 +146,8 @@ export default function PoojaDetail() {
   });
 
   const handleBookPooja = async () => {
-    if (!selectedDate || !selectedTimeSlot) {
-      toast.error('Please select a date and time slot');
+    if (!startDate || !endDate || !selectedTimeSlot) {
+      toast.error('Please select start date, end date, and time slot');
       return;
     }
 
@@ -167,7 +168,9 @@ export default function PoojaDetail() {
     }
 
     bookingMutation.mutate({
-      date: format(selectedDate, 'yyyy-MM-dd'),
+      start_date: format(startDate, 'yyyy-MM-dd'),
+      end_date: format(endDate, 'yyyy-MM-dd'),
+      date: format(startDate, 'yyyy-MM-dd'),
       time_slot: selectedTimeSlot,
       service_mode: selectedMode,
       provider_id: selectedPriest,
@@ -579,14 +582,34 @@ export default function PoojaDetail() {
 
             {/* Date Selection */}
             <div>
-              <Label className="mb-2 block text-sm font-medium">Select Date</Label>
-              <CalendarComp
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={(date) => date < new Date()}
-                className="rounded-lg border w-full"
-              />
+              <Label className="mb-3 block text-sm font-medium">Select Dates</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block uppercase tracking-wider">Start Date</Label>
+                  <CalendarComp
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    disabled={(date) => date < new Date()}
+                    className="rounded-lg border"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-2 block uppercase tracking-wider">End Date</Label>
+                  <CalendarComp
+                    mode="single"
+                    selected={endDate}
+                    onSelect={setEndDate}
+                    disabled={(date) => !startDate || date < startDate}
+                    className="rounded-lg border"
+                  />
+                </div>
+              </div>
+              {startDate && endDate && (
+                <p className="text-sm text-muted-foreground mt-3 text-center">
+                  {Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1} day{Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) !== 0 ? 's' : ''} booking
+                </p>
+              )}
             </div>
 
             {/* Time Slot Selection */}
@@ -605,7 +628,7 @@ export default function PoojaDetail() {
             </div>
 
             {/* Available Priest */}
-            {availablePriests.length > 0 && selectedDate && selectedTimeSlot && (
+            {availablePriests.length > 0 && startDate && selectedTimeSlot && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <Label className="mb-2 block text-sm font-medium">Available Priest</Label>
                 <Select value={selectedPriest} onValueChange={setSelectedPriest}>
