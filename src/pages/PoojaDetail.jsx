@@ -67,6 +67,7 @@ export default function PoojaDetail() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [showMultiDay, setShowMultiDay] = useState(false);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
   const [selectedMode, setSelectedMode] = useState('temple');
   const [selectedPriest, setSelectedPriest] = useState(null);
@@ -582,35 +583,62 @@ export default function PoojaDetail() {
 
             {/* Date Selection */}
             <div>
-              <Label className="mb-3 block text-sm font-medium">Select Dates</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block uppercase tracking-wider">Start Date</Label>
-                  <CalendarComp
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    disabled={(date) => date < new Date()}
-                    className="rounded-lg border"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block uppercase tracking-wider">End Date</Label>
-                  <CalendarComp
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                    disabled={(date) => !startDate || date < startDate}
-                    className="rounded-lg border"
-                  />
-                </div>
-              </div>
-              {startDate && endDate && (
-                <p className="text-sm text-muted-foreground mt-3 text-center">
-                  {Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1} day{Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) !== 0 ? 's' : ''} booking
-                </p>
-              )}
+              <Label className="mb-2 block text-sm font-medium">Start Date</Label>
+              <CalendarComp
+                mode="single"
+                selected={startDate}
+                onSelect={(date) => {
+                  setStartDate(date);
+                  if (endDate && date && date > endDate) {
+                    setEndDate(null);
+                  }
+                }}
+                disabled={(date) => date < new Date()}
+                className="rounded-lg border w-full"
+              />
             </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="multiDay"
+                checked={showMultiDay}
+                onChange={(e) => {
+                  setShowMultiDay(e.target.checked);
+                  if (!e.target.checked) {
+                    setEndDate(null);
+                  }
+                }}
+                className="rounded"
+              />
+              <Label htmlFor="multiDay" className="cursor-pointer text-sm font-normal">
+                Multi-day pooja
+              </Label>
+            </div>
+            
+            {showMultiDay && (
+              <div className="animate-in slide-in-from-top-2 duration-300">
+                <Label className="mb-2 block text-sm font-medium">End Date</Label>
+                <CalendarComp
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  disabled={(date) => date < new Date() || (startDate && date < startDate)}
+                  className="rounded-lg border w-full"
+                />
+              </div>
+            )}
+            
+            {startDate && endDate && showMultiDay && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 animate-in fade-in duration-200">
+                <p className="text-sm text-blue-900">
+                  <strong>Pooja Duration:</strong> {Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1} day(s)
+                </p>
+                <p className="text-xs text-blue-700 mt-1">
+                  {format(startDate, 'MMM d')} - {format(endDate, 'MMM d, yyyy')}
+                </p>
+              </div>
+            )}
 
             {/* Time Slot Selection */}
             <div>
