@@ -81,6 +81,7 @@ export default function TempleDetail() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedEndDate, setSelectedEndDate] = useState(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
   const [numDevotees, setNumDevotees] = useState(1);
   const [specialRequirements, setSpecialRequirements] = useState('');
@@ -317,7 +318,11 @@ export default function TempleDetail() {
       num_devotees: numDevotees,
       special_requirements: specialRequirements,
       provider_id: selectedPriest,
-      total_amount: 0
+      total_amount: 0,
+      metadata: selectedEndDate ? {
+        end_date: format(selectedEndDate, 'yyyy-MM-dd'),
+        multi_day_visit: true
+      } : undefined
     });
   };
 
@@ -956,16 +961,48 @@ export default function TempleDetail() {
           </DialogHeader>
           
           <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
-            <div>
-              <Label className="mb-2 block text-sm font-medium">Select Date</Label>
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={(date) => date < new Date()}
-                className="rounded-lg border w-full"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label className="mb-2 block text-sm font-medium">Start Date</Label>
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    setSelectedDate(date);
+                    if (selectedEndDate && date && date > selectedEndDate) {
+                      setSelectedEndDate(null);
+                    }
+                  }}
+                  disabled={(date) => date < new Date()}
+                  className="rounded-lg border w-full"
+                />
+              </div>
+              
+              <div>
+                <Label className="mb-2 block text-sm font-medium">End Date (Optional)</Label>
+                <Calendar
+                  mode="single"
+                  selected={selectedEndDate}
+                  onSelect={setSelectedEndDate}
+                  disabled={(date) => date < new Date() || (selectedDate && date < selectedDate)}
+                  className="rounded-lg border w-full"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Select for multi-day visits
+                </p>
+              </div>
             </div>
+            
+            {selectedDate && selectedEndDate && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm text-blue-900">
+                  <strong>Visit Duration:</strong> {Math.ceil((selectedEndDate - selectedDate) / (1000 * 60 * 60 * 24)) + 1} day(s)
+                </p>
+                <p className="text-xs text-blue-700 mt-1">
+                  {format(selectedDate, 'MMM d')} - {format(selectedEndDate, 'MMM d, yyyy')}
+                </p>
+              </div>
+            )}
 
             <div>
               <Label className="mb-2 block text-sm font-medium">Select Time Slot</Label>
