@@ -82,6 +82,7 @@ export default function TempleDetail() {
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
+  const [showMultiDay, setShowMultiDay] = useState(false);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
   const [numDevotees, setNumDevotees] = useState(1);
   const [specialRequirements, setSpecialRequirements] = useState('');
@@ -961,25 +962,43 @@ export default function TempleDetail() {
           </DialogHeader>
           
           <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="mb-2 block text-sm font-medium">Start Date</Label>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => {
-                    setSelectedDate(date);
-                    if (selectedEndDate && date && date > selectedEndDate) {
-                      setSelectedEndDate(null);
-                    }
-                  }}
-                  disabled={(date) => date < new Date()}
-                  className="rounded-lg border w-full"
-                />
-              </div>
-              
-              <div>
-                <Label className="mb-2 block text-sm font-medium">End Date (Optional)</Label>
+            <div>
+              <Label className="mb-2 block text-sm font-medium">Start Date</Label>
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  setSelectedDate(date);
+                  if (selectedEndDate && date && date > selectedEndDate) {
+                    setSelectedEndDate(null);
+                  }
+                }}
+                disabled={(date) => date < new Date()}
+                className="rounded-lg border w-full"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="multiDay"
+                checked={showMultiDay}
+                onChange={(e) => {
+                  setShowMultiDay(e.target.checked);
+                  if (!e.target.checked) {
+                    setSelectedEndDate(null);
+                  }
+                }}
+                className="rounded"
+              />
+              <Label htmlFor="multiDay" className="cursor-pointer text-sm font-normal">
+                Multi-day visit
+              </Label>
+            </div>
+            
+            {showMultiDay && (
+              <div className="animate-in slide-in-from-top-2 duration-300">
+                <Label className="mb-2 block text-sm font-medium">End Date</Label>
                 <Calendar
                   mode="single"
                   selected={selectedEndDate}
@@ -987,14 +1006,11 @@ export default function TempleDetail() {
                   disabled={(date) => date < new Date() || (selectedDate && date < selectedDate)}
                   className="rounded-lg border w-full"
                 />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Select for multi-day visits
-                </p>
               </div>
-            </div>
+            )}
             
-            {selectedDate && selectedEndDate && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            {selectedDate && selectedEndDate && showMultiDay && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 animate-in fade-in duration-200">
                 <p className="text-sm text-blue-900">
                   <strong>Visit Duration:</strong> {Math.ceil((selectedEndDate - selectedDate) / (1000 * 60 * 60 * 24)) + 1} day(s)
                 </p>
