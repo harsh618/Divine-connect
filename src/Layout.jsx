@@ -4,6 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import AgentAssistChat from './components/yatra/AgentAssistChat';
+import { LanguageProvider } from './components/LanguageContext';
 
 import {
   DropdownMenu,
@@ -270,5 +271,9 @@ function LayoutContent({ children, currentPageName }) {
         }
 
         export default function Layout({ children, currentPageName }) {
-        return <LayoutContent children={children} currentPageName={currentPageName} />;
+          return (
+            <LanguageProvider>
+              <LayoutContent children={children} currentPageName={currentPageName} />
+            </LanguageProvider>
+          );
         }
