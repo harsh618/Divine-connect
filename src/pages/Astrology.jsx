@@ -35,7 +35,7 @@ import {
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import PageHero from '../components/shared/PageHero';
-import KundliChat from '../components/kundli/KundliChat';
+import VedicAstrologerChat from '../components/kundli/VedicAstrologerChat';
 
 function AstrologerCard({ provider, onChatClick }) {
   const defaultAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200";
@@ -362,12 +362,9 @@ export default function Astrology() {
 
       {/* Chat Dialog */}
       <Dialog open={chatOpen} onOpenChange={setChatOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] p-0">
-          <DialogHeader className="p-6 pb-0">
-            <DialogTitle>Chat with {selectedProvider?.display_name}</DialogTitle>
-          </DialogHeader>
-          <div className="p-6 pt-4">
-            {user && <KundliChat userName={user.full_name} userId={user.id} />}
+        <DialogContent className="max-w-4xl h-[95vh] max-h-[95vh] p-0 overflow-hidden">
+          <div className="h-full flex flex-col">
+            {user && <VedicAstrologerChat userName={user.full_name} userId={user.id} />}
           </div>
         </DialogContent>
       </Dialog>
