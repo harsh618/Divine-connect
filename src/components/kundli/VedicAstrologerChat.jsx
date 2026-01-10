@@ -49,7 +49,7 @@ export default function VedicAstrologerChat({ userName, userId }) {
     }
   }, []);
 
-  // Fetch place suggestions from Google Places Autocomplete
+  // Fetch place suggestions using backend function to avoid CORS issues
   const fetchPlaceSuggestions = async (query) => {
     if (!query || query.length < 2) {
       setPlaceSuggestions([]);
@@ -58,16 +58,10 @@ export default function VedicAstrologerChat({ userName, userId }) {
 
     setLoadingSuggestions(true);
     try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=(cities)&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
-      );
-      const data = await response.json();
+      const response = await base44.functions.invoke('searchPlaces', { query });
       
-      if (data.status === 'OK' && data.predictions) {
-        setPlaceSuggestions(data.predictions.map(p => ({
-          description: p.description,
-          place_id: p.place_id
-        })));
+      if (response.data.success && response.data.places) {
+        setPlaceSuggestions(response.data.places);
         setShowSuggestions(true);
       } else {
         setPlaceSuggestions([]);
@@ -85,65 +79,35 @@ export default function VedicAstrologerChat({ userName, userId }) {
     []
   );
 
-  const fetchLocationData = async (place, placeId = null) => {
+  const fetchLocationData = async (place) => {
     try {
-      let latitude, longitude;
-
-      if (placeId) {
-        // Use Place Details API for accurate coordinates
-        const detailsResponse = await fetch(
-          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
-        );
-        const detailsData = await detailsResponse.json();
-        
-        if (detailsData.status === 'OK' && detailsData.result?.geometry?.location) {
-          latitude = detailsData.result.geometry.location.lat;
-          longitude = detailsData.result.geometry.location.lng;
-        } else {
-          throw new Error('Failed to get place details');
-        }
-      } else {
-        // Fallback to geocoding
-        const geocodeResponse = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(place)}&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
-        );
-        const geocodeData = await geocodeResponse.json();
-
-        if (geocodeData.status !== 'OK' || !geocodeData.results.length) {
-          throw new Error('Location not found. Please enter a valid place.');
-        }
-
-        latitude = geocodeData.results[0].geometry.location.lat;
-        longitude = geocodeData.results[0].geometry.location.lng;
+      const response = await base44.functions.invoke('getPlaceCoordinates', { place });
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Location not found');
       }
 
-      const timestamp = Math.floor(new Date().getTime() / 1000);
-      const timezoneResponse = await fetch(
-        `https://maps.googleapis.com/maps/api/timezone/json?location=${latitude},${longitude}&timestamp=${timestamp}&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
-      );
-      const timezoneData = await timezoneResponse.json();
-
-      if (timezoneData.status !== 'OK') {
-        throw new Error('Failed to fetch timezone data.');
-      }
-
-      const timezoneOffset = (timezoneData.rawOffset + timezoneData.dstOffset) / 3600;
-
-      return { latitude, longitude, timezone: timezoneOffset.toString() };
+      return {
+        latitude: response.data.latitude,
+        longitude: response.data.longitude,
+        timezone: response.data.timezone,
+        formatted_address: response.data.formatted_address
+      };
     } catch (error) {
       throw error;
     }
   };
 
   const handleSelectPlace = async (suggestion) => {
-    setInput(suggestion.description);
+    const placeName = suggestion.formatted_address || suggestion.description;
+    setInput(placeName);
     setShowSuggestions(false);
     setPlaceSuggestions([]);
     
     // Auto-submit after selecting
     const userMessage = {
       role: 'user',
-      content: suggestion.description,
+      content: placeName,
       timestamp: new Date()
     };
     setMessages(prev => [...prev, userMessage]);
@@ -152,20 +116,39 @@ export default function VedicAstrologerChat({ userName, userId }) {
 
     try {
       toast.info('Fetching location coordinates...');
-      const locationData = await fetchLocationData(suggestion.description, suggestion.place_id);
-      const updatedUserData = {
-        ...userData,
-        birth_place: suggestion.description,
-        latitude: locationData.latitude,
-        longitude: locationData.longitude,
-        timezone: locationData.timezone
-      };
-      setUserData(updatedUserData);
       
-      const assistantResponse = `Excellent! Birthplace: **${suggestion.description}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
-      
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
-      setStage('ready');
+      // If suggestion already has coordinates, use them
+      if (suggestion.latitude && suggestion.longitude && suggestion.timezone) {
+        const updatedUserData = {
+          ...userData,
+          birth_place: placeName,
+          latitude: suggestion.latitude,
+          longitude: suggestion.longitude,
+          timezone: suggestion.timezone
+        };
+        setUserData(updatedUserData);
+        
+        const assistantResponse = `Excellent! Birthplace: **${placeName}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
+        
+        setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
+        setStage('ready');
+      } else {
+        // Fallback to fetching coordinates
+        const locationData = await fetchLocationData(placeName);
+        const updatedUserData = {
+          ...userData,
+          birth_place: locationData.formatted_address || placeName,
+          latitude: locationData.latitude,
+          longitude: locationData.longitude,
+          timezone: locationData.timezone
+        };
+        setUserData(updatedUserData);
+        
+        const assistantResponse = `Excellent! Birthplace: **${updatedUserData.birth_place}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
+        
+        setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
+        setStage('ready');
+      }
     } catch (error) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
@@ -236,21 +219,22 @@ export default function VedicAstrologerChat({ userName, userId }) {
         toast.info('Fetching location coordinates...');
         try {
           const locationData = await fetchLocationData(input.trim());
+          const finalPlace = locationData.formatted_address || input.trim();
           const updatedUserData = {
             ...userData,
-            birth_place: input.trim(),
+            birth_place: finalPlace,
             latitude: locationData.latitude,
             longitude: locationData.longitude,
             timezone: locationData.timezone
           };
           setUserData(updatedUserData);
           
-          assistantResponse = `Excellent! Birthplace: **${input.trim()}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
+          assistantResponse = `Excellent! Birthplace: **${finalPlace}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
           setStage('ready');
           setShowSuggestions(false);
           setPlaceSuggestions([]);
         } catch (error) {
-          assistantResponse = `I couldn't find that location. Please select from the suggestions or type a valid city name.\n\nTry again:`;
+          assistantResponse = `I couldn't find that location. Please type the city name more clearly (e.g., "Deoria, Uttar Pradesh, India").\n\nTry again:`;
           setLoading(false);
           setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
           return;
