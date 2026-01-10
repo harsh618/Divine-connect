@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send, Sparkles, User, Calendar, Clock, MapPin, Bot } from 'lucide-react';
+import { Loader2, Send, Sparkles, User, Calendar, Clock, MapPin, Bot, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import debounce from 'lodash/debounce';
 
 export default function VedicAstrologerChat({ userName, userId }) {
   const [messages, setMessages] = useState([]);
@@ -20,7 +21,11 @@ export default function VedicAstrologerChat({ userName, userId }) {
     longitude: null,
     timezone: null
   });
+  const [placeSuggestions, setPlaceSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,20 +49,73 @@ export default function VedicAstrologerChat({ userName, userId }) {
     }
   }, []);
 
-  const fetchLocationData = async (place) => {
+  // Fetch place suggestions from Google Places Autocomplete
+  const fetchPlaceSuggestions = async (query) => {
+    if (!query || query.length < 2) {
+      setPlaceSuggestions([]);
+      return;
+    }
+
+    setLoadingSuggestions(true);
     try {
-      const geocodeResponse = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(place)}&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=(cities)&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
       );
-      const geocodeData = await geocodeResponse.json();
-
-      if (geocodeData.status !== 'OK' || !geocodeData.results.length) {
-        throw new Error('Location not found. Please enter a valid place.');
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.predictions) {
+        setPlaceSuggestions(data.predictions.map(p => ({
+          description: p.description,
+          place_id: p.place_id
+        })));
+        setShowSuggestions(true);
+      } else {
+        setPlaceSuggestions([]);
       }
+    } catch (error) {
+      console.error('Failed to fetch suggestions:', error);
+      setPlaceSuggestions([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
 
-      const location = geocodeData.results[0].geometry.location;
-      const latitude = location.lat;
-      const longitude = location.lng;
+  const debouncedFetchSuggestions = useCallback(
+    debounce((query) => fetchPlaceSuggestions(query), 300),
+    []
+  );
+
+  const fetchLocationData = async (place, placeId = null) => {
+    try {
+      let latitude, longitude;
+
+      if (placeId) {
+        // Use Place Details API for accurate coordinates
+        const detailsResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
+        );
+        const detailsData = await detailsResponse.json();
+        
+        if (detailsData.status === 'OK' && detailsData.result?.geometry?.location) {
+          latitude = detailsData.result.geometry.location.lat;
+          longitude = detailsData.result.geometry.location.lng;
+        } else {
+          throw new Error('Failed to get place details');
+        }
+      } else {
+        // Fallback to geocoding
+        const geocodeResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(place)}&key=${import.meta.env.VITE_GOOGLE_API_KEY || 'YOUR_API_KEY'}`
+        );
+        const geocodeData = await geocodeResponse.json();
+
+        if (geocodeData.status !== 'OK' || !geocodeData.results.length) {
+          throw new Error('Location not found. Please enter a valid place.');
+        }
+
+        latitude = geocodeData.results[0].geometry.location.lat;
+        longitude = geocodeData.results[0].geometry.location.lng;
+      }
 
       const timestamp = Math.floor(new Date().getTime() / 1000);
       const timezoneResponse = await fetch(
@@ -74,6 +132,48 @@ export default function VedicAstrologerChat({ userName, userId }) {
       return { latitude, longitude, timezone: timezoneOffset.toString() };
     } catch (error) {
       throw error;
+    }
+  };
+
+  const handleSelectPlace = async (suggestion) => {
+    setInput(suggestion.description);
+    setShowSuggestions(false);
+    setPlaceSuggestions([]);
+    
+    // Auto-submit after selecting
+    const userMessage = {
+      role: 'user',
+      content: suggestion.description,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      toast.info('Fetching location coordinates...');
+      const locationData = await fetchLocationData(suggestion.description, suggestion.place_id);
+      const updatedUserData = {
+        ...userData,
+        birth_place: suggestion.description,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        timezone: locationData.timezone
+      };
+      setUserData(updatedUserData);
+      
+      const assistantResponse = `Excellent! Birthplace: **${suggestion.description}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
+      setStage('ready');
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: `I couldn't verify that location. Please try selecting from the suggestions or type another city name.`, 
+        timestamp: new Date() 
+      }]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -132,7 +232,7 @@ export default function VedicAstrologerChat({ userName, userId }) {
         setStage('place');
       } 
       else if (stage === 'place') {
-        // Fetch location data
+        // If user typed and pressed enter without selecting suggestion
         toast.info('Fetching location coordinates...');
         try {
           const locationData = await fetchLocationData(input.trim());
@@ -147,8 +247,10 @@ export default function VedicAstrologerChat({ userName, userId }) {
           
           assistantResponse = `Excellent! Birthplace: **${input.trim()}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
           setStage('ready');
+          setShowSuggestions(false);
+          setPlaceSuggestions([]);
         } catch (error) {
-          assistantResponse = `I couldn't find that location. Please provide a valid place name (City, State, Country).\n\nTry again:`;
+          assistantResponse = `I couldn't find that location. Please select from the suggestions or type a valid city name.\n\nTry again:`;
           setLoading(false);
           setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
           return;
@@ -256,23 +358,23 @@ export default function VedicAstrologerChat({ userName, userId }) {
       <div className="p-4 bg-white border-t rounded-b-xl">
         {stage !== 'ready' && (
           <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
-            <div className={`flex items-center gap-1 ${stage === 'name' ? 'text-purple-600 font-medium' : ''}`}>
-              <User className="w-3 h-3" />
+            <div className={`flex items-center gap-1 ${stage === 'name' ? 'text-purple-600 font-medium' : (userData.name ? 'text-green-600' : '')}`}>
+              {userData.name ? <Check className="w-3 h-3" /> : <User className="w-3 h-3" />}
               Name
             </div>
             <span>→</span>
-            <div className={`flex items-center gap-1 ${stage === 'dob' ? 'text-purple-600 font-medium' : ''}`}>
-              <Calendar className="w-3 h-3" />
+            <div className={`flex items-center gap-1 ${stage === 'dob' ? 'text-purple-600 font-medium' : (userData.birth_date ? 'text-green-600' : '')}`}>
+              {userData.birth_date ? <Check className="w-3 h-3" /> : <Calendar className="w-3 h-3" />}
               DOB
             </div>
             <span>→</span>
-            <div className={`flex items-center gap-1 ${stage === 'time' ? 'text-purple-600 font-medium' : ''}`}>
-              <Clock className="w-3 h-3" />
+            <div className={`flex items-center gap-1 ${stage === 'time' ? 'text-purple-600 font-medium' : (userData.birth_time ? 'text-green-600' : '')}`}>
+              {userData.birth_time ? <Check className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
               Time
             </div>
             <span>→</span>
-            <div className={`flex items-center gap-1 ${stage === 'place' ? 'text-purple-600 font-medium' : ''}`}>
-              <MapPin className="w-3 h-3" />
+            <div className={`flex items-center gap-1 ${stage === 'place' ? 'text-purple-600 font-medium' : (userData.birth_place ? 'text-green-600' : '')}`}>
+              {userData.birth_place ? <Check className="w-3 h-3" /> : <MapPin className="w-3 h-3" />}
               Place
             </div>
             <span>→</span>
@@ -282,32 +384,70 @@ export default function VedicAstrologerChat({ userName, userId }) {
             </div>
           </div>
         )}
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={
-              stage === 'name' ? 'Enter your full name...' :
-              stage === 'dob' ? 'Enter date (DD-MM-YYYY)...' :
-              stage === 'time' ? 'Enter time (HH:MM)...' :
-              stage === 'place' ? 'Enter birthplace...' :
-              'Ask me anything about your chart...'
-            }
-            disabled={loading}
-            className="flex-1 h-12"
-          />
-          <Button
-            onClick={handleSend}
-            disabled={loading || !input.trim()}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 h-12 px-6"
-          >
-            {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Send className="w-5 h-5" />
-            )}
-          </Button>
+        <div className="relative">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  if (stage === 'place') {
+                    debouncedFetchSuggestions(e.target.value);
+                  }
+                }}
+                onKeyPress={handleKeyPress}
+                onFocus={() => {
+                  if (stage === 'place' && placeSuggestions.length > 0) {
+                    setShowSuggestions(true);
+                  }
+                }}
+                placeholder={
+                  stage === 'name' ? 'Enter your full name...' :
+                  stage === 'dob' ? 'Enter date (DD-MM-YYYY)...' :
+                  stage === 'time' ? 'Enter time (HH:MM)...' :
+                  stage === 'place' ? 'Start typing your city name...' :
+                  'Ask me anything about your chart...'
+                }
+                disabled={loading}
+                className="flex-1 h-12"
+              />
+              
+              {/* Place Suggestions Dropdown */}
+              {stage === 'place' && showSuggestions && (placeSuggestions.length > 0 || loadingSuggestions) && (
+                <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-purple-200 rounded-lg shadow-lg overflow-hidden z-50">
+                  {loadingSuggestions ? (
+                    <div className="p-3 text-center text-gray-500 text-sm flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Searching places...
+                    </div>
+                  ) : (
+                    placeSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSelectPlace(suggestion)}
+                        className="w-full px-4 py-3 text-left hover:bg-purple-50 flex items-center gap-3 border-b last:border-b-0 transition-colors"
+                      >
+                        <MapPin className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700">{suggestion.description}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+            <Button
+              onClick={handleSend}
+              disabled={loading || !input.trim()}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 h-12 px-6"
+            >
+              {loading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
