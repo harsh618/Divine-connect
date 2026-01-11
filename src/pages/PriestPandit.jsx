@@ -92,13 +92,24 @@ function PriestCard({ provider }) {
 
           {/* Bottom Info */}
           <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-white font-semibold text-lg mb-0.5">{provider.display_name}</h3>
             <p className="text-white/80 text-sm">{provider.years_of_experience || 10}+ Years Experience</p>
           </div>
         </div>
 
         {/* Content Section */}
         <div className="p-4">
+          <p className="text-xs text-amber-600 uppercase tracking-wide mb-1">
+            {provider.city || 'India'}
+          </p>
+
+          <h3 className="font-semibold text-gray-900 text-lg mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
+            {provider.display_name}
+          </h3>
+
+          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+            {provider.bio || `Experienced priest specializing in ${(provider.specializations || ['Vedic Rituals']).slice(0, 2).join(', ')}.`}
+          </p>
+
           {/* Specializations */}
           <div className="flex flex-wrap gap-1.5 mb-3">
             {(provider.specializations || ['Vedic Rituals', 'Havan']).slice(0, 3).map((spec, idx) => (

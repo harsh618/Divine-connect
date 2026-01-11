@@ -39,7 +39,6 @@ export default function TempleCard({ temple }) {
           
           {/* Bottom info */}
           <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-white font-semibold text-lg truncate mb-1">{temple.name}</h3>
             <div className="flex items-center text-white/90 text-sm">
               <MapPin className="w-3.5 h-3.5 mr-1" />
               {temple.city}, {temple.state}
@@ -48,15 +47,26 @@ export default function TempleCard({ temple }) {
         </div>
         
         <div className="p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-orange-700 bg-orange-50 px-3 py-1.5 rounded-full">
-              {temple.primary_deity}
-            </span>
-            {temple.visit_booking_enabled && (
-              <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+          <p className="text-xs text-amber-600 uppercase tracking-wide mb-1">
+            {temple.primary_deity}
+          </p>
+
+          <h3 className="font-semibold text-gray-900 text-lg mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
+            {temple.name}
+          </h3>
+
+          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+            {temple.significance || temple.description || `Visit the sacred ${temple.name} dedicated to ${temple.primary_deity}.`}
+          </p>
+
+          <div className="flex items-center justify-between text-xs text-gray-400">
+            {temple.visit_booking_enabled ? (
+              <span className="text-green-600 font-medium flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                 Bookings Open
               </span>
+            ) : (
+              <span>{temple.city}, {temple.state}</span>
             )}
           </div>
         </div>

@@ -75,9 +75,13 @@ function HotelCard({ hotel }) {
             {hotel.city}, {hotel.state}
           </div>
 
-          <h3 className="font-semibold text-gray-900 text-lg mb-3 group-hover:text-amber-700 transition-colors line-clamp-1">
+          <h3 className="font-semibold text-gray-900 text-lg mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
             {hotel.name}
           </h3>
+
+          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+            {hotel.description || `Comfortable stay near temples in ${hotel.city}. Perfect for pilgrims and devotees.`}
+          </p>
 
           {/* Amenities */}
           <div className="flex gap-2 flex-wrap">

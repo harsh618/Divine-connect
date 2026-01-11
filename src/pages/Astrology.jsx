@@ -89,7 +89,6 @@ function AstrologerCard({ provider, onChatClick }) {
 
           {/* Bottom Info */}
           <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-white font-semibold text-lg mb-0.5">{provider.display_name}</h3>
             <p className="text-white/80 text-sm">
               {isAI ? 'Instant AI Guidance' : `${provider.years_of_experience || 5}+ Years Experience`}
             </p>
@@ -98,6 +97,20 @@ function AstrologerCard({ provider, onChatClick }) {
 
         {/* Content Section */}
         <div className="p-4">
+          <p className="text-xs uppercase tracking-wide mb-1" style={{ color: isAI ? '#9333ea' : '#d97706' }}>
+            {isAI ? 'AI Astrologer' : (provider.city || 'India')}
+          </p>
+
+          <h3 className={`font-semibold text-gray-900 text-lg mb-2 transition-colors line-clamp-1 ${
+            isAI ? 'group-hover:text-purple-700' : 'group-hover:text-amber-700'
+          }`}>
+            {provider.display_name}
+          </h3>
+
+          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+            {provider.bio || (isAI ? 'Get instant astrological guidance powered by advanced AI. Free unlimited consultations.' : `Expert in ${(provider.specializations || ['Vedic Astrology']).slice(0, 2).join(', ')}.`)}
+          </p>
+
           {/* Specializations */}
           <div className="flex flex-wrap gap-1.5 mb-3">
             {(provider.specializations || ['Vedic Astrology']).slice(0, 3).map((spec, idx) => (

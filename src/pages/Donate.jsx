@@ -103,14 +103,23 @@ function CampaignCard({ campaign, onDonate }) {
             )}
           </div>
 
-          {/* Bottom Info */}
-          <div className="absolute bottom-3 left-3 right-3">
-            <h3 className="text-white font-semibold text-lg line-clamp-1">{campaign.title}</h3>
-          </div>
+          {/* Bottom Info - removed title from image overlay as it's now in content */}
         </div>
 
         {/* Content Section */}
         <div className="p-4">
+          <p className="text-xs text-amber-600 uppercase tracking-wide mb-1">
+            {campaign.category?.replace(/_/g, ' ') || 'Seva'}
+          </p>
+
+          <h3 className="font-semibold text-gray-900 text-lg mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
+            {campaign.title}
+          </h3>
+
+          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+            {campaign.description || `Support this noble cause and make a difference in the lives of many.`}
+          </p>
+
           {/* Progress Bar */}
           <div className="mb-3">
             <div className="flex justify-between text-sm mb-1.5">
