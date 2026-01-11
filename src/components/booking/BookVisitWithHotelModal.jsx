@@ -53,10 +53,7 @@ export default function BookVisitWithHotelModal({ isOpen, onClose, temple }) {
     onSuccess: () => {
       queryClient.invalidateQueries(['bookings']);
       setBookingComplete(true);
-      // Show hotel suggestion popup after short delay
-      setTimeout(() => {
-        setShowHotelSuggestion(true);
-      }, 500);
+      setShowHotelSuggestion(true);
     },
     onError: () => {
       toast.error('Failed to create booking');
@@ -92,26 +89,28 @@ export default function BookVisitWithHotelModal({ isOpen, onClose, temple }) {
   };
 
   const handleHotelPopupClose = () => {
+    toast.success('Booking confirmed!');
     setShowHotelSuggestion(false);
-    handleClose();
+    setBookingComplete(false);
+    setStep(STEPS.VISIT_DETAILS);
+    setVisitDate(null);
+    onClose();
   };
 
   if (!temple) return null;
 
-  // Show hotel suggestion popup instead of main modal when booking is complete
-  if (bookingComplete && showHotelSuggestion) {
-    return (
+  return (
+    <>
+      {/* Hotel Suggestion Popup - shown after booking is complete */}
       <HotelSuggestionPopup
-        isOpen={true}
+        isOpen={bookingComplete && showHotelSuggestion}
         onClose={handleHotelPopupClose}
         temple={temple}
         bookingDetails={{ date: visitDate }}
       />
-    );
-  }
 
-  return (
-    <Dialog open={isOpen && !bookingComplete} onOpenChange={handleClose}>
+      {/* Main Booking Dialog */}
+      <Dialog open={isOpen && !bookingComplete} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold" style={{ color: GOLD }}>
@@ -239,5 +238,6 @@ export default function BookVisitWithHotelModal({ isOpen, onClose, temple }) {
         </AnimatePresence>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
