@@ -110,6 +110,7 @@ export default function TempleDetail() {
   const [viewingItinerary, setViewingItinerary] = useState(null);
   const [wantHotel, setWantHotel] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState(null);
+  const [showBookingSuccess, setShowBookingSuccess] = useState(false);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -252,10 +253,8 @@ export default function TempleDetail() {
       });
     },
     onSuccess: () => {
-      toast.success('Temple visit booked successfully!');
       setShowBookingModal(false);
-      setWantHotel(false);
-      setSelectedHotel(null);
+      setShowBookingSuccess(true);
       queryClient.invalidateQueries(['bookings']);
     }
   });
@@ -1600,6 +1599,61 @@ export default function TempleDetail() {
         onClose={() => setShowItineraryModal(false)}
         temple={temple}
       />
+
+      {/* Booking Success Popup */}
+      <Dialog open={showBookingSuccess} onOpenChange={setShowBookingSuccess}>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-8 text-center text-white">
+            <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4">
+              <Check className="w-12 h-12" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Congratulations!</h2>
+            <p className="text-white/80">Your temple visit has been booked successfully</p>
+          </div>
+          <div className="p-6 space-y-4">
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Temple</span>
+                <span className="font-semibold">{temple?.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Date</span>
+                <span className="font-semibold">{selectedDate && format(selectedDate, 'MMM d, yyyy')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Time Slot</span>
+                <span className="font-semibold">{selectedTimeSlot}</span>
+              </div>
+              {selectedHotel && (
+                <div className="flex justify-between pt-2 border-t">
+                  <span className="text-gray-500">Hotel</span>
+                  <span className="font-semibold">{selectedHotel.name}</span>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <Link to={createPageUrl('MyBookings')} className="flex-1">
+                <Button variant="outline" className="w-full">
+                  View Bookings
+                </Button>
+              </Link>
+              <Button
+                className="flex-1 text-white"
+                style={{ backgroundColor: '#FF9933' }}
+                onClick={() => {
+                  setShowBookingSuccess(false);
+                  setSelectedDate(null);
+                  setSelectedTimeSlot('');
+                  setWantHotel(false);
+                  setSelectedHotel(null);
+                }}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* View Saved Itinerary Modal */}
       <Dialog open={!!viewingItinerary} onOpenChange={() => setViewingItinerary(null)}>

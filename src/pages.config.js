@@ -34,6 +34,7 @@ import TempleDetail from './pages/TempleDetail';
 import TempleDetails from './pages/TempleDetails';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
+import HotelDetail from './pages/HotelDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "TempleDetails": TempleDetails,
     "Temples": Temples,
     "Yatra": Yatra,
+    "HotelDetail": HotelDetail,
 }
 
 export const pagesConfig = {
