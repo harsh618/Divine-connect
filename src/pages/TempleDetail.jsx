@@ -42,7 +42,12 @@ import {
   Building2,
   Globe,
   FileText,
-  ExternalLink
+  ExternalLink,
+  Hotel,
+  Wifi,
+  Car,
+  Utensils,
+  CheckCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -103,6 +108,8 @@ export default function TempleDetail() {
   const [selectedPriest, setSelectedPriest] = useState(null);
   const [availablePriests, setAvailablePriests] = useState([]);
   const [viewingItinerary, setViewingItinerary] = useState(null);
+  const [wantHotel, setWantHotel] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState(null);
 
   const { data: temple, isLoading } = useQuery({
     queryKey: ['temple', templeId],
@@ -164,6 +171,19 @@ export default function TempleDetail() {
     },
     enabled: !!templeId
   });
+
+  // Fetch hotels near temple
+  const { data: nearbyHotels, isLoading: hotelsLoading } = useQuery({
+    queryKey: ['hotels-near-temple', temple?.city],
+    queryFn: () => base44.entities.Hotel.filter({
+      is_deleted: false
+    }, '-rating_average', 20),
+    enabled: !!temple?.city && showBookingModal
+  });
+
+  // Filter hotels by temple city
+  const cityHotels = nearbyHotels?.filter(h => h.city === temple?.city) || [];
+  const displayHotels = cityHotels.length > 0 ? cityHotels : nearbyHotels?.slice(0, 6) || [];
 
   const { data: templeBookings } = useQuery({
     queryKey: ['temple-bookings', templeId],
@@ -234,6 +254,8 @@ export default function TempleDetail() {
     onSuccess: () => {
       toast.success('Temple visit booked successfully!');
       setShowBookingModal(false);
+      setWantHotel(false);
+      setSelectedHotel(null);
       queryClient.invalidateQueries(['bookings']);
     }
   });
@@ -313,7 +335,7 @@ export default function TempleDetail() {
       return;
     }
 
-    bookingMutation.mutate({
+    const bookingData = {
       date: format(selectedDate, 'yyyy-MM-dd'),
       time_slot: selectedTimeSlot,
       num_devotees: numDevotees,
@@ -324,7 +346,15 @@ export default function TempleDetail() {
         end_date: format(selectedEndDate, 'yyyy-MM-dd'),
         multi_day_visit: true
       } : undefined
-    });
+    };
+
+    if (selectedHotel) {
+      const roomPrice = selectedHotel.room_inventory?.[0]?.price_per_night || 1500;
+      bookingData.special_requirements = `${specialRequirements ? specialRequirements + ' | ' : ''}Hotel: ${selectedHotel.name}`;
+      bookingData.total_amount = roomPrice;
+    }
+
+    bookingMutation.mutate(bookingData);
   };
 
   const handleDonate = () => {
@@ -1098,7 +1128,118 @@ export default function TempleDetail() {
                 rows={3}
               />
             </div>
+
+            {/* Hotel Option */}
+            <div 
+              className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                wantHotel ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-300'
+              }`}
+              onClick={() => {
+                setWantHotel(!wantHotel);
+                if (wantHotel) setSelectedHotel(null);
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                  wantHotel ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                }`}>
+                  {wantHotel && <Check className="w-3 h-3 text-white" />}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Hotel className="w-5 h-5 text-orange-500" />
+                    <span className="font-semibold text-gray-800">Add Hotel Stay</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {displayHotels.length} hotels available near {temple?.city}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Hotel Selection */}
+            {wantHotel && (
+              <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+                <Label className="text-sm font-medium">Select a Hotel in {temple?.city}</Label>
+                {hotelsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+                  </div>
+                ) : displayHotels.length > 0 ? (
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1">
+                    {displayHotels.map((hotel) => {
+                      const roomPrice = hotel.room_inventory?.[0]?.price_per_night || 1500;
+                      return (
+                        <div
+                          key={hotel.id}
+                          onClick={() => setSelectedHotel(hotel)}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            selectedHotel?.id === hotel.id 
+                              ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500' 
+                              : 'border-gray-200 hover:border-orange-300'
+                          }`}
+                        >
+                          <div className="flex gap-3">
+                            <img
+                              src={hotel.thumbnail_url || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200'}
+                              alt={hotel.name}
+                              className="w-16 h-14 rounded-lg object-cover flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <h4 className="font-semibold text-gray-800 text-sm truncate">{hotel.name}</h4>
+                                {selectedHotel?.id === hotel.id && (
+                                  <CheckCircle className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                {hotel.rating_average || 4.5}
+                                <span>•</span>
+                                <span>{hotel.city}</span>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                {hotel.amenities?.slice(0, 2).map((amenity, i) => (
+                                  <span key={i} className="text-xs text-gray-400 flex items-center gap-0.5">
+                                    {amenity.toLowerCase() === 'wifi' && <Wifi className="w-3 h-3" />}
+                                    {amenity.toLowerCase() === 'parking' && <Car className="w-3 h-3" />}
+                                    {amenity.toLowerCase() === 'restaurant' && <Utensils className="w-3 h-3" />}
+                                    {amenity}
+                                  </span>
+                                ))}
+                                <span className="ml-auto font-semibold text-orange-600 text-sm">₹{roomPrice}/night</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-4">No hotels available in this area</p>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Booking Summary */}
+          {selectedHotel && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
+              <p className="text-sm font-medium text-gray-800">Booking Summary</p>
+              <div className="flex justify-between text-sm mt-2">
+                <span className="text-gray-600">Temple Visit</span>
+                <span className="text-green-600">Free</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">{selectedHotel.name}</span>
+                <span className="text-gray-800">₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
+              </div>
+              <div className="flex justify-between text-sm font-semibold mt-2 pt-2 border-t border-orange-200">
+                <span>Total</span>
+                <span className="text-orange-600">₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-3 pt-4 border-t">
             <Button variant="outline" onClick={() => setShowBookingModal(false)} className="flex-1">
@@ -1106,7 +1247,7 @@ export default function TempleDetail() {
             </Button>
             <Button 
               onClick={handleBookVisit} 
-              disabled={bookingMutation.isPending}
+              disabled={bookingMutation.isPending || (wantHotel && !selectedHotel)}
               className="flex-1 bg-orange-500 hover:bg-orange-600"
             >
               {bookingMutation.isPending ? (
