@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Search, MapPin, Star, Hotel, Filter
+  Search, MapPin, Star, Hotel, Filter, Sparkles
 } from 'lucide-react';
 
 import HotelBookingCard from '@/components/yatra/HotelBookingCard';
