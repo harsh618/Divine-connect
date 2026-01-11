@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Clock, Shirt, MapPin, Phone, Globe, 
   Heart, Share2, ChevronDown, Star, Calendar,
-  Home, Flame, HandHeart, Play, Pause
+  Home, Flame, HandHeart, Play, Pause, Ticket
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import TempleOverviewTab from '@/components/temple-details/TempleOverviewTab';
 import TempleBookPujaTab from '@/components/temple-details/TempleBookPujaTab';
 import TempleStayNearbyTab from '@/components/temple-details/TempleStayNearbyTab';
 import TempleSevaTab from '@/components/temple-details/TempleSevaTab';
+import BookVisitWithHotelModal from '@/components/booking/BookVisitWithHotelModal';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: Globe },
@@ -38,6 +39,7 @@ export default function TempleDetails() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isSticky, setIsSticky] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [showBookVisitModal, setShowBookVisitModal] = useState(false);
   const tabBarRef = useRef(null);
   const videoRef = useRef(null);
 
@@ -154,6 +156,14 @@ export default function TempleDetails() {
 
             {/* Action Buttons */}
             <div className="flex gap-3 mt-6">
+              <Button 
+                onClick={() => setShowBookVisitModal(true)}
+                className="text-white font-semibold"
+                style={{ backgroundColor: COLORS.gold }}
+              >
+                <Ticket className="w-4 h-4 mr-2" />
+                Book Visit
+              </Button>
               <Button 
                 className="text-white border-white/30 hover:bg-white/20"
                 variant="outline"
@@ -290,6 +300,13 @@ export default function TempleDetails() {
           </motion.div>
         </AnimatePresence>
       </section>
+
+      {/* Book Visit with Hotel Modal */}
+      <BookVisitWithHotelModal
+        isOpen={showBookVisitModal}
+        onClose={() => setShowBookVisitModal(false)}
+        temple={temple}
+      />
     </div>
   );
 }
