@@ -20,60 +20,22 @@ import { createPageUrl } from '@/utils';
 
 const GOLD = '#FF9933';
 
-// Fallback dummy hotels for display
-const DUMMY_HOTELS = [
-  {
-    id: 'dummy-1',
-    name: "Pilgrim's Rest",
-    city: 'Ayodhya',
-    thumbnail_url: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800',
-    rating_average: 4.6,
-    amenities: ['WiFi', 'Restaurant', 'Parking'],
-    price_per_night: 1200,
-    distance_from_temple_km: 0.3,
-    is_featured: true
-  },
-  {
-    id: 'dummy-2',
-    name: 'Ganga View Palace',
-    city: 'Varanasi',
-    thumbnail_url: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800',
-    rating_average: 4.7,
-    amenities: ['WiFi', 'Restaurant', 'Spa'],
-    price_per_night: 2800,
-    distance_from_temple_km: 0.5,
-    is_featured: true
-  },
-  {
-    id: 'dummy-3',
-    name: 'Temple View Inn',
-    city: 'Tirupati',
-    thumbnail_url: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800',
-    rating_average: 4.3,
-    amenities: ['WiFi', 'Parking', 'AC'],
-    price_per_night: 1800,
-    distance_from_temple_km: 1.0,
-    is_featured: false
-  }
-];
-
 export default function HotelSuggestionPopup({ isOpen, onClose, temple, bookingDetails }) {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const { data: hotels, isLoading } = useQuery({
-    queryKey: ['nearby-hotels-popup', temple?.city],
+  const { data: hotels } = useQuery({
+    queryKey: ['nearby-hotels', temple?.city],
     queryFn: () => base44.entities.Hotel.filter({ 
       is_deleted: false 
     }, '-rating_average', 10),
     enabled: isOpen
   });
 
-  // Filter hotels by city or show all if no match, with fallback to dummy data
+  // Filter hotels by city or show all if no match
   const nearbyHotels = hotels?.filter(h => h.city === temple?.city) || [];
-  const dbHotels = nearbyHotels.length > 0 ? nearbyHotels : hotels?.slice(0, 5) || [];
-  const displayHotels = dbHotels.length > 0 ? dbHotels : DUMMY_HOTELS;
+  const displayHotels = nearbyHotels.length > 0 ? nearbyHotels : hotels?.slice(0, 5) || [];
 
   const handleScroll = () => {
     if (scrollRef.current) {
