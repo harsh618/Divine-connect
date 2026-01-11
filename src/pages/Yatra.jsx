@@ -1,26 +1,30 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Search, MapPin, Star, Hotel, Sparkles, Filter, Wifi, Car, Utensils, ChevronRight
+  Search, MapPin, Star, Hotel, Sparkles, Wifi, Car, Utensils, ArrowUpRight, Flame
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-const GOLD = '#FF9933';
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
+const HERO_IMAGES = [
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920',
+  'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1920',
+  'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1920'
+];
+
+const CITIES = [
+  { value: 'all', label: 'All Cities' },
+  { value: 'Ayodhya', label: 'Ayodhya' },
+  { value: 'Varanasi', label: 'Varanasi' },
+  { value: 'Mathura', label: 'Mathura' },
+  { value: 'Haridwar', label: 'Haridwar' },
+  { value: 'Rishikesh', label: 'Rishikesh' },
+];
 
 const amenityIcons = {
   wifi: Wifi,
@@ -28,9 +32,108 @@ const amenityIcons = {
   restaurant: Utensils,
 };
 
+function HotelCard({ hotel }) {
+  const [imgSrc, setImgSrc] = useState(hotel.thumbnail_url || hotel.images?.[0] || FALLBACK_IMAGE);
+  const roomPrice = hotel.room_inventory?.[0]?.price_per_night || 1500;
+
+  return (
+    <Link to={`${createPageUrl('HotelDetail')}?id=${hotel.id}`} className="group block h-full">
+      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+        
+        {/* Image Section */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+          <img 
+            src={imgSrc} 
+            alt={hotel.name}
+            onError={() => setImgSrc(FALLBACK_IMAGE)}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+          
+          {/* Top Badges */}
+          <div className="absolute top-4 left-4 flex gap-2">
+            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-3 py-1 text-xs font-medium shadow-sm hover:bg-white">
+              ₹{roomPrice.toLocaleString()}/night
+            </Badge>
+            {hotel.is_featured && (
+              <Badge className="bg-amber-400 text-black border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
+                <Flame className="w-3 h-3 fill-black" /> Featured
+              </Badge>
+            )}
+          </div>
+
+          {/* Rating Badge */}
+          <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1 text-xs text-white border border-white/10">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            {hotel.rating_average || 4.5}
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-6 relative">
+          <p className="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-2 flex items-center gap-1">
+            <MapPin className="w-3 h-3" />
+            {hotel.city}, {hotel.state}
+          </p>
+
+          <h3 className="font-serif text-2xl text-gray-900 leading-tight mb-3 group-hover:text-amber-700 transition-colors">
+            {hotel.name}
+          </h3>
+
+          {/* Amenities */}
+          <div className="flex gap-2 mb-6 flex-wrap">
+            {hotel.amenities?.slice(0, 3).map((amenity, i) => {
+              const IconComponent = amenityIcons[amenity.toLowerCase()] || Hotel;
+              return (
+                <span key={i} className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-full">
+                  <IconComponent className="w-3 h-3" />
+                  {amenity}
+                </span>
+              );
+            })}
+          </div>
+
+          {/* Bottom Action Area */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">{hotel.total_reviews || 0} reviews</span>
+            </div>
+
+            <div className="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center group-hover:bg-amber-700 transition-colors duration-300">
+              <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function HotelCardSkeleton() {
+  return (
+    <div className="rounded-[2rem] overflow-hidden bg-white border border-gray-100">
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-6 space-y-4">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+      </div>
+    </div>
+  );
+}
+
 export default function Yatra() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
+
+  // Rotate Hero Background
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch ALL hotels
   const { data: allHotels, isLoading } = useQuery({
@@ -40,8 +143,8 @@ export default function Yatra() {
     }, '-rating_average', 50)
   });
 
-  // Get unique cities
-  const cities = useMemo(() => {
+  // Get unique cities from data
+  const dynamicCities = useMemo(() => {
     if (!allHotels) return [];
     return [...new Set(allHotels.map(h => h.city).filter(Boolean))].sort();
   }, [allHotels]);
@@ -58,154 +161,130 @@ export default function Yatra() {
     });
   }, [allHotels, searchQuery, selectedCity]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24">
-      {/* Hero Section */}
-      <section className="relative py-16 bg-gradient-to-br from-neutral-900 to-neutral-800 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <img
-            src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920"
-            alt="Hotels"
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="relative z-10 container mx-auto px-6 max-w-7xl text-center">
-          <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 mb-4">
-            <Sparkles className="w-3 h-3 mr-2" />
-            Plan Your Sacred Journey
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">
-            Yatra <span className="text-amber-400">Hotels</span>
-          </h1>
-          <p className="text-white/70 max-w-xl mx-auto">
-            Find comfortable stays near sacred temples for your pilgrimage
-          </p>
-        </div>
-      </section>
+  // Featured hotels
+  const featuredHotels = useMemo(() => {
+    return allHotels?.filter(h => h.is_featured) || [];
+  }, [allHotels]);
 
-      {/* Search & Filters */}
-      <section className="py-6 bg-white border-b sticky top-16 z-30 shadow-sm">
-        <div className="container mx-auto px-6 max-w-7xl">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="relative flex-1 min-w-[250px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Search hotels by name or city..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12"
-              />
-            </div>
-            <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="w-[180px] h-12">
-                <Filter className="w-4 h-4 mr-2 text-orange-500" />
-                <SelectValue placeholder="All Cities" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Cities</SelectItem>
-                {cities.map(city => (
-                  <SelectItem key={city} value={city}>{city}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Badge variant="secondary" className="h-12 px-4 flex items-center">
-              {filteredHotels.length} hotels
-            </Badge>
+  // Non-featured for main grid
+  const regularHotels = useMemo(() => {
+    return filteredHotels.filter(h => !h.is_featured);
+  }, [filteredHotels]);
+
+  // Combine cities from static list and dynamic data
+  const allCities = useMemo(() => {
+    const citySet = new Set(['all', ...dynamicCities]);
+    return [{ value: 'all', label: 'All Cities' }, ...dynamicCities.map(c => ({ value: c, label: c }))];
+  }, [dynamicCities]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
+      
+      {/* 1. Cinematic Hero */}
+      <section className="relative h-[60vh] flex items-end justify-center overflow-hidden pb-16">
+        <div className="absolute inset-0 z-0 bg-black">
+          {HERO_IMAGES.map((image, index) => (
+            <div
+              key={image}
+              className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
+              }`}
+              style={{ backgroundImage: `url(${image})` }}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-50 via-black/20 to-transparent" />
+        </div>
+
+        <div className="relative z-10 container mx-auto px-6 max-w-7xl">
+          <div className="max-w-3xl">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-medium uppercase tracking-widest mb-4">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                Sacred Journeys
+             </div>
+             <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 leading-none drop-shadow-xl">
+                Yatra Hotels,<br/>
+                <span className="italic text-white/70">Divine Comfort.</span>
+             </h1>
           </div>
         </div>
       </section>
 
-      {/* Hotels Grid */}
-      <section className="py-8">
-        <div className="container mx-auto px-6 max-w-7xl">
-          {isLoading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-72 rounded-xl" />)}
-            </div>
-          ) : filteredHotels.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredHotels.map((hotel, idx) => {
-                const roomPrice = hotel.room_inventory?.[0]?.price_per_night || 1500;
-                return (
-                  <motion.div
-                    key={hotel.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                  >
-                    <Link to={`${createPageUrl('HotelDetail')}?id=${hotel.id}`}>
-                      <Card className="overflow-hidden hover:shadow-xl transition-all cursor-pointer group h-full">
-                        <div className="relative h-48">
-                          <img
-                            src={hotel.thumbnail_url || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400'}
-                            alt={hotel.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          {hotel.is_featured && (
-                            <Badge className="absolute top-3 left-3 bg-orange-500 text-white">
-                              Featured
-                            </Badge>
-                          )}
-                          <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                            <span className="font-semibold">{hotel.rating_average || 4.5}</span>
-                          </div>
-                        </div>
-                        <CardContent className="p-4">
-                          <h3 className="font-bold text-gray-800 text-lg mb-1 group-hover:text-orange-600 transition-colors">
-                            {hotel.name}
-                          </h3>
-                          <p className="text-sm text-gray-500 flex items-center gap-1 mb-3">
-                            <MapPin className="w-3 h-3" />
-                            {hotel.city}, {hotel.state}
-                          </p>
-                          
-                          {/* Amenities */}
-                          <div className="flex gap-2 mb-4 flex-wrap">
-                            {hotel.amenities?.slice(0, 3).map((amenity, i) => {
-                              const IconComponent = amenityIcons[amenity.toLowerCase()] || Hotel;
-                              return (
-                                <span key={i} className="text-xs text-gray-500 flex items-center gap-1 bg-gray-100 px-2 py-1 rounded">
-                                  <IconComponent className="w-3 h-3" />
-                                  {amenity}
-                                </span>
-                              );
-                            })}
-                          </div>
+      {/* 2. Sticky Filter Bar & Grid */}
+      <div className="container mx-auto px-6 max-w-7xl relative z-20 -mt-8">
+        
+        {/* Filter Bar */}
+        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-12 border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+           <div className="relative flex-1 w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                 type="text" 
+                 placeholder="Search hotels by name or city..." 
+                 className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-sm"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+              />
+           </div>
+           
+           {/* Horizontal City Filter */}
+           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+              {allCities.map((city) => (
+                 <button
+                    key={city.value}
+                    onClick={() => setSelectedCity(city.value)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
+                       selectedCity === city.value
+                       ? 'bg-orange-600 text-white shadow-lg'
+                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                 >
+                    {city.label}
+                 </button>
+              ))}
+           </div>
+        </div>
 
-                          {/* Price */}
-                          <div className="flex items-center justify-between pt-3 border-t">
-                            <div>
-                              <span className="text-2xl font-bold" style={{ color: GOLD }}>
-                                ₹{roomPrice.toLocaleString()}
-                              </span>
-                              <span className="text-sm text-gray-500">/night</span>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              className="text-white"
-                              style={{ backgroundColor: GOLD }}
-                            >
-                              View Details
-                              <ChevronRight className="w-4 h-4 ml-1" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                );
-              })}
+        {/* Featured Hotels Section */}
+        {featuredHotels.length > 0 && !searchQuery && selectedCity === 'all' && (
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <Sparkles className="w-6 h-6 text-amber-600" />
+              <h2 className="text-3xl font-serif text-gray-900">Featured Hotels</h2>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredHotels.map((hotel) => (
+                <HotelCard key={hotel.id} hotel={hotel} />
+              ))}
+            </div>
+            <div className="mt-12 mb-8 border-t border-gray-200" />
+          </div>
+        )}
+
+        {/* 3. All Hotels Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {isLoading ? (
+            Array(6).fill(0).map((_, i) => <HotelCardSkeleton key={i} />)
+          ) : (searchQuery || selectedCity !== 'all' ? filteredHotels : regularHotels)?.length > 0 ? (
+            (searchQuery || selectedCity !== 'all' ? filteredHotels : regularHotels).map((hotel) => (
+              <HotelCard key={hotel.id} hotel={hotel} />
+            ))
           ) : (
-            <Card className="p-12 text-center">
-              <Hotel className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Hotels Found</h3>
-              <p className="text-gray-500">Try adjusting your search filters</p>
-            </Card>
+            <div className="col-span-full py-24 text-center">
+              <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Hotel className="w-8 h-8 text-stone-400" />
+              </div>
+              <h3 className="text-xl font-serif text-gray-900 mb-2">No hotels match your search</h3>
+              <p className="text-gray-500 font-light">Try adjusting your filters to find more options.</p>
+              <Button 
+                variant="link" 
+                onClick={() => {setSearchQuery(''); setSelectedCity('all');}}
+                className="text-amber-600 mt-2"
+              >
+                Clear Filters
+              </Button>
+            </div>
           )}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
