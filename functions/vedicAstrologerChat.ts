@@ -100,13 +100,22 @@ ${JSON.stringify(astrologyData, null, 2)}
 - For career: give 3-5 SPECIFIC professions (not vague like "business")
 - For health: identify vulnerable body parts based on 6th/8th houses`;
 
-    const prompt = `${chartData}
+    // Build conversation context
+    let conversationContext = '';
+    if (conversation_history && conversation_history.length > 0) {
+      conversationContext = '\n### PREVIOUS CONVERSATION CONTEXT\n';
+      conversation_history.forEach((msg, idx) => {
+        conversationContext += `${msg.role === 'user' ? 'User' : 'Divine AI'}: ${msg.content}\n`;
+      });
+    }
 
-### USER QUESTION
+    const prompt = `${chartData}
+${conversationContext}
+### CURRENT USER QUESTION
 ${user_question}
 
 ### INSTRUCTIONS
-Answer the user's question using the birth chart data above. Be specific, empathetic, and provide actionable guidance with remedies.`;
+Answer the user's question using the birth chart data above. Maintain context from previous conversation if available. Be specific, empathetic, and provide actionable guidance with remedies.`;
 
     // Call Gemini with system instruction
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent', {
