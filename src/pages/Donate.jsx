@@ -77,134 +77,73 @@ function CampaignCard({ campaign, onDonate }) {
 
   return (
     <div className="group block h-full">
-      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+      <div className="relative h-full bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
         
         {/* Image Section */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={campaign.title}
             onError={() => setImgSrc(FALLBACK_IMAGE)}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           {/* Top Badges */}
-          <div className="absolute top-4 left-4 flex gap-2">
-            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-3 py-1 text-xs font-medium shadow-sm hover:bg-white flex items-center gap-1">
+          <div className="absolute top-2 left-2 right-2 flex justify-between">
+            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2 py-0.5 text-xs flex items-center gap-1">
               <Icon className="w-3 h-3" />
               {campaign.category?.replace(/_/g, ' ')}
             </Badge>
-            {campaign.is_trending && (
-              <Badge className="bg-purple-500 text-white border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" /> Trending
+            {daysLeft !== null && daysLeft > 0 && daysLeft <= 7 && (
+              <Badge className="bg-red-500 text-white border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {daysLeft}d left
               </Badge>
             )}
           </div>
 
-          {/* Urgency Badge */}
-          {daysLeft !== null && daysLeft > 0 && daysLeft <= 7 && (
-            <div className="absolute top-4 right-4 bg-red-500 text-white rounded-full px-3 py-1 flex items-center gap-1 text-xs font-medium">
-              <Clock className="w-3 h-3" />
-              {daysLeft} days left
-            </div>
-          )}
-
-          {/* Progress Overlay */}
-          {progress >= 80 && progress < 100 && (
-            <div className="absolute bottom-4 left-4 bg-orange-500 text-white rounded-full px-3 py-1 flex items-center gap-1 text-xs font-medium animate-pulse">
-              <Flame className="w-3 h-3" />
-              {Math.round(progress)}% Funded
-            </div>
-          )}
+          {/* Bottom Info */}
+          <div className="absolute bottom-2 left-2 right-2">
+            <h3 className="text-white font-semibold text-base line-clamp-1">{campaign.title}</h3>
+          </div>
         </div>
 
         {/* Content Section */}
-        <div className="p-6 relative">
-          <p className="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-2">
-            {campaign.beneficiary_organization || 'Charitable Cause'}
-            {campaign.is_fcra_registered && (
-              <CheckCircle className="w-3 h-3 inline ml-1 text-green-500" />
-            )}
-          </p>
-
-          <h3 className="font-serif text-2xl text-gray-900 leading-tight mb-3 group-hover:text-amber-700 transition-colors line-clamp-1">
-            {campaign.title}
-          </h3>
-
-          {/* Impact */}
-          {campaign.impact_breakdown?.[0] && (
-            <p className="text-sm text-orange-600 font-medium mb-3">
-              💝 ₹{campaign.impact_breakdown[0].amount.toLocaleString()} = {campaign.impact_breakdown[0].impact}
-            </p>
-          )}
-
-          <p className="text-gray-500 text-sm leading-relaxed line-clamp-2 mb-4 font-light">
-            {campaign.description}
-          </p>
-
+        <div className="p-3">
           {/* Progress Bar */}
-          <div className="mb-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-600">
-                Raised: ₹{(campaign.raised_amount || 0).toLocaleString()}
-              </span>
-              <span className="text-amber-600 font-semibold">
-                {Math.round(progress)}%
-              </span>
+          <div className="mb-2">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="text-gray-600">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
+              <span className="text-amber-600 font-semibold">{Math.round(progress)}%</span>
             </div>
-            <Progress value={Math.min(progress, 100)} className="h-2" />
-            <p className="text-xs text-gray-500 mt-1">Goal: ₹{campaign.goal_amount?.toLocaleString()}</p>
+            <Progress value={Math.min(progress, 100)} className="h-1.5" />
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
+          <div className="flex items-center gap-3 mb-2 text-[10px] text-gray-500">
             {campaign.donor_count > 0 && (
               <span className="flex items-center gap-1">
-                <Heart className="w-4 h-4 text-pink-500" />
+                <Heart className="w-3 h-3 text-pink-500" />
                 {campaign.donor_count} donors
               </span>
             )}
-            {campaign.beneficiary_count > 0 && (
-              <span className="flex items-center gap-1">
-                <Users className="w-4 h-4 text-blue-500" />
-                {campaign.beneficiary_count}+ helped
-              </span>
-            )}
+            <span>Goal: ₹{campaign.goal_amount?.toLocaleString()}</span>
           </div>
 
-          {/* Bottom Action Area */}
-          <div className="flex items-center gap-3 pt-4 border-t border-gray-50">
-            <Button 
-              onClick={(e) => {
-                e.preventDefault();
-                onDonate(campaign);
-              }}
-              disabled={campaign.status !== 'active'}
-              className="flex-1 h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Donate Now
-            </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              className="h-12 w-12 rounded-xl"
-              onClick={(e) => {
-                e.preventDefault();
-                const url = `${window.location.origin}${createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)}`;
-                navigator.clipboard.writeText(url);
-                toast.success('Link copied to clipboard!');
-              }}
-            >
-              <Share2 className="w-4 h-4" />
-            </Button>
-            <Link to={createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)}>
-              <Button size="icon" variant="outline" className="h-12 w-12 rounded-xl">
-                <ArrowUpRight className="w-5 h-5" />
-              </Button>
-            </Link>
-          </div>
+          {/* Action Button */}
+          <Button 
+            onClick={(e) => {
+              e.preventDefault();
+              onDonate(campaign);
+            }}
+            disabled={campaign.status !== 'active'}
+            size="sm"
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+          >
+            <Heart className="w-3 h-3 mr-1" />
+            Donate Now
+          </Button>
         </div>
       </div>
     </div>
@@ -213,13 +152,12 @@ function CampaignCard({ campaign, onDonate }) {
 
 function CampaignCardSkeleton() {
   return (
-    <div className="rounded-[2rem] overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[4/3] w-full" />
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-2 w-full" />
+    <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+      <Skeleton className="aspect-[16/10] w-full" />
+      <div className="p-3 space-y-2">
+        <Skeleton className="h-1.5 w-full" />
+        <Skeleton className="h-3 w-2/3" />
+        <Skeleton className="h-8 w-full rounded" />
       </div>
     </div>
   );

@@ -38,70 +38,58 @@ function HotelCard({ hotel }) {
 
   return (
     <Link to={`${createPageUrl('HotelDetail')}?id=${hotel.id}`} className="group block h-full">
-      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+      <div className="relative h-full bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
         
         {/* Image Section */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={hotel.name}
             onError={() => setImgSrc(FALLBACK_IMAGE)}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           {/* Top Badges */}
-          <div className="absolute top-4 left-4 flex gap-2">
-            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-3 py-1 text-xs font-medium shadow-sm hover:bg-white">
+          <div className="absolute top-2 left-2 right-2 flex justify-between">
+            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2 py-0.5 text-xs font-medium">
               ₹{roomPrice.toLocaleString()}/night
             </Badge>
-            {hotel.is_featured && (
-              <Badge className="bg-amber-400 text-black border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
-                <Flame className="w-3 h-3 fill-black" /> Featured
-              </Badge>
-            )}
+            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 text-xs text-white">
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              {hotel.rating_average || 4.5}
+            </div>
           </div>
 
-          {/* Rating Badge */}
-          <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1 text-xs text-white border border-white/10">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            {hotel.rating_average || 4.5}
-          </div>
+          {hotel.is_featured && (
+            <Badge className="absolute bottom-2 left-2 bg-amber-400 text-black border-0 px-2 py-0.5 text-xs font-medium flex items-center gap-1">
+              <Flame className="w-3 h-3 fill-black" /> Featured
+            </Badge>
+          )}
         </div>
 
         {/* Content Section */}
-        <div className="p-6 relative">
-          <p className="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-2 flex items-center gap-1">
+        <div className="p-3">
+          <div className="flex items-center gap-1 text-[10px] text-amber-600 uppercase tracking-wide mb-1">
             <MapPin className="w-3 h-3" />
             {hotel.city}, {hotel.state}
-          </p>
+          </div>
 
-          <h3 className="font-serif text-2xl text-gray-900 leading-tight mb-3 group-hover:text-amber-700 transition-colors">
+          <h3 className="font-semibold text-gray-900 text-base mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
             {hotel.name}
           </h3>
 
           {/* Amenities */}
-          <div className="flex gap-2 mb-6 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {hotel.amenities?.slice(0, 3).map((amenity, i) => {
               const IconComponent = amenityIcons[amenity.toLowerCase()] || Hotel;
               return (
-                <span key={i} className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-full">
+                <span key={i} className="text-[10px] text-gray-500 flex items-center gap-1 bg-gray-50 px-1.5 py-0.5 rounded">
                   <IconComponent className="w-3 h-3" />
                   {amenity}
                 </span>
               );
             })}
-          </div>
-
-          {/* Bottom Action Area */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">{hotel.total_reviews || 0} reviews</span>
-            </div>
-
-            <div className="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center group-hover:bg-amber-700 transition-colors duration-300">
-              <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" />
-            </div>
           </div>
         </div>
       </div>
@@ -111,12 +99,12 @@ function HotelCard({ hotel }) {
 
 function HotelCardSkeleton() {
   return (
-    <div className="rounded-[2rem] overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[4/3] w-full" />
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-4 w-full" />
+    <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+      <Skeleton className="aspect-[16/10] w-full" />
+      <div className="p-3 space-y-2">
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-3 w-full" />
       </div>
     </div>
   );

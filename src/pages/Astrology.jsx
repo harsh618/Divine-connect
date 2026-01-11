@@ -46,64 +46,62 @@ function AstrologerCard({ provider, onChatClick }) {
 
   return (
     <div className="group block h-full">
-      <div className={`relative h-full bg-white rounded-[2rem] overflow-hidden border transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 ${
-        isAI ? 'border-purple-200 hover:shadow-purple-100/50' : 'border-gray-100 hover:shadow-amber-100/50'
+      <div className={`relative h-full bg-white rounded-2xl overflow-hidden border transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${
+        isAI ? 'border-purple-200' : 'border-gray-100'
       }`}>
         
         {/* Image Section */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={provider.display_name}
             onError={() => setImgSrc(FALLBACK_AVATAR)}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className={`absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-60 ${
+          <div className={`absolute inset-0 bg-gradient-to-t via-transparent to-transparent ${
             isAI ? 'from-purple-900/60' : 'from-black/60'
           }`} />
           
           {/* Top Badges */}
-          <div className="absolute top-4 left-4 flex gap-2">
-            {isAI && (
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> AI Powered
-              </Badge>
-            )}
-            {provider.is_verified && !isAI && (
-              <Badge className="bg-blue-500 text-white border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
-                <CheckCircle className="w-3 h-3" /> Verified
-              </Badge>
-            )}
-            {provider.is_available_now && (
-              <Badge className="bg-green-500 text-white border-0 px-3 py-1 text-xs font-medium shadow-sm">
-                Online
-              </Badge>
-            )}
+          <div className="absolute top-2 left-2 right-2 flex justify-between">
+            <div className="flex gap-1">
+              {isAI && (
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" /> AI
+                </Badge>
+              )}
+              {provider.is_verified && !isAI && (
+                <Badge className="bg-blue-500 text-white border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" /> Verified
+                </Badge>
+              )}
+              {provider.is_available_now && (
+                <Badge className="bg-green-500 text-white border-0 px-2 py-0.5 text-xs">
+                  Online
+                </Badge>
+              )}
+            </div>
+            <div className="bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 flex items-center gap-1 text-xs text-white">
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              {provider.rating_average || 4.5}
+            </div>
           </div>
 
-          {/* Rating Badge */}
-          <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1 text-xs text-white border border-white/10">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            {provider.rating_average || 4.5}
+          {/* Bottom Info */}
+          <div className="absolute bottom-2 left-2 right-2">
+            <h3 className="text-white font-semibold text-base mb-0.5">{provider.display_name}</h3>
+            <p className="text-white/80 text-xs">
+              {isAI ? 'Instant AI Guidance' : `${provider.years_of_experience || 5}+ Years Experience`}
+            </p>
           </div>
         </div>
 
         {/* Content Section */}
-        <div className="p-6 relative">
-          <p className="text-[10px] font-bold tracking-widest uppercase mb-2" style={{ color: isAI ? '#9333ea' : '#d97706' }}>
-            {isAI ? 'Instant AI Guidance' : `${provider.years_of_experience || 5}+ Years Experience`}
-          </p>
-
-          <h3 className={`font-serif text-2xl text-gray-900 leading-tight mb-3 transition-colors ${
-            isAI ? 'group-hover:text-purple-700' : 'group-hover:text-amber-700'
-          }`}>
-            {provider.display_name}
-          </h3>
-
+        <div className="p-3">
           {/* Specializations */}
-          <div className="flex flex-wrap gap-1 mb-4">
+          <div className="flex flex-wrap gap-1 mb-2">
             {(provider.specializations || ['Vedic Astrology']).slice(0, 3).map((spec, idx) => (
-              <Badge key={idx} variant="secondary" className={`border-0 text-xs rounded-full ${
+              <Badge key={idx} variant="secondary" className={`border-0 text-[10px] px-1.5 py-0.5 rounded ${
                 isAI ? 'bg-purple-50 text-purple-700' : 'bg-orange-50 text-orange-700'
               }`}>
                 {spec}
@@ -111,63 +109,36 @@ function AstrologerCard({ provider, onChatClick }) {
             ))}
           </div>
 
-          {/* Languages */}
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-            <Languages className="w-4 h-4" />
-            {(provider.languages || ['Hindi', 'English']).join(', ')}
-          </div>
-
           {/* Rates for Human Astrologers */}
           {!isAI && (
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="text-center p-2 rounded-xl bg-gray-50">
-                <MessageCircle className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                <p className="text-xs text-gray-500">Chat</p>
-                <p className="font-semibold text-sm">₹{provider.consultation_rate_chat || 15}/min</p>
-              </div>
-              <div className="text-center p-2 rounded-xl bg-gray-50">
-                <Phone className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                <p className="text-xs text-gray-500">Voice</p>
-                <p className="font-semibold text-sm">₹{provider.consultation_rate_voice || 20}/min</p>
-              </div>
-              <div className="text-center p-2 rounded-xl bg-gray-50">
-                <Video className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                <p className="text-xs text-gray-500">Video</p>
-                <p className="font-semibold text-sm">₹{provider.consultation_rate_video || 30}/min</p>
-              </div>
+            <div className="flex gap-2 mb-2 text-[10px]">
+              <span className="text-gray-500">Chat ₹{provider.consultation_rate_chat || 15}/min</span>
+              <span className="text-gray-300">|</span>
+              <span className="text-gray-500">Call ₹{provider.consultation_rate_voice || 20}/min</span>
             </div>
           )}
 
           {/* Free Badge for AI */}
           {isAI && (
-            <div className="mb-4 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 text-center">
-              <p className="text-xl font-serif text-purple-700">FREE</p>
-              <p className="text-xs text-purple-600">Unlimited AI Consultations</p>
+            <div className="mb-2 p-2 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 text-center">
+              <p className="text-sm font-semibold text-purple-700">FREE</p>
             </div>
           )}
 
-          {/* Bottom Action Area */}
-          <div className="flex items-center gap-3 pt-4 border-t border-gray-50">
-            <Button 
-              onClick={() => onChatClick(provider)}
-              disabled={!provider.is_available_now && !isAI}
-              className={`flex-1 h-12 rounded-xl ${
-                isAI 
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90' 
-                  : 'bg-amber-600 hover:bg-amber-700'
-              } text-white`}
-            >
-              {isAI ? <Bot className="w-4 h-4 mr-2" /> : <MessageCircle className="w-4 h-4 mr-2" />}
-              {isAI ? 'Chat with AI' : (provider.is_available_now ? 'Chat Now' : 'Offline')}
-            </Button>
-            {!isAI && (
-              <Link to={createPageUrl(`AstrologerProfile?id=${provider.id}`)}>
-                <Button variant="outline" size="icon" className="h-12 w-12 rounded-xl">
-                  <ArrowUpRight className="w-5 h-5" />
-                </Button>
-              </Link>
-            )}
-          </div>
+          {/* Action Button */}
+          <Button 
+            onClick={() => onChatClick(provider)}
+            disabled={!provider.is_available_now && !isAI}
+            size="sm"
+            className={`w-full ${
+              isAI 
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90' 
+                : 'bg-amber-600 hover:bg-amber-700'
+            } text-white`}
+          >
+            {isAI ? <Bot className="w-3 h-3 mr-1" /> : <MessageCircle className="w-3 h-3 mr-1" />}
+            {isAI ? 'Chat with AI' : (provider.is_available_now ? 'Chat Now' : 'Offline')}
+          </Button>
         </div>
       </div>
     </div>
@@ -176,17 +147,11 @@ function AstrologerCard({ provider, onChatClick }) {
 
 function AstrologerCardSkeleton() {
   return (
-    <div className="rounded-[2rem] overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[4/3] w-full" />
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-4 w-full" />
-        <div className="grid grid-cols-3 gap-2">
-          <Skeleton className="h-16 rounded-xl" />
-          <Skeleton className="h-16 rounded-xl" />
-          <Skeleton className="h-16 rounded-xl" />
-        </div>
+    <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+      <Skeleton className="aspect-[16/10] w-full" />
+      <div className="p-3 space-y-2">
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-8 w-full rounded" />
       </div>
     </div>
   );

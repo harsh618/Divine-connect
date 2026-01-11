@@ -58,73 +58,60 @@ function PriestCard({ provider }) {
 
   return (
     <Link to={createPageUrl(`PriestProfile?id=${provider.id}`)} className="group block h-full">
-      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+      <div className="relative h-full bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
         
         {/* Image Section */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={provider.display_name}
             onError={() => setImgSrc(FALLBACK_AVATAR)}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           {/* Top Badges */}
-          <div className="absolute top-4 left-4 flex gap-2">
-            {provider.is_verified && (
-              <Badge className="bg-blue-500 text-white border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
-                <CheckCircle className="w-3 h-3" /> Verified
-              </Badge>
-            )}
-            {provider.is_featured && (
-              <Badge className="bg-amber-400 text-black border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
-                <Flame className="w-3 h-3 fill-black" /> Featured
-              </Badge>
-            )}
+          <div className="absolute top-2 left-2 right-2 flex justify-between">
+            <div className="flex gap-1">
+              {provider.is_verified && (
+                <Badge className="bg-blue-500 text-white border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" /> Verified
+                </Badge>
+              )}
+              {provider.is_featured && (
+                <Badge className="bg-amber-400 text-black border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+                  <Flame className="w-3 h-3 fill-black" /> Featured
+                </Badge>
+              )}
+            </div>
+            <div className="bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 flex items-center gap-1 text-xs text-white">
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              {provider.rating_average || 4.5}
+            </div>
           </div>
 
-          {/* Rating Badge */}
-          <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1 text-xs text-white border border-white/10">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            {provider.rating_average || 4.5}
+          {/* Bottom Info */}
+          <div className="absolute bottom-2 left-2 right-2">
+            <h3 className="text-white font-semibold text-base mb-0.5">{provider.display_name}</h3>
+            <p className="text-white/80 text-xs">{provider.years_of_experience || 10}+ Years Experience</p>
           </div>
         </div>
 
         {/* Content Section */}
-        <div className="p-6 relative">
-          <p className="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-2">
-            {provider.years_of_experience || 10}+ Years Experience
-          </p>
-
-          <h3 className="font-serif text-2xl text-gray-900 leading-tight mb-3 group-hover:text-amber-700 transition-colors">
-            {provider.display_name}
-          </h3>
-
+        <div className="p-3">
           {/* Specializations */}
-          <div className="flex flex-wrap gap-1 mb-4">
+          <div className="flex flex-wrap gap-1 mb-2">
             {(provider.specializations || ['Vedic Rituals', 'Havan']).slice(0, 3).map((spec, idx) => (
-              <Badge key={idx} variant="secondary" className="bg-orange-50 text-orange-700 border-0 text-xs rounded-full">
+              <Badge key={idx} variant="secondary" className="bg-orange-50 text-orange-700 border-0 text-[10px] px-1.5 py-0.5 rounded">
                 {spec}
               </Badge>
             ))}
           </div>
 
           {/* Languages */}
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-            <Languages className="w-4 h-4" />
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Languages className="w-3 h-3" />
             {(provider.languages || ['Hindi', 'Sanskrit']).join(', ')}
-          </div>
-
-          {/* Bottom Action Area */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">{provider.total_consultations || 100}+ consultations</span>
-            </div>
-
-            <div className="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center group-hover:bg-amber-700 transition-colors duration-300">
-              <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" />
-            </div>
           </div>
         </div>
       </div>
@@ -134,12 +121,11 @@ function PriestCard({ provider }) {
 
 function PriestCardSkeleton() {
   return (
-    <div className="rounded-[2rem] overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[4/3] w-full" />
-      <div className="p-6 space-y-4">
-        <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-4 w-full" />
+    <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
+      <Skeleton className="aspect-[16/10] w-full" />
+      <div className="p-3 space-y-2">
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-2/3" />
       </div>
     </div>
   );
