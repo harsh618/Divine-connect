@@ -41,7 +41,7 @@ function HotelCard({ hotel }) {
       <div className="relative h-full bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
         
         {/* Image Section */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={hotel.name}
@@ -51,41 +51,41 @@ function HotelCard({ hotel }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           {/* Top Badges */}
-          <div className="absolute top-2 left-2 right-2 flex justify-between">
-            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2 py-0.5 text-xs font-medium">
+          <div className="absolute top-3 left-3 right-3 flex justify-between">
+            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2.5 py-1 text-xs font-medium">
               ₹{roomPrice.toLocaleString()}/night
             </Badge>
-            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 text-xs text-white">
+            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md rounded-full px-2.5 py-1 text-xs text-white">
               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               {hotel.rating_average || 4.5}
             </div>
           </div>
 
           {hotel.is_featured && (
-            <Badge className="absolute bottom-2 left-2 bg-amber-400 text-black border-0 px-2 py-0.5 text-xs font-medium flex items-center gap-1">
+            <Badge className="absolute bottom-3 left-3 bg-amber-400 text-black border-0 px-2.5 py-1 text-xs font-medium flex items-center gap-1">
               <Flame className="w-3 h-3 fill-black" /> Featured
             </Badge>
           )}
         </div>
 
         {/* Content Section */}
-        <div className="p-3">
-          <div className="flex items-center gap-1 text-[10px] text-amber-600 uppercase tracking-wide mb-1">
-            <MapPin className="w-3 h-3" />
+        <div className="p-4">
+          <div className="flex items-center gap-1 text-xs text-amber-600 uppercase tracking-wide mb-1">
+            <MapPin className="w-3.5 h-3.5" />
             {hotel.city}, {hotel.state}
           </div>
 
-          <h3 className="font-semibold text-gray-900 text-base mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
+          <h3 className="font-semibold text-gray-900 text-lg mb-3 group-hover:text-amber-700 transition-colors line-clamp-1">
             {hotel.name}
           </h3>
 
           {/* Amenities */}
-          <div className="flex gap-1.5 flex-wrap">
+          <div className="flex gap-2 flex-wrap">
             {hotel.amenities?.slice(0, 3).map((amenity, i) => {
               const IconComponent = amenityIcons[amenity.toLowerCase()] || Hotel;
               return (
-                <span key={i} className="text-[10px] text-gray-500 flex items-center gap-1 bg-gray-50 px-1.5 py-0.5 rounded">
-                  <IconComponent className="w-3 h-3" />
+                <span key={i} className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-full">
+                  <IconComponent className="w-3.5 h-3.5" />
                   {amenity}
                 </span>
               );
@@ -100,11 +100,11 @@ function HotelCard({ hotel }) {
 function HotelCardSkeleton() {
   return (
     <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[16/10] w-full" />
-      <div className="p-3 space-y-2">
-        <Skeleton className="h-3 w-16" />
-        <Skeleton className="h-5 w-3/4" />
-        <Skeleton className="h-3 w-full" />
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-4 space-y-3">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-full" />
       </div>
     </div>
   );

@@ -38,7 +38,7 @@ function PoojaCard({ pooja }) {
       <div className="relative h-full bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
         
         {/* Image Section */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={pooja.name}
@@ -48,12 +48,12 @@ function PoojaCard({ pooja }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           {/* Top Badges */}
-          <div className="absolute top-2 left-2 right-2 flex justify-between">
-            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2 py-0.5 text-xs font-medium">
+          <div className="absolute top-3 left-3 right-3 flex justify-between">
+            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2.5 py-1 text-xs font-medium">
               ₹{pooja.base_price_virtual || pooja.base_price_temple || pooja.base_price_in_person || 1100}
             </Badge>
             {pooja.duration_minutes && (
-              <div className="bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 flex items-center gap-1 text-xs text-white">
+              <div className="bg-black/40 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 text-xs text-white">
                 <Clock className="w-3 h-3" />
                 {pooja.duration_minutes}m
               </div>
@@ -61,30 +61,30 @@ function PoojaCard({ pooja }) {
           </div>
 
           {pooja.is_popular && (
-            <Badge className="absolute bottom-2 left-2 bg-amber-400 text-black border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+            <Badge className="absolute bottom-3 left-3 bg-amber-400 text-black border-0 px-2.5 py-1 text-xs flex items-center gap-1">
               <Flame className="w-3 h-3 fill-black" /> Popular
             </Badge>
           )}
         </div>
 
         {/* Content Section */}
-        <div className="p-3">
-          <p className="text-[10px] text-amber-600 uppercase tracking-wide mb-1">
+        <div className="p-4">
+          <p className="text-xs text-amber-600 uppercase tracking-wide mb-1">
             {pooja.category?.replace('_', ' ') || 'Vedic Ritual'}
           </p>
 
-          <h3 className="font-semibold text-gray-900 text-base mb-1 group-hover:text-amber-700 transition-colors line-clamp-1">
+          <h3 className="font-semibold text-gray-900 text-lg mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
             {pooja.name}
           </h3>
 
-          <p className="text-gray-500 text-xs line-clamp-2 mb-2">
+          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
             {pooja.purpose || pooja.description || "Perform this sacred ritual to invoke blessings and peace."}
           </p>
 
           {/* Bottom Stats */}
-          <div className="flex items-center justify-between text-[10px] text-gray-400">
+          <div className="flex items-center justify-between text-xs text-gray-400">
             <span>{pooja.total_bookings || 42}+ booked</span>
-            <ArrowUpRight className="w-4 h-4 text-amber-600 group-hover:rotate-45 transition-transform" />
+            <ArrowUpRight className="w-5 h-5 text-amber-600 group-hover:rotate-45 transition-transform" />
           </div>
         </div>
       </div>
@@ -95,11 +95,11 @@ function PoojaCard({ pooja }) {
 function PoojaCardSkeleton() {
   return (
     <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[16/10] w-full" />
-      <div className="p-3 space-y-2">
-        <Skeleton className="h-3 w-16" />
-        <Skeleton className="h-5 w-3/4" />
-        <Skeleton className="h-3 w-full" />
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-4 space-y-3">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-full" />
       </div>
     </div>
   );

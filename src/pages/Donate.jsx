@@ -80,7 +80,7 @@ function CampaignCard({ campaign, onDonate }) {
       <div className="relative h-full bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
         
         {/* Image Section */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={campaign.title}
@@ -90,13 +90,13 @@ function CampaignCard({ campaign, onDonate }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           
           {/* Top Badges */}
-          <div className="absolute top-2 left-2 right-2 flex justify-between">
-            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+          <div className="absolute top-3 left-3 right-3 flex justify-between">
+            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-2.5 py-1 text-xs flex items-center gap-1">
               <Icon className="w-3 h-3" />
               {campaign.category?.replace(/_/g, ' ')}
             </Badge>
             {daysLeft !== null && daysLeft > 0 && daysLeft <= 7 && (
-              <Badge className="bg-red-500 text-white border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+              <Badge className="bg-red-500 text-white border-0 px-2.5 py-1 text-xs flex items-center gap-1">
                 <Clock className="w-3 h-3" />
                 {daysLeft}d left
               </Badge>
@@ -104,27 +104,27 @@ function CampaignCard({ campaign, onDonate }) {
           </div>
 
           {/* Bottom Info */}
-          <div className="absolute bottom-2 left-2 right-2">
-            <h3 className="text-white font-semibold text-base line-clamp-1">{campaign.title}</h3>
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="text-white font-semibold text-lg line-clamp-1">{campaign.title}</h3>
           </div>
         </div>
 
         {/* Content Section */}
-        <div className="p-3">
+        <div className="p-4">
           {/* Progress Bar */}
-          <div className="mb-2">
-            <div className="flex justify-between text-xs mb-1">
+          <div className="mb-3">
+            <div className="flex justify-between text-sm mb-1.5">
               <span className="text-gray-600">₹{(campaign.raised_amount || 0).toLocaleString()}</span>
               <span className="text-amber-600 font-semibold">{Math.round(progress)}%</span>
             </div>
-            <Progress value={Math.min(progress, 100)} className="h-1.5" />
+            <Progress value={Math.min(progress, 100)} className="h-2" />
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-3 mb-2 text-[10px] text-gray-500">
+          <div className="flex items-center gap-3 mb-3 text-xs text-gray-500">
             {campaign.donor_count > 0 && (
               <span className="flex items-center gap-1">
-                <Heart className="w-3 h-3 text-pink-500" />
+                <Heart className="w-3.5 h-3.5 text-pink-500" />
                 {campaign.donor_count} donors
               </span>
             )}
@@ -138,10 +138,9 @@ function CampaignCard({ campaign, onDonate }) {
               onDonate(campaign);
             }}
             disabled={campaign.status !== 'active'}
-            size="sm"
-            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+            className="w-full h-10 bg-amber-600 hover:bg-amber-700 text-white"
           >
-            <Heart className="w-3 h-3 mr-1" />
+            <Heart className="w-4 h-4 mr-2" />
             Donate Now
           </Button>
         </div>
@@ -153,11 +152,11 @@ function CampaignCard({ campaign, onDonate }) {
 function CampaignCardSkeleton() {
   return (
     <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[16/10] w-full" />
-      <div className="p-3 space-y-2">
-        <Skeleton className="h-1.5 w-full" />
-        <Skeleton className="h-3 w-2/3" />
-        <Skeleton className="h-8 w-full rounded" />
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-4 space-y-3">
+        <Skeleton className="h-2 w-full" />
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-10 w-full rounded" />
       </div>
     </div>
   );

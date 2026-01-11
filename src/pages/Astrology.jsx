@@ -51,7 +51,7 @@ function AstrologerCard({ provider, onChatClick }) {
       }`}>
         
         {/* Image Section */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={provider.display_name}
@@ -63,45 +63,45 @@ function AstrologerCard({ provider, onChatClick }) {
           }`} />
           
           {/* Top Badges */}
-          <div className="absolute top-2 left-2 right-2 flex justify-between">
-            <div className="flex gap-1">
+          <div className="absolute top-3 left-3 right-3 flex justify-between">
+            <div className="flex gap-1.5">
               {isAI && (
-                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-2 py-0.5 text-xs flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> AI
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-2.5 py-1 text-xs flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" /> AI Powered
                 </Badge>
               )}
               {provider.is_verified && !isAI && (
-                <Badge className="bg-blue-500 text-white border-0 px-2 py-0.5 text-xs flex items-center gap-1">
+                <Badge className="bg-blue-500 text-white border-0 px-2.5 py-1 text-xs flex items-center gap-1">
                   <CheckCircle className="w-3 h-3" /> Verified
                 </Badge>
               )}
               {provider.is_available_now && (
-                <Badge className="bg-green-500 text-white border-0 px-2 py-0.5 text-xs">
+                <Badge className="bg-green-500 text-white border-0 px-2.5 py-1 text-xs">
                   Online
                 </Badge>
               )}
             </div>
-            <div className="bg-black/40 backdrop-blur-md rounded-full px-2 py-0.5 flex items-center gap-1 text-xs text-white">
+            <div className="bg-black/40 backdrop-blur-md rounded-full px-2.5 py-1 flex items-center gap-1 text-xs text-white">
               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               {provider.rating_average || 4.5}
             </div>
           </div>
 
           {/* Bottom Info */}
-          <div className="absolute bottom-2 left-2 right-2">
-            <h3 className="text-white font-semibold text-base mb-0.5">{provider.display_name}</h3>
-            <p className="text-white/80 text-xs">
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="text-white font-semibold text-lg mb-0.5">{provider.display_name}</h3>
+            <p className="text-white/80 text-sm">
               {isAI ? 'Instant AI Guidance' : `${provider.years_of_experience || 5}+ Years Experience`}
             </p>
           </div>
         </div>
 
         {/* Content Section */}
-        <div className="p-3">
+        <div className="p-4">
           {/* Specializations */}
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="flex flex-wrap gap-1.5 mb-3">
             {(provider.specializations || ['Vedic Astrology']).slice(0, 3).map((spec, idx) => (
-              <Badge key={idx} variant="secondary" className={`border-0 text-[10px] px-1.5 py-0.5 rounded ${
+              <Badge key={idx} variant="secondary" className={`border-0 text-xs px-2 py-1 rounded-full ${
                 isAI ? 'bg-purple-50 text-purple-700' : 'bg-orange-50 text-orange-700'
               }`}>
                 {spec}
@@ -111,7 +111,7 @@ function AstrologerCard({ provider, onChatClick }) {
 
           {/* Rates for Human Astrologers */}
           {!isAI && (
-            <div className="flex gap-2 mb-2 text-[10px]">
+            <div className="flex gap-3 mb-3 text-xs">
               <span className="text-gray-500">Chat ₹{provider.consultation_rate_chat || 15}/min</span>
               <span className="text-gray-300">|</span>
               <span className="text-gray-500">Call ₹{provider.consultation_rate_voice || 20}/min</span>
@@ -120,8 +120,8 @@ function AstrologerCard({ provider, onChatClick }) {
 
           {/* Free Badge for AI */}
           {isAI && (
-            <div className="mb-2 p-2 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 text-center">
-              <p className="text-sm font-semibold text-purple-700">FREE</p>
+            <div className="mb-3 p-2.5 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 text-center">
+              <p className="text-base font-semibold text-purple-700">FREE</p>
             </div>
           )}
 
@@ -129,14 +129,13 @@ function AstrologerCard({ provider, onChatClick }) {
           <Button 
             onClick={() => onChatClick(provider)}
             disabled={!provider.is_available_now && !isAI}
-            size="sm"
-            className={`w-full ${
+            className={`w-full h-10 ${
               isAI 
                 ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90' 
                 : 'bg-amber-600 hover:bg-amber-700'
             } text-white`}
           >
-            {isAI ? <Bot className="w-3 h-3 mr-1" /> : <MessageCircle className="w-3 h-3 mr-1" />}
+            {isAI ? <Bot className="w-4 h-4 mr-2" /> : <MessageCircle className="w-4 h-4 mr-2" />}
             {isAI ? 'Chat with AI' : (provider.is_available_now ? 'Chat Now' : 'Offline')}
           </Button>
         </div>
@@ -148,10 +147,10 @@ function AstrologerCard({ provider, onChatClick }) {
 function AstrologerCardSkeleton() {
   return (
     <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
-      <Skeleton className="aspect-[16/10] w-full" />
-      <div className="p-3 space-y-2">
-        <Skeleton className="h-3 w-full" />
-        <Skeleton className="h-8 w-full rounded" />
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-4 space-y-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-10 w-full rounded" />
       </div>
     </div>
   );
