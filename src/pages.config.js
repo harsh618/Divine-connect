@@ -34,7 +34,6 @@ import TempleDetail from './pages/TempleDetail';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
 import TempleDetails from './pages/TempleDetails';
-import PujaBooking from './pages/PujaBooking';
 import __Layout from './Layout.jsx';
 
 
@@ -75,7 +74,6 @@ export const PAGES = {
     "Temples": Temples,
     "Yatra": Yatra,
     "TempleDetails": TempleDetails,
-    "PujaBooking": PujaBooking,
 }
 
 export const pagesConfig = {
