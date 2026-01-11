@@ -26,7 +26,6 @@ import {
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { format, differenceInDays } from 'date-fns';
-import AIItineraryGenerator from '@/components/yatra/AIItineraryGenerator';
 import HotelBookingCard from '@/components/yatra/HotelBookingCard';
 
 const GOLD = '#FF9933';
@@ -44,7 +43,6 @@ export default function Yatra() {
   const [addGuide, setAddGuide] = useState(false);
   const [selectedGuide, setSelectedGuide] = useState(null);
   const [hotelSearchCity, setHotelSearchCity] = useState('');
-  const [generatedItinerary, setGeneratedItinerary] = useState(null);
 
   // Fetch temples
   const { data: temples, isLoading: templesLoading } = useQuery({
@@ -129,7 +127,6 @@ export default function Yatra() {
   const handleSelectCity = (city) => {
     setTripState(prev => ({ ...prev, city, hotel_booking: null }));
     setSelectedTemple(temples?.find(t => t.city === city) || null);
-    setGeneratedItinerary(null);
   };
 
   const handleSelectHotel = (hotel, roomType) => {
@@ -260,15 +257,6 @@ export default function Yatra() {
                 <div className="grid lg:grid-cols-3 gap-8">
                   {/* Left Column */}
                   <div className="lg:col-span-2 space-y-8">
-                    {/* AI Itinerary Generator */}
-                    <AIItineraryGenerator
-                      city={tripState.city}
-                      dates={tripState.dates}
-                      temples={temples?.filter(t => t.city === tripState.city)}
-                      hotels={cityHotels}
-                      onItineraryGenerated={setGeneratedItinerary}
-                    />
-
                     {/* Temples Section */}
                     <div>
                       <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
