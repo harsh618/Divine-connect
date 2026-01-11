@@ -2,18 +2,18 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Send, Sparkles, User, Calendar, Clock, MapPin, Bot, Check } from 'lucide-react';
+import { Loader2, Send, Sparkles, User, Calendar, Clock, MapPin, Bot, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import debounce from 'lodash/debounce';
 
-export default function VedicAstrologerChat({ userName, userId }) {
+export default function VedicAstrologerChat({ userName, userId, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [stage, setStage] = useState('name'); // name, dob, time, place, ready
+  const [stage, setStage] = useState('loading'); // loading, name, dob, time, place, ready
   const [userData, setUserData] = useState({
-    name: userName || '',
+    name: '',
     birth_date: '',
     birth_time: '',
     birth_place: '',
@@ -24,6 +24,7 @@ export default function VedicAstrologerChat({ userName, userId }) {
   const [placeSuggestions, setPlaceSuggestions] = useState([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState([]);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -35,9 +36,54 @@ export default function VedicAstrologerChat({ userName, userId }) {
     scrollToBottom();
   }, [messages]);
 
+  // Load user's saved astrology profile on mount
   useEffect(() => {
-    // Initial greeting
-    if (messages.length === 0) {
+    const loadUserProfile = async () => {
+      try {
+        // Check if user has saved kundli data
+        const kundlis = await base44.entities.Kundli.filter({ 
+          user_id: userId, 
+          is_deleted: false 
+        }, '-created_date', 1);
+
+        if (kundlis && kundlis.length > 0) {
+          const savedKundli = kundlis[0];
+          const loadedData = {
+            name: savedKundli.name || userName || '',
+            birth_date: savedKundli.birth_date || '',
+            birth_time: savedKundli.birth_time || '',
+            birth_place: savedKundli.birth_place || '',
+            latitude: savedKundli.latitude,
+            longitude: savedKundli.longitude,
+            timezone: savedKundli.timezone_str
+          };
+          setUserData(loadedData);
+
+          // If we have all required data, skip to ready stage
+          if (loadedData.birth_date && loadedData.birth_time && loadedData.birth_place && loadedData.latitude) {
+            setStage('ready');
+            const greeting = {
+              role: 'assistant',
+              content: `🕉️ Namaste ${loadedData.name}! Welcome back!\n\nI have your birth chart details:\n- **Date:** ${formatDate(loadedData.birth_date)}\n- **Time:** ${loadedData.birth_time}\n- **Place:** ${loadedData.birth_place}\n\n🔮 Your cosmic profile is ready! Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`,
+              timestamp: new Date()
+            };
+            setMessages([greeting]);
+          } else {
+            // Some data missing, start from beginning
+            startFreshConversation();
+          }
+        } else {
+          // No saved data, start fresh
+          startFreshConversation();
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        startFreshConversation();
+      }
+    };
+
+    const startFreshConversation = () => {
+      setStage('name');
       const greeting = {
         role: 'assistant',
         content: userName 
@@ -46,10 +92,60 @@ export default function VedicAstrologerChat({ userName, userId }) {
         timestamp: new Date()
       };
       setMessages([greeting]);
-    }
-  }, []);
+    };
 
-  // Fetch place suggestions using backend function to avoid CORS issues
+    if (userId) {
+      loadUserProfile();
+    } else {
+      startFreshConversation();
+    }
+  }, [userId, userName]);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  };
+
+  // Save user's astrology profile
+  const saveUserProfile = async (data) => {
+    try {
+      // Check if profile exists
+      const existing = await base44.entities.Kundli.filter({ 
+        user_id: userId, 
+        is_deleted: false 
+      }, '-created_date', 1);
+
+      if (existing && existing.length > 0) {
+        await base44.entities.Kundli.update(existing[0].id, {
+          name: data.name,
+          birth_date: data.birth_date,
+          birth_time: data.birth_time,
+          birth_place: data.birth_place,
+          latitude: data.latitude,
+          longitude: data.longitude,
+          timezone_str: data.timezone
+        });
+      } else {
+        await base44.entities.Kundli.create({
+          user_id: userId,
+          name: data.name,
+          birth_date: data.birth_date,
+          birth_time: data.birth_time,
+          birth_place: data.birth_place,
+          latitude: data.latitude,
+          longitude: data.longitude,
+          timezone_str: data.timezone
+        });
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    }
+  };
+
   const fetchPlaceSuggestions = async (query) => {
     if (!query || query.length < 2) {
       setPlaceSuggestions([]);
@@ -104,7 +200,6 @@ export default function VedicAstrologerChat({ userName, userId }) {
     setShowSuggestions(false);
     setPlaceSuggestions([]);
     
-    // Auto-submit after selecting
     const userMessage = {
       role: 'user',
       content: placeName,
@@ -117,7 +212,6 @@ export default function VedicAstrologerChat({ userName, userId }) {
     try {
       toast.info('Fetching location coordinates...');
       
-      // If suggestion already has coordinates, use them
       if (suggestion.latitude && suggestion.longitude && suggestion.timezone) {
         const updatedUserData = {
           ...userData,
@@ -128,12 +222,14 @@ export default function VedicAstrologerChat({ userName, userId }) {
         };
         setUserData(updatedUserData);
         
-        const assistantResponse = `Excellent! Birthplace: **${placeName}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
+        // Save profile
+        await saveUserProfile(updatedUserData);
+        
+        const assistantResponse = `Excellent! Birthplace: **${placeName}**\n\n✨ **Your cosmic profile has been saved!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${formatDate(updatedUserData.birth_date)}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
         
         setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
         setStage('ready');
       } else {
-        // Fallback to fetching coordinates
         const locationData = await fetchLocationData(placeName);
         const updatedUserData = {
           ...userData,
@@ -144,7 +240,10 @@ export default function VedicAstrologerChat({ userName, userId }) {
         };
         setUserData(updatedUserData);
         
-        const assistantResponse = `Excellent! Birthplace: **${updatedUserData.birth_place}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
+        // Save profile
+        await saveUserProfile(updatedUserData);
+        
+        const assistantResponse = `Excellent! Birthplace: **${updatedUserData.birth_place}**\n\n✨ **Your cosmic profile has been saved!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${formatDate(updatedUserData.birth_date)}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
         
         setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse, timestamp: new Date() }]);
         setStage('ready');
@@ -182,7 +281,6 @@ export default function VedicAstrologerChat({ userName, userId }) {
         setStage('dob');
       } 
       else if (stage === 'dob') {
-        // Validate and parse date
         const dateRegex = /^(\d{1,2})-(\d{1,2})-(\d{4})$/;
         const match = input.match(dateRegex);
         
@@ -201,7 +299,6 @@ export default function VedicAstrologerChat({ userName, userId }) {
         setStage('time');
       } 
       else if (stage === 'time') {
-        // Validate time format
         const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
         if (!timeRegex.test(input.trim())) {
           assistantResponse = `Please provide time in **HH:MM** format (like 03:20 or 15:45).\n\nTry again:`;
@@ -215,7 +312,6 @@ export default function VedicAstrologerChat({ userName, userId }) {
         setStage('place');
       } 
       else if (stage === 'place') {
-        // If user typed and pressed enter without selecting suggestion
         toast.info('Fetching location coordinates...');
         try {
           const locationData = await fetchLocationData(input.trim());
@@ -229,7 +325,10 @@ export default function VedicAstrologerChat({ userName, userId }) {
           };
           setUserData(updatedUserData);
           
-          assistantResponse = `Excellent! Birthplace: **${finalPlace}**\n\n✨ **Your cosmic coordinates are locked in!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${updatedUserData.birth_date}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
+          // Save profile
+          await saveUserProfile(updatedUserData);
+          
+          assistantResponse = `Excellent! Birthplace: **${finalPlace}**\n\n✨ **Your cosmic profile has been saved!**\n\n📋 **Summary:**\n- Name: ${updatedUserData.name}\n- Birth Date: ${formatDate(updatedUserData.birth_date)}\n- Birth Time: ${updatedUserData.birth_time}\n- Birth Place: ${updatedUserData.birth_place}\n\n🔮 **Your birth chart is ready!** Ask me anything about your:\n- Life purpose & personality\n- Career & finances\n- Love & relationships\n- Health & well-being\n- Current planetary periods (Dasha)\n- Remedies & guidance\n\nWhat would you like to know?`;
           setStage('ready');
           setShowSuggestions(false);
           setPlaceSuggestions([]);
@@ -241,14 +340,21 @@ export default function VedicAstrologerChat({ userName, userId }) {
         }
       } 
       else if (stage === 'ready') {
-        // Call the AI astrologer with full context
+        // Add to conversation history for context
+        const newHistory = [...conversationHistory, { role: 'user', content: input }];
+        setConversationHistory(newHistory);
+
+        // Call the AI astrologer with full context including conversation history
         const response = await base44.functions.invoke('vedicAstrologerChat', {
           user_data: userData,
-          user_question: input
+          user_question: input,
+          conversation_history: newHistory.slice(-10) // Last 10 messages for context
         });
 
         if (response.data.success) {
           assistantResponse = response.data.answer;
+          // Add assistant response to history
+          setConversationHistory(prev => [...prev, { role: 'assistant', content: assistantResponse }]);
         } else {
           assistantResponse = 'I apologize, I encountered an issue. Please try asking again.';
         }
@@ -276,20 +382,36 @@ export default function VedicAstrologerChat({ userName, userId }) {
     }
   };
 
+  if (stage === 'loading') {
+    return (
+      <div className="flex flex-col h-full bg-gradient-to-b from-purple-50 to-white rounded-xl items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-600 mb-4" />
+        <p className="text-purple-600">Loading your cosmic profile...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-[70vh] bg-gradient-to-b from-purple-50 to-white rounded-xl">
+    <div className="flex flex-col h-full bg-gradient-to-b from-purple-50 to-white rounded-xl">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-t-xl flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
           <Bot className="w-6 h-6" />
         </div>
-        <div>
+        <div className="flex-1">
           <h3 className="font-semibold">Vedic Astrologer AI</h3>
           <p className="text-xs text-white/80">Ask me about your Kundali</p>
         </div>
-        <div className="ml-auto flex gap-1">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-          <span className="text-xs">Online</span>
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+            <span className="text-xs">Online</span>
+          </div>
+          {onClose && (
+            <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-full transition-colors">
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -340,7 +462,7 @@ export default function VedicAstrologerChat({ userName, userId }) {
 
       {/* Input Area */}
       <div className="p-4 bg-white border-t rounded-b-xl">
-        {stage !== 'ready' && (
+        {stage !== 'ready' && stage !== 'loading' && (
           <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
             <div className={`flex items-center gap-1 ${stage === 'name' ? 'text-purple-600 font-medium' : (userData.name ? 'text-green-600' : '')}`}>
               {userData.name ? <Check className="w-3 h-3" /> : <User className="w-3 h-3" />}
@@ -394,12 +516,12 @@ export default function VedicAstrologerChat({ userName, userId }) {
                   'Ask me anything about your chart...'
                 }
                 disabled={loading}
-                className="flex-1 h-12"
+                className="flex-1 h-12 rounded-xl"
               />
               
               {/* Place Suggestions Dropdown */}
               {stage === 'place' && showSuggestions && (placeSuggestions.length > 0 || loadingSuggestions) && (
-                <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-purple-200 rounded-lg shadow-lg overflow-hidden z-50">
+                <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-purple-200 rounded-xl shadow-lg overflow-hidden z-50">
                   {loadingSuggestions ? (
                     <div className="p-3 text-center text-gray-500 text-sm flex items-center justify-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -423,7 +545,7 @@ export default function VedicAstrologerChat({ userName, userId }) {
             <Button
               onClick={handleSend}
               disabled={loading || !input.trim()}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 h-12 px-6"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 h-12 px-6 rounded-xl"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
