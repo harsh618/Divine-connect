@@ -1,20 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +11,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Search, 
   Star, 
@@ -30,117 +28,139 @@ import {
   CheckCircle,
   Send,
   HelpCircle,
-  Loader2
+  Loader2,
+  Sparkles,
+  ArrowUpRight,
+  Flame,
+  Users
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
-import PageHero from '../components/shared/PageHero';
-import KarmaScore from '../components/yatra/KarmaScore';
+
+const FALLBACK_AVATAR = "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200";
+const HERO_IMAGES = [
+  'https://images.unsplash.com/photo-1609920658906-8223bd289001?w=1920',
+  'https://images.unsplash.com/photo-1604608672516-f1e3c1f9f6e6?w=1920',
+  'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1920'
+];
+
+const SPECIALIZATIONS = [
+  { value: 'all', label: 'All Priests' },
+  { value: 'vedic', label: 'Vedic Rituals' },
+  { value: 'havan', label: 'Havan' },
+  { value: 'marriage', label: 'Marriage' },
+  { value: 'griha', label: 'Griha Pravesh' },
+];
 
 function PriestCard({ provider }) {
-  const defaultAvatar = "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200";
-  
+  const [imgSrc, setImgSrc] = useState(provider.avatar_url || FALLBACK_AVATAR);
+
   return (
-    <Card className="overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500">
-      <div className="p-6">
-        <div className="flex gap-4">
-          <div className="relative">
-            <div className="w-20 h-20 rounded-full overflow-hidden aspect-square">
-              <img
-                src={provider.avatar_url || defaultAvatar}
-                alt={provider.display_name}
-                className="w-full h-full object-cover"
-              />
-            </div>
+    <Link to={createPageUrl(`PriestProfile?id=${provider.id}`)} className="group block h-full">
+      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+        
+        {/* Image Section */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+          <img 
+            src={imgSrc} 
+            alt={provider.display_name}
+            onError={() => setImgSrc(FALLBACK_AVATAR)}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+          
+          {/* Top Badges */}
+          <div className="absolute top-4 left-4 flex gap-2">
             {provider.is_verified && (
-              <span className="absolute bottom-0 right-0 w-5 h-5 bg-blue-500 border-2 border-white rounded-full flex items-center justify-center">
-                <CheckCircle className="w-3 h-3 text-white fill-white" />
-              </span>
+              <Badge className="bg-blue-500 text-white border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" /> Verified
+              </Badge>
+            )}
+            {provider.is_featured && (
+              <Badge className="bg-amber-400 text-black border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
+                <Flame className="w-3 h-3 fill-black" /> Featured
+              </Badge>
             )}
           </div>
-          
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-900">
-              {provider.display_name}
-            </h3>
-            <p className="text-sm text-gray-500">
-              {provider.years_of_experience || 10}+ years experience
-            </p>
-            
-            <div className="flex items-center gap-2 mt-2">
-              <KarmaScore score={provider.karma_score} size="sm" />
-            </div>
+
+          {/* Rating Badge */}
+          <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1 text-xs text-white border border-white/10">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            {provider.rating_average || 4.5}
           </div>
         </div>
 
-        {/* Specializations */}
-        <div className="flex flex-wrap gap-1 mt-4">
-          {(provider.specializations || ['Vedic Rituals', 'Havan', 'Marriage Ceremonies']).slice(0, 3).map((spec, idx) => (
-            <Badge key={idx} variant="secondary" className="bg-orange-50 text-orange-700 border-0 text-xs">
-              {spec}
-            </Badge>
-          ))}
-        </div>
+        {/* Content Section */}
+        <div className="p-6 relative">
+          <p className="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-2">
+            {provider.years_of_experience || 10}+ Years Experience
+          </p>
 
-        {/* Languages */}
-        <div className="flex items-center gap-2 mt-3 text-sm text-gray-500">
-          <Languages className="w-4 h-4" />
-          {(provider.languages || ['Hindi', 'Sanskrit']).join(', ')}
-        </div>
+          <h3 className="font-serif text-2xl text-gray-900 leading-tight mb-3 group-hover:text-amber-700 transition-colors">
+            {provider.display_name}
+          </h3>
 
-        {/* Bio */}
-        {provider.bio && (
-          <p className="text-sm text-gray-600 mt-3 line-clamp-2">{provider.bio}</p>
-        )}
+          {/* Specializations */}
+          <div className="flex flex-wrap gap-1 mb-4">
+            {(provider.specializations || ['Vedic Rituals', 'Havan']).slice(0, 3).map((spec, idx) => (
+              <Badge key={idx} variant="secondary" className="bg-orange-50 text-orange-700 border-0 text-xs rounded-full">
+                {spec}
+              </Badge>
+            ))}
+          </div>
 
-        {/* Actions */}
-        <div className="flex gap-2 mt-4 pt-4 border-t">
-          <Button className="flex-1 bg-orange-500 hover:bg-orange-600">
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Chat
-          </Button>
-          <Link to={createPageUrl(`PriestProfile?id=${provider.id}`)} className="flex-1">
-            <Button variant="outline" className="w-full">
-              View Profile
-            </Button>
-          </Link>
+          {/* Languages */}
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+            <Languages className="w-4 h-4" />
+            {(provider.languages || ['Hindi', 'Sanskrit']).join(', ')}
+          </div>
+
+          {/* Bottom Action Area */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">{provider.total_consultations || 100}+ consultations</span>
+            </div>
+
+            <div className="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center group-hover:bg-amber-700 transition-colors duration-300">
+              <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:rotate-45" />
+            </div>
+          </div>
         </div>
       </div>
-    </Card>
+    </Link>
   );
 }
 
 function PriestCardSkeleton() {
   return (
-    <Card className="overflow-hidden p-6">
-      <div className="flex gap-4">
-        <Skeleton className="w-20 h-20 rounded-full" />
-        <div className="flex-1 space-y-2">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-4 w-20" />
-        </div>
+    <div className="rounded-[2rem] overflow-hidden bg-white border border-gray-100">
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-6 space-y-4">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-4 w-full" />
       </div>
-      <div className="flex gap-2 mt-4">
-        <Skeleton className="h-6 w-20 rounded-full" />
-        <Skeleton className="h-6 w-20 rounded-full" />
-      </div>
-      <Skeleton className="h-12 w-full mt-4" />
-      <div className="flex gap-2 mt-4">
-        <Skeleton className="h-10 flex-1" />
-        <Skeleton className="h-10 flex-1" />
-      </div>
-    </Card>
+    </div>
   );
 }
 
 export default function PriestPandit() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSpec, setSelectedSpec] = useState('all');
   const [showQuickQuery, setShowQuickQuery] = useState(false);
   const [queryText, setQueryText] = useState('');
   const [queryCategory, setQueryCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Rotate Hero Background
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['priests'],
@@ -152,9 +172,15 @@ export default function PriestPandit() {
     }, '-rating_average'),
   });
 
-  const filteredProviders = providers?.filter(provider => 
-    provider.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProviders = providers?.filter(provider => {
+    const matchesSearch = provider.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSpec = selectedSpec === 'all' || 
+      provider.specializations?.some(s => s.toLowerCase().includes(selectedSpec));
+    return matchesSearch && matchesSpec;
+  });
+
+  const featuredProviders = filteredProviders?.filter(p => p.is_featured) || [];
+  const regularProviders = filteredProviders?.filter(p => !p.is_featured) || [];
 
   const handleSubmitQuery = async () => {
     if (!queryText.trim()) {
@@ -171,61 +197,130 @@ export default function PriestPandit() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 md:pb-8">
-      <PageHero page="priests" />
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
+      
+      {/* Cinematic Hero */}
+      <section className="relative h-[60vh] flex items-end justify-center overflow-hidden pb-16">
+        <div className="absolute inset-0 z-0 bg-black">
+          {HERO_IMAGES.map((image, index) => (
+            <div
+              key={image}
+              className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
+              }`}
+              style={{ backgroundImage: `url(${image})` }}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-50 via-black/20 to-transparent" />
+        </div>
 
-      <div className="container mx-auto px-6 py-16">
+        <div className="relative z-10 container mx-auto px-6 max-w-7xl">
+          <div className="max-w-3xl">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-medium uppercase tracking-widest mb-4">
+                <Users className="w-3 h-3 text-amber-400" />
+                Sacred Guides
+             </div>
+             <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 leading-none drop-shadow-xl">
+                Expert Priests,<br/>
+                <span className="italic text-white/70">Divine Guidance.</span>
+             </h1>
+          </div>
+        </div>
+      </section>
+
+      {/* Content */}
+      <div className="container mx-auto px-6 max-w-7xl relative z-20 -mt-8">
+        
         {/* Quick Query Card */}
-        <Card className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-orange-200 mb-8">
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 shadow-xl shadow-stone-200/50 mb-8 border border-orange-200">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-xl bg-orange-100">
                 <HelpCircle className="w-8 h-8 text-orange-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Have a Quick Question?</h3>
-                <p className="text-gray-600">Ask our verified priests and get answers within 24 hours</p>
+                <h3 className="text-lg font-serif text-gray-900">Have a Quick Question?</h3>
+                <p className="text-gray-600 font-light">Ask our verified priests and get answers within 24 hours</p>
               </div>
             </div>
             <Button 
               onClick={() => setShowQuickQuery(true)}
-              className="bg-orange-500 hover:bg-orange-600"
+              className="bg-amber-600 hover:bg-amber-700 rounded-full px-6"
             >
               Ask a Question - ₹99
             </Button>
           </div>
-        </Card>
-
-        {/* Search */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Search priests by name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12"
-              />
-            </div>
-          </div>
         </div>
 
-        {/* Priests Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Filter Bar */}
+        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-12 border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+           <div className="relative flex-1 w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                 type="text" 
+                 placeholder="Search priests by name..." 
+                 className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-sm"
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+              />
+           </div>
+           
+           {/* Horizontal Specialization Filter */}
+           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+              {SPECIALIZATIONS.map((spec) => (
+                 <button
+                    key={spec.value}
+                    onClick={() => setSelectedSpec(spec.value)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
+                       selectedSpec === spec.value
+                       ? 'bg-orange-600 text-white shadow-lg'
+                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                 >
+                    {spec.label}
+                 </button>
+              ))}
+           </div>
+        </div>
+
+        {/* Featured Priests Section */}
+        {featuredProviders.length > 0 && !searchQuery && selectedSpec === 'all' && (
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <Sparkles className="w-6 h-6 text-amber-600" />
+              <h2 className="text-3xl font-serif text-gray-900">Featured Priests</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredProviders.map((provider) => (
+                <PriestCard key={provider.id} provider={provider} />
+              ))}
+            </div>
+            <div className="mt-12 mb-8 border-t border-gray-200" />
+          </div>
+        )}
+
+        {/* All Priests Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => <PriestCardSkeleton key={i} />)
-          ) : filteredProviders?.length > 0 ? (
-            filteredProviders.map((provider) => (
+          ) : (searchQuery || selectedSpec !== 'all' ? filteredProviders : regularProviders)?.length > 0 ? (
+            (searchQuery || selectedSpec !== 'all' ? filteredProviders : regularProviders).map((provider) => (
               <PriestCard key={provider.id} provider={provider} />
             ))
           ) : (
-            <div className="col-span-full text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-teal-100 flex items-center justify-center">
-                <span className="text-4xl">🙏</span>
+            <div className="col-span-full py-24 text-center">
+              <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="w-8 h-8 text-stone-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No priests available</h3>
-              <p className="text-gray-500">Check back soon for verified priests</p>
+              <h3 className="text-xl font-serif text-gray-900 mb-2">No priests available</h3>
+              <p className="text-gray-500 font-light">Check back soon for verified priests.</p>
+              <Button 
+                variant="link" 
+                onClick={() => {setSearchQuery(''); setSelectedSpec('all');}}
+                className="text-amber-600 mt-2"
+              >
+                Clear Filters
+              </Button>
             </div>
           )}
         </div>
@@ -233,9 +328,9 @@ export default function PriestPandit() {
 
       {/* Quick Query Modal */}
       <Dialog open={showQuickQuery} onOpenChange={setShowQuickQuery}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg rounded-[2rem]">
           <DialogHeader>
-            <DialogTitle>Ask a Question</DialogTitle>
+            <DialogTitle className="font-serif text-2xl">Ask a Question</DialogTitle>
             <DialogDescription>
               Submit your question to our verified priests. You'll receive an answer within 24 hours.
             </DialogDescription>
@@ -245,7 +340,7 @@ export default function PriestPandit() {
             <div>
               <Label className="mb-2 block">Category</Label>
               <Select value={queryCategory} onValueChange={setQueryCategory}>
-                <SelectTrigger>
+                <SelectTrigger className="rounded-xl">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -264,11 +359,11 @@ export default function PriestPandit() {
                 placeholder="Describe your question in detail..."
                 value={queryText}
                 onChange={(e) => setQueryText(e.target.value)}
-                className="min-h-32"
+                className="min-h-32 rounded-xl"
               />
             </div>
 
-            <div className="bg-amber-50 p-4 rounded-lg">
+            <div className="bg-amber-50 p-4 rounded-xl">
               <p className="text-sm text-amber-800">
                 <strong>Cost:</strong> ₹99 per question
                 <br />
@@ -278,13 +373,13 @@ export default function PriestPandit() {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowQuickQuery(false)} className="flex-1">
+            <Button variant="outline" onClick={() => setShowQuickQuery(false)} className="flex-1 rounded-xl h-12">
               Cancel
             </Button>
             <Button 
               onClick={handleSubmitQuery}
               disabled={isSubmitting}
-              className="flex-1 bg-orange-500 hover:bg-orange-600"
+              className="flex-1 bg-amber-600 hover:bg-amber-700 rounded-xl h-12"
             >
               {isSubmitting ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />

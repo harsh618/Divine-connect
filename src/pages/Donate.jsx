@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -26,7 +25,6 @@ import {
 } from "@/components/ui/select";
 import { 
   Heart, 
-  Target, 
   Users, 
   Calendar, 
   Loader2,
@@ -40,11 +38,19 @@ import {
   CheckCircle,
   Share2,
   Play,
-  Star
+  Star,
+  Sparkles,
+  ArrowUpRight
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
-import PageHero from '../components/shared/PageHero';
+
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800";
+const HERO_IMAGES = [
+  'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1920',
+  'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1920',
+  'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=1920'
+];
 
 const categoryIcons = {
   temple_renovation: Building2,
@@ -54,193 +60,128 @@ const categoryIcons = {
   medical: Stethoscope
 };
 
-const categoryColors = {
-  temple_renovation: 'bg-orange-100 text-orange-700',
-  gaushala: 'bg-green-100 text-green-700',
-  anna_daan: 'bg-pink-100 text-pink-700',
-  education: 'bg-blue-100 text-blue-700',
-  medical: 'bg-purple-100 text-purple-700'
-};
+const CATEGORIES = [
+  { value: 'all', label: 'All Causes', icon: Heart },
+  { value: 'temple_renovation', label: 'Temple', icon: Building2 },
+  { value: 'gaushala', label: 'Gaushala', icon: Leaf },
+  { value: 'anna_daan', label: 'Anna Daan', icon: Heart },
+  { value: 'education', label: 'Education', icon: BookOpen },
+  { value: 'medical', label: 'Medical', icon: Stethoscope },
+];
 
 function CampaignCard({ campaign, onDonate }) {
+  const [imgSrc, setImgSrc] = useState(campaign.images?.[0] || FALLBACK_IMAGE);
   const Icon = categoryIcons[campaign.category] || Heart;
   const progress = (campaign.raised_amount / campaign.goal_amount) * 100;
   const daysLeft = campaign.deadline ? differenceInDays(new Date(campaign.deadline), new Date()) : null;
-  const defaultImage = "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800";
-  
-  const quickAmounts = campaign.impact_breakdown?.slice(0, 3) || [];
 
   return (
-    <Link to={createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)}>
-      <Card className="overflow-hidden border-0 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer group">
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={campaign.images?.[0] || defaultImage}
+    <div className="group block h-full">
+      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+        
+        {/* Image Section */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+          <img 
+            src={imgSrc} 
             alt={campaign.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={() => setImgSrc(FALLBACK_IMAGE)}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
           
-          {/* Top Left - Category & Location */}
-          <Badge className={`absolute top-3 left-3 ${categoryColors[campaign.category]} border-0`}>
-            <Icon className="w-3 h-3 mr-1" />
-            {campaign.category?.replace(/_/g, ' ')}
-            {campaign.location && ` | ${campaign.location}`}
-          </Badge>
-          
-          {/* Top Right - Urgency Badges */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2">
-            {campaign.status === 'completed' && (
-              <Badge className="bg-green-500 text-white border-0">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Completed
-              </Badge>
-            )}
-            {progress >= 80 && progress < 100 && (
-              <Badge className="bg-orange-500 text-white border-0 animate-pulse">
-                <Flame className="w-3 h-3 mr-1" />
-                {Math.round(progress)}% Funded
-              </Badge>
-            )}
-            {daysLeft !== null && daysLeft > 0 && daysLeft <= 7 && (
-              <Badge className="bg-red-500 text-white border-0">
-                <Clock className="w-3 h-3 mr-1" />
-                {daysLeft} days left
-              </Badge>
-            )}
-            {campaign.video_url && (
-              <Badge className="bg-blue-500/90 text-white border-0">
-                <Play className="w-3 h-3 mr-1" />
-                Video
-              </Badge>
-            )}
+          {/* Top Badges */}
+          <div className="absolute top-4 left-4 flex gap-2">
+            <Badge className="bg-white/90 backdrop-blur text-black border-0 px-3 py-1 text-xs font-medium shadow-sm hover:bg-white flex items-center gap-1">
+              <Icon className="w-3 h-3" />
+              {campaign.category?.replace(/_/g, ' ')}
+            </Badge>
             {campaign.is_trending && (
-              <Badge className="bg-purple-500 text-white border-0">
-                <TrendingUp className="w-3 h-3 mr-1" />
-                Trending
+              <Badge className="bg-purple-500 text-white border-0 px-3 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" /> Trending
               </Badge>
             )}
           </div>
 
-          {/* Bottom - Organization Badge */}
-          {campaign.beneficiary_organization && (
-            <div className="absolute bottom-3 left-3">
-              <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm text-white border-0">
-                {campaign.beneficiary_organization}
-                {campaign.is_fcra_registered && (
-                  <CheckCircle className="w-3 h-3 ml-1 text-green-400" />
-                )}
-              </Badge>
+          {/* Urgency Badge */}
+          {daysLeft !== null && daysLeft > 0 && daysLeft <= 7 && (
+            <div className="absolute top-4 right-4 bg-red-500 text-white rounded-full px-3 py-1 flex items-center gap-1 text-xs font-medium">
+              <Clock className="w-3 h-3" />
+              {daysLeft} days left
+            </div>
+          )}
+
+          {/* Progress Overlay */}
+          {progress >= 80 && progress < 100 && (
+            <div className="absolute bottom-4 left-4 bg-orange-500 text-white rounded-full px-3 py-1 flex items-center gap-1 text-xs font-medium animate-pulse">
+              <Flame className="w-3 h-3" />
+              {Math.round(progress)}% Funded
             </div>
           )}
         </div>
-        
-        <div className="p-5">
-          <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-1">
+
+        {/* Content Section */}
+        <div className="p-6 relative">
+          <p className="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-2">
+            {campaign.beneficiary_organization || 'Charitable Cause'}
+            {campaign.is_fcra_registered && (
+              <CheckCircle className="w-3 h-3 inline ml-1 text-green-500" />
+            )}
+          </p>
+
+          <h3 className="font-serif text-2xl text-gray-900 leading-tight mb-3 group-hover:text-amber-700 transition-colors line-clamp-1">
             {campaign.title}
           </h3>
-          
-          {/* Impact Summary */}
-          {campaign.impact_breakdown?.[0] && (
-            <div className="mb-3 text-sm text-orange-600 font-medium">
-              💝 ₹{campaign.impact_breakdown[0].amount.toLocaleString()} = {campaign.impact_breakdown[0].impact}
-            </div>
-          )}
 
-          {campaign.description && (
-            <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-              {campaign.description}
+          {/* Impact */}
+          {campaign.impact_breakdown?.[0] && (
+            <p className="text-sm text-orange-600 font-medium mb-3">
+              💝 ₹{campaign.impact_breakdown[0].amount.toLocaleString()} = {campaign.impact_breakdown[0].impact}
             </p>
           )}
 
-          {/* Progress Bar with Percentage */}
+          <p className="text-gray-500 text-sm leading-relaxed line-clamp-2 mb-4 font-light">
+            {campaign.description}
+          </p>
+
+          {/* Progress Bar */}
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">
                 Raised: ₹{(campaign.raised_amount || 0).toLocaleString()}
               </span>
-              <span className="text-orange-600 font-semibold">
+              <span className="text-amber-600 font-semibold">
                 {Math.round(progress)}%
               </span>
             </div>
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>Goal: ₹{campaign.goal_amount?.toLocaleString()}</span>
-            </div>
-            <Progress value={Math.min(progress, 100)} className="h-2.5" />
+            <Progress value={Math.min(progress, 100)} className="h-2" />
+            <p className="text-xs text-gray-500 mt-1">Goal: ₹{campaign.goal_amount?.toLocaleString()}</p>
           </div>
 
-          {/* Beneficiary & Social Proof */}
-          <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
-            {campaign.beneficiary_count > 0 && (
-              <span className="flex items-center">
-                <Users className="w-4 h-4 mr-1 text-blue-500" />
-                {campaign.beneficiary_count.toLocaleString()}+ helped
-              </span>
-            )}
+          {/* Stats */}
+          <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
             {campaign.donor_count > 0 && (
-              <span className="flex items-center">
-                <Heart className="w-4 h-4 mr-1 text-pink-500" />
-                {campaign.donor_count.toLocaleString()} donors
+              <span className="flex items-center gap-1">
+                <Heart className="w-4 h-4 text-pink-500" />
+                {campaign.donor_count} donors
+              </span>
+            )}
+            {campaign.beneficiary_count > 0 && (
+              <span className="flex items-center gap-1">
+                <Users className="w-4 h-4 text-blue-500" />
+                {campaign.beneficiary_count}+ helped
               </span>
             )}
           </div>
 
-          {/* Rating */}
-          {campaign.campaign_rating && campaign.total_reviews > 0 && (
-            <div className="flex items-center gap-1 mb-4 text-sm">
-              <div className="flex">
-                {Array(5).fill(0).map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`w-3.5 h-3.5 ${i < Math.round(campaign.campaign_rating) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
-                  />
-                ))}
-              </div>
-              <span className="text-gray-600">
-                {campaign.campaign_rating.toFixed(1)} ({campaign.total_reviews})
-              </span>
-            </div>
-          )}
-
-          {/* Latest Update */}
-          {campaign.latest_update && (
-            <div className="mb-4 p-2 bg-blue-50 rounded-lg text-xs text-blue-700">
-              <div className="flex items-center gap-1">
-                <Play className="w-3 h-3" />
-                <span className="font-medium">Latest: {campaign.latest_update.title}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Quick Donation Amounts */}
-          {quickAmounts.length > 0 && (
-            <div className="mb-4 flex gap-2">
-              {quickAmounts.map((item, idx) => (
-                <Button
-                  key={idx}
-                  size="sm"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onDonate(campaign);
-                  }}
-                  className="flex-1 text-xs h-8"
-                >
-                  ₹{item.amount}
-                </Button>
-              ))}
-            </div>
-          )}
-
-          {/* CTA & Share */}
-          <div className="flex items-center gap-2">
+          {/* Bottom Action Area */}
+          <div className="flex items-center gap-3 pt-4 border-t border-gray-50">
             <Button 
               onClick={(e) => {
                 e.preventDefault();
                 onDonate(campaign);
               }}
               disabled={campaign.status !== 'active'}
-              className="flex-1 bg-orange-500 hover:bg-orange-600"
+              className="flex-1 h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white"
             >
               <Heart className="w-4 h-4 mr-2" />
               Donate Now
@@ -248,6 +189,7 @@ function CampaignCard({ campaign, onDonate }) {
             <Button
               size="icon"
               variant="outline"
+              className="h-12 w-12 rounded-xl"
               onClick={(e) => {
                 e.preventDefault();
                 const url = `${window.location.origin}${createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)}`;
@@ -257,35 +199,29 @@ function CampaignCard({ campaign, onDonate }) {
             >
               <Share2 className="w-4 h-4" />
             </Button>
+            <Link to={createPageUrl(`CampaignDetail?campaignId=${campaign.id}`)}>
+              <Button size="icon" variant="outline" className="h-12 w-12 rounded-xl">
+                <ArrowUpRight className="w-5 h-5" />
+              </Button>
+            </Link>
           </div>
-
-          {/* Days Left Footer */}
-          {daysLeft !== null && daysLeft > 7 && (
-            <div className="mt-3 pt-3 border-t text-center text-xs text-gray-500">
-              <Calendar className="w-3 h-3 inline mr-1" />
-              {daysLeft} days remaining
-            </div>
-          )}
         </div>
-      </Card>
-    </Link>
+      </div>
+    </div>
   );
 }
 
 function CampaignCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      <Skeleton className="h-48 w-full" />
-      <div className="p-5 space-y-3">
-        <Skeleton className="h-5 w-3/4" />
+    <div className="rounded-[2rem] overflow-hidden bg-white border border-gray-100">
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-6 space-y-4">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-8 w-3/4" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-2 w-full" />
-        <div className="flex justify-between items-center pt-2">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-9 w-24" />
-        </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -294,6 +230,7 @@ export default function Donate() {
   const urlParams = new URLSearchParams(window.location.search);
   const categoryFromUrl = urlParams.get('category');
   
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl || 'all');
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [donationAmount, setDonationAmount] = useState('');
@@ -301,7 +238,15 @@ export default function Donate() {
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringFrequency, setRecurringFrequency] = useState('monthly');
 
-  React.useEffect(() => {
+  // Rotate Hero Background
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     if (categoryFromUrl) {
       setSelectedCategory(categoryFromUrl);
     }
@@ -316,7 +261,6 @@ export default function Donate() {
     mutationFn: async (donationData) => {
       const user = await base44.auth.me();
       
-      // Create donation record
       await base44.entities.Donation.create({
         ...donationData,
         user_id: user.id,
@@ -324,7 +268,6 @@ export default function Donate() {
         donor_email: user.email
       });
 
-      // Update campaign raised amount
       const campaign = campaigns.find(c => c.id === donationData.campaign_id);
       if (campaign) {
         await base44.entities.DonationCampaign.update(campaign.id, {
@@ -360,60 +303,105 @@ export default function Donate() {
     selectedCategory === 'all' || campaign.category === selectedCategory
   );
 
-  const totalRaised = campaigns?.reduce((sum, c) => sum + (c.raised_amount || 0), 0) || 0;
+  const featuredCampaigns = filteredCampaigns?.filter(c => c.is_trending) || [];
+  const regularCampaigns = filteredCampaigns?.filter(c => !c.is_trending) || [];
 
   return (
-    <div className="min-h-screen bg-white pb-24 md:pb-8">
-      <PageHero page="donate" />
-
-      <div className="container mx-auto px-6 py-16" id="campaigns">
-        {/* Campaigns Section Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Active Campaigns</h2>
-          <p className="text-gray-600">Support causes that matter to you</p>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          <Button
-            variant={selectedCategory === 'all' ? 'default' : 'outline'}
-            onClick={() => setSelectedCategory('all')}
-            className={selectedCategory === 'all' ? 'bg-orange-500 hover:bg-orange-600' : ''}
-          >
-            All Causes
-            </Button>
-          {Object.entries(categoryIcons).map(([key, Icon]) => (
-            <Button
-              key={key}
-              variant={selectedCategory === key ? 'default' : 'outline'}
-              onClick={() => setSelectedCategory(key)}
-              className={selectedCategory === key ? 'bg-orange-500 hover:bg-orange-600' : ''}
-            >
-              <Icon className="w-4 h-4 mr-2" />
-              {key.replace(/_/g, ' ')}
-            </Button>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
+      
+      {/* Cinematic Hero */}
+      <section className="relative h-[60vh] flex items-end justify-center overflow-hidden pb-16">
+        <div className="absolute inset-0 z-0 bg-black">
+          {HERO_IMAGES.map((image, index) => (
+            <div
+              key={image}
+              className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-60' : 'opacity-0'
+              }`}
+              style={{ backgroundImage: `url(${image})` }}
+            />
           ))}
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-50 via-black/20 to-transparent" />
         </div>
 
-        {/* Campaigns Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="relative z-10 container mx-auto px-6 max-w-7xl">
+          <div className="max-w-3xl">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-medium uppercase tracking-widest mb-4">
+                <Heart className="w-3 h-3 text-pink-400" />
+                Sacred Giving
+             </div>
+             <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 leading-none drop-shadow-xl">
+                Give with Love,<br/>
+                <span className="italic text-white/70">Change Lives.</span>
+             </h1>
+          </div>
+        </div>
+      </section>
+
+      {/* Content */}
+      <div className="container mx-auto px-6 max-w-7xl relative z-20 -mt-8">
+        
+        {/* Filter Bar */}
+        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-12 border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+           <div className="flex items-center gap-2 overflow-x-auto w-full pb-2 md:pb-0 scrollbar-hide">
+              {CATEGORIES.map((cat) => {
+                const CatIcon = cat.icon;
+                return (
+                  <button
+                    key={cat.value}
+                    onClick={() => setSelectedCategory(cat.value)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 flex items-center gap-2 ${
+                       selectedCategory === cat.value
+                       ? 'bg-orange-600 text-white shadow-lg'
+                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <CatIcon className="w-4 h-4" />
+                    {cat.label}
+                  </button>
+                );
+              })}
+           </div>
+        </div>
+
+        {/* Trending Campaigns Section */}
+        {featuredCampaigns.length > 0 && selectedCategory === 'all' && (
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <TrendingUp className="w-6 h-6 text-purple-600" />
+              <h2 className="text-3xl font-serif text-gray-900">Trending Campaigns</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} onDonate={setSelectedCampaign} />
+              ))}
+            </div>
+            <div className="mt-12 mb-8 border-t border-gray-200" />
+          </div>
+        )}
+
+        {/* All Campaigns Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => <CampaignCardSkeleton key={i} />)
-          ) : filteredCampaigns?.length > 0 ? (
-            filteredCampaigns.map((campaign) => (
-              <CampaignCard 
-                key={campaign.id} 
-                campaign={campaign} 
-                onDonate={setSelectedCampaign}
-              />
+          ) : (selectedCategory !== 'all' ? filteredCampaigns : regularCampaigns)?.length > 0 ? (
+            (selectedCategory !== 'all' ? filteredCampaigns : regularCampaigns).map((campaign) => (
+              <CampaignCard key={campaign.id} campaign={campaign} onDonate={setSelectedCampaign} />
             ))
           ) : (
-            <div className="col-span-full text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-pink-100 flex items-center justify-center">
-                <Heart className="w-10 h-10 text-pink-400" />
+            <div className="col-span-full py-24 text-center">
+              <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="w-8 h-8 text-stone-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No campaigns yet</h3>
-              <p className="text-gray-500">Check back soon for donation campaigns</p>
+              <h3 className="text-xl font-serif text-gray-900 mb-2">No campaigns available</h3>
+              <p className="text-gray-500 font-light">Check back soon for donation campaigns.</p>
+              <Button 
+                variant="link" 
+                onClick={() => setSelectedCategory('all')}
+                className="text-amber-600 mt-2"
+              >
+                Clear Filters
+              </Button>
             </div>
           )}
         </div>
@@ -421,9 +409,9 @@ export default function Donate() {
 
       {/* Donation Modal */}
       <Dialog open={!!selectedCampaign} onOpenChange={() => setSelectedCampaign(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-[2rem]">
           <DialogHeader>
-            <DialogTitle>Make a Donation</DialogTitle>
+            <DialogTitle className="font-serif text-2xl">Make a Donation</DialogTitle>
             <DialogDescription>
               {selectedCampaign?.title}
             </DialogDescription>
@@ -436,7 +424,7 @@ export default function Donate() {
                   key={amount}
                   variant={donationAmount === String(amount) ? "default" : "outline"}
                   onClick={() => setDonationAmount(String(amount))}
-                  className={donationAmount === String(amount) ? 'bg-orange-500 hover:bg-orange-600' : ''}
+                  className={`rounded-xl ${donationAmount === String(amount) ? 'bg-amber-600 hover:bg-amber-700' : ''}`}
                 >
                   ₹{amount}
                 </Button>
@@ -450,6 +438,7 @@ export default function Donate() {
                 placeholder="Enter amount"
                 value={donationAmount}
                 onChange={(e) => setDonationAmount(e.target.value)}
+                className="rounded-xl"
               />
             </div>
 
@@ -478,7 +467,7 @@ export default function Donate() {
 
               {isRecurring && (
                 <Select value={recurringFrequency} onValueChange={setRecurringFrequency}>
-                  <SelectTrigger>
+                  <SelectTrigger className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -491,13 +480,13 @@ export default function Donate() {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setSelectedCampaign(null)} className="flex-1">
+            <Button variant="outline" onClick={() => setSelectedCampaign(null)} className="flex-1 rounded-xl h-12">
               Cancel
             </Button>
             <Button 
               onClick={handleDonate}
               disabled={donationMutation.isPending}
-              className="flex-1 bg-orange-500 hover:bg-orange-600"
+              className="flex-1 bg-amber-600 hover:bg-amber-700 rounded-xl h-12"
             >
               {donationMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
