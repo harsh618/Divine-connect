@@ -40,6 +40,7 @@ import {
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
+import logAuditAction from './useAuditLog';
 
 const categoryColors = {
   temple_renovation: 'bg-orange-100 text-orange-700',
@@ -79,7 +80,12 @@ export default function AdminDonations() {
   });
 
   const createCampaignMutation = useMutation({
-    mutationFn: (data) => base44.entities.DonationCampaign.create(data),
+    mutationFn: async (data) => {
+      const result = await base44.entities.DonationCampaign.create(data);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'create', 'DonationCampaign', result.id, { title: data.title });
+      return result;
+    },
     onSuccess: () => {
       toast.success('Campaign created successfully!');
       queryClient.invalidateQueries(['admin-campaigns-list']);
@@ -88,7 +94,11 @@ export default function AdminDonations() {
   });
 
   const updateCampaignMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.DonationCampaign.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      await base44.entities.DonationCampaign.update(id, data);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'update', 'DonationCampaign', id, { title: data.title });
+    },
     onSuccess: () => {
       toast.success('Campaign updated successfully!');
       queryClient.invalidateQueries(['admin-campaigns-list']);

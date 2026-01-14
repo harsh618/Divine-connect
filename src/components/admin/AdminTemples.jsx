@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
+import logAuditAction from './useAuditLog';
 
 const initialFormData = {
   name: '',
@@ -73,7 +74,12 @@ export default function AdminTemples() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Temple.create(data),
+    mutationFn: async (data) => {
+      const result = await base44.entities.Temple.create(data);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'create', 'Temple', result.id, { name: data.name });
+      return result;
+    },
     onSuccess: () => {
       toast.success('Temple created successfully!');
       queryClient.invalidateQueries(['admin-temples-list']);
@@ -83,7 +89,11 @@ export default function AdminTemples() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Temple.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      await base44.entities.Temple.update(id, data);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'update', 'Temple', id, { name: data.name });
+    },
     onSuccess: () => {
       toast.success('Temple updated successfully!');
       queryClient.invalidateQueries(['admin-temples-list']);
@@ -94,7 +104,11 @@ export default function AdminTemples() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Temple.update(id, { is_deleted: true }),
+    mutationFn: async (id) => {
+      await base44.entities.Temple.update(id, { is_deleted: true });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'delete', 'Temple', id);
+    },
     onSuccess: () => {
       toast.success('Temple moved to trash');
       queryClient.invalidateQueries(['admin-temples-list']);

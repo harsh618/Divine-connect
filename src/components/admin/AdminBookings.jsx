@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import logAuditAction from './useAuditLog';
 
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-700',
@@ -88,7 +89,11 @@ export default function AdminBookings() {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Booking.update(id, { status }),
+    mutationFn: async ({ id, status }) => {
+      await base44.entities.Booking.update(id, { status });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'update', 'Booking', id, { status });
+    },
     onSuccess: () => {
       toast.success('Booking status updated');
       queryClient.invalidateQueries(['admin-bookings-list']);

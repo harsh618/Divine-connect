@@ -39,6 +39,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from 'sonner';
 import ImageCropUpload from './ImageCropUpload';
+import logAuditAction from './useAuditLog';
 
 const categoryOptions = [
   'graha_shanti', 'satyanarayan', 'ganesh', 'lakshmi', 'durga',
@@ -72,7 +73,12 @@ export default function AdminPoojas() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Pooja.create(data),
+    mutationFn: async (data) => {
+      const result = await base44.entities.Pooja.create(data);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'create', 'Pooja', result.id, { name: data.name });
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-poojas']);
       toast.success('Pooja created successfully');
@@ -81,7 +87,11 @@ export default function AdminPoojas() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Pooja.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      await base44.entities.Pooja.update(id, data);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'update', 'Pooja', id, { name: data.name });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-poojas']);
       toast.success('Pooja updated successfully');
@@ -90,7 +100,11 @@ export default function AdminPoojas() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Pooja.update(id, { is_deleted: true }),
+    mutationFn: async (id) => {
+      await base44.entities.Pooja.update(id, { is_deleted: true });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'delete', 'Pooja', id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-poojas']);
       toast.success('Pooja deleted successfully');
