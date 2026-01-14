@@ -77,6 +77,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, collapsed, setCo
       title: 'System',
       items: [
         { id: 'settings', label: 'Settings', icon: Settings, badge: null },
+        { id: 'audit', label: 'Audit Log', icon: Shield, badge: null },
         { id: 'trash', label: 'Trash', icon: Trash2, badge: null },
       ]
     }

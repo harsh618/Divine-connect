@@ -17,6 +17,7 @@ import AdminArticles from '@/components/admin/AdminArticles';
 import AdminAuspiciousDays from '@/components/admin/AdminAuspiciousDays';
 import AdminTrash from '@/components/admin/AdminTrash';
 import AdminSettings from '@/components/admin/AdminSettings';
+import AdminAuditLog from '@/components/admin/AdminAuditLog';
 import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -92,6 +93,8 @@ export default function AdminDashboard() {
         return <AdminAuspiciousDays />;
       case 'settings':
         return <AdminSettings />;
+      case 'audit':
+        return <AdminAuditLog />;
       case 'trash':
         return <AdminTrash />;
       default:
