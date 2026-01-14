@@ -337,18 +337,18 @@ export default function Yatra() {
         </div>
 
         {/* Featured Hotels Section */}
-        {featuredHotels.length > 0 && !searchQuery && selectedCity === 'all' && (
-          <div className="mb-16">
+        {featuredHotels.length > 0 && !searchQuery && selectedCity === 'all' && !showFilters && (
+          <div className="mb-12">
             <div className="flex items-center gap-3 mb-6">
               <Sparkles className="w-6 h-6 text-amber-600" />
-              <h2 className="text-3xl font-serif text-gray-900">Featured Hotels</h2>
+              <h2 className="text-3xl font-serif text-gray-900">Featured Stays</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredHotels.map((hotel) => (
                 <HotelCard key={hotel.id} hotel={hotel} />
               ))}
             </div>
-            <div className="mt-12 mb-8 border-t border-gray-200" />
+            <div className="mt-10 mb-6 border-t border-gray-200" />
           </div>
         )}
 
