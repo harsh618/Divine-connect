@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarComp } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +37,12 @@ import {
   Calendar,
   Flame,
   Check,
-  MapPin
+  MapPin,
+  Hotel,
+  Wifi,
+  Car,
+  Utensils,
+  CheckCircle
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -76,6 +82,9 @@ export default function PoojaDetail() {
   const [specialRequirements, setSpecialRequirements] = useState('');
   const [itemsArrangedBy, setItemsArrangedBy] = useState('priest');
   const [location, setLocation] = useState('');
+  const [needsHotel, setNeedsHotel] = useState(false);
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [selectedTemple, setSelectedTemple] = useState(null);
 
   const { data: pooja, isLoading } = useQuery({
     queryKey: ['pooja', poojaId],
@@ -84,6 +93,30 @@ export default function PoojaDetail() {
       return poojas.find(p => p.id === poojaId) || null;
     },
     enabled: !!poojaId
+  });
+
+  // Fetch temples for temple mode
+  const { data: temples } = useQuery({
+    queryKey: ['temples-for-pooja'],
+    queryFn: () => base44.entities.Temple.filter({ is_deleted: false, is_hidden: false }, 'name', 50),
+    enabled: selectedMode === 'temple'
+  });
+
+  // Fetch hotels near selected temple
+  const { data: nearbyHotels, isLoading: hotelsLoading } = useQuery({
+    queryKey: ['hotels-near-temple', selectedTemple?.city],
+    queryFn: async () => {
+      const hotels = await base44.entities.Hotel.filter({
+        is_deleted: false
+      }, '-rating_average', 20);
+      
+      const cityHotels = hotels.filter(h => 
+        h.city?.toLowerCase() === selectedTemple?.city?.toLowerCase()
+      );
+      
+      return cityHotels.length > 0 ? cityHotels : hotels.slice(0, 6);
+    },
+    enabled: !!selectedTemple?.city && needsHotel && selectedMode === 'temple'
   });
 
   const checkPriestAvailability = async (date, timeSlot) => {
@@ -167,6 +200,12 @@ export default function PoojaDetail() {
     if (itemsArrangedBy === 'priest') {
       totalAmount += pooja.items_arrangement_cost || 0;
     }
+    
+    // Add hotel cost if selected
+    if (selectedHotel && needsHotel) {
+      const roomPrice = selectedHotel.room_inventory?.[0]?.price_per_night || 1500;
+      totalAmount += roomPrice;
+    }
 
     bookingMutation.mutate({
       start_date: format(startDate, 'yyyy-MM-dd'),
@@ -179,7 +218,11 @@ export default function PoojaDetail() {
       special_requirements: specialRequirements,
       items_arranged_by: itemsArrangedBy,
       location: selectedMode === 'in_person' ? location : null,
-      total_amount: totalAmount
+      total_amount: totalAmount,
+      special_requirements: selectedHotel ? 
+        `${specialRequirements ? specialRequirements + ' | ' : ''}Hotel: ${selectedHotel.name}` : 
+        specialRequirements,
+      temple_id: selectedMode === 'temple' ? selectedTemple?.id : null
     });
   };
 
@@ -566,7 +609,11 @@ export default function PoojaDetail() {
                 )}
                 {pooja.base_price_temple > 0 && (
                   <button
-                    onClick={() => setSelectedMode('temple')}
+                    onClick={() => {
+                      setSelectedMode('temple');
+                      setNeedsHotel(false);
+                      setSelectedHotel(null);
+                    }}
                     className={`p-4 rounded-xl border-2 transition-all ${
                       selectedMode === 'temple'
                         ? 'border-amber-500 bg-amber-50'
@@ -697,6 +744,129 @@ export default function PoojaDetail() {
               </div>
             )}
 
+            {/* Temple Selection (for temple mode) */}
+            {selectedMode === 'temple' && (
+              <div>
+                <Label className="mb-2 block text-sm font-medium">Select Temple</Label>
+                <Select 
+                  value={selectedTemple?.id || ''} 
+                  onValueChange={(val) => {
+                    const temple = temples?.find(t => t.id === val);
+                    setSelectedTemple(temple);
+                    setSelectedHotel(null);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a temple" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {temples?.map((temple) => (
+                      <SelectItem key={temple.id} value={temple.id}>
+                        {temple.name} - {temple.city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Hotel Cross-sell (for temple mode) */}
+            {selectedMode === 'temple' && selectedTemple && (
+              <div 
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  needsHotel ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-300'
+                }`}
+                onClick={() => {
+                  setNeedsHotel(!needsHotel);
+                  if (needsHotel) setSelectedHotel(null);
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                    needsHotel ? 'border-orange-500 bg-orange-500' : 'border-gray-300'
+                  }`}>
+                    {needsHotel && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Hotel className="w-5 h-5 text-orange-500" />
+                      <span className="font-semibold">Need a place to stay?</span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      View hotels near {selectedTemple.city}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Hotel Selection */}
+            {selectedMode === 'temple' && needsHotel && selectedTemple && (
+              <div className="space-y-3 animate-in slide-in-from-top-2">
+                <Label className="font-medium">Select Hotel in {selectedTemple.city}</Label>
+                
+                {hotelsLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+                  </div>
+                ) : nearbyHotels?.length > 0 ? (
+                  <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                    {nearbyHotels.map((hotel) => {
+                      const roomPrice = hotel.room_inventory?.[0]?.price_per_night || 1500;
+                      return (
+                        <div
+                          key={hotel.id}
+                          onClick={() => setSelectedHotel(hotel)}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            selectedHotel?.id === hotel.id 
+                              ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500' 
+                              : 'border-gray-200 hover:border-orange-300'
+                          }`}
+                        >
+                          <div className="flex gap-3">
+                            <img
+                              src={hotel.thumbnail_url || hotel.images?.[0] || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=200'}
+                              alt={hotel.name}
+                              className="w-20 h-16 rounded-lg object-cover flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <h4 className="font-semibold text-gray-800 truncate">{hotel.name}</h4>
+                                {selectedHotel?.id === hotel.id && (
+                                  <CheckCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                <MapPin className="w-3 h-3" />
+                                {hotel.city}
+                                <span>•</span>
+                                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                {hotel.rating_average || 4.5}
+                              </div>
+                              <div className="flex items-center justify-between mt-2">
+                                <div className="flex gap-1">
+                                  {hotel.amenities?.slice(0, 3).map((a, i) => (
+                                    <span key={i} className="text-xs text-gray-400">
+                                      {a.toLowerCase() === 'wifi' && <Wifi className="w-3 h-3" />}
+                                      {a.toLowerCase() === 'parking' && <Car className="w-3 h-3" />}
+                                      {a.toLowerCase() === 'restaurant' && <Utensils className="w-3 h-3" />}
+                                    </span>
+                                  ))}
+                                </div>
+                                <span className="font-semibold text-orange-600">₹{roomPrice}/night</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500 py-4">No hotels available in this area</p>
+                )}
+              </div>
+            )}
+
             {/* Number of Devotees */}
             <div>
               <Label className="mb-2 block text-sm font-medium">Number of Devotees</Label>
@@ -739,13 +909,46 @@ export default function PoojaDetail() {
             </div>
           </div>
 
+          {/* Price Summary */}
+          {(selectedHotel || selectedMode) && (
+            <Card className="p-4 bg-amber-50 border-amber-200 mb-4">
+              <h4 className="font-semibold mb-2">Booking Summary</h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span>Pooja ({selectedMode === 'virtual' ? 'Virtual' : selectedMode === 'in_person' ? 'In-Person' : 'At Temple'})</span>
+                  <span>₹{pooja[`base_price_${selectedMode === 'in_person' ? 'in_person' : selectedMode}`] || 0}</span>
+                </div>
+                {itemsArrangedBy === 'priest' && pooja.items_arrangement_cost > 0 && (
+                  <div className="flex justify-between">
+                    <span>Items Arrangement</span>
+                    <span>₹{pooja.items_arrangement_cost}</span>
+                  </div>
+                )}
+                {selectedHotel && (
+                  <div className="flex justify-between">
+                    <span>{selectedHotel.name}</span>
+                    <span>₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
+                  </div>
+                )}
+                <div className="flex justify-between pt-2 border-t border-amber-200 font-semibold">
+                  <span>Total</span>
+                  <span className="text-amber-700">
+                    ₹{(pooja[`base_price_${selectedMode === 'in_person' ? 'in_person' : selectedMode}`] || 0) + 
+                      (itemsArrangedBy === 'priest' ? (pooja.items_arrangement_cost || 0) : 0) +
+                      (selectedHotel ? (selectedHotel.room_inventory?.[0]?.price_per_night || 1500) : 0)}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          )}
+
           <div className="flex gap-3 pt-4 border-t">
             <Button variant="outline" onClick={() => setShowBookingModal(false)} className="flex-1">
               Cancel
             </Button>
             <Button 
               onClick={handleBookPooja} 
-              disabled={bookingMutation.isPending}
+              disabled={bookingMutation.isPending || (needsHotel && !selectedHotel)}
               className="flex-1 bg-black hover:bg-stone-800"
             >
               {bookingMutation.isPending ? (
