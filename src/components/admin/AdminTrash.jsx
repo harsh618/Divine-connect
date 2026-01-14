@@ -52,6 +52,16 @@ export default function AdminTrash() {
     queryFn: () => base44.entities.DonationCampaign.filter({ is_deleted: true }),
   });
 
+  const { data: deletedProviders, isLoading: loadingProviders } = useQuery({
+    queryKey: ['admin-deleted-providers'],
+    queryFn: () => base44.entities.ProviderProfile.filter({ is_deleted: true }),
+  });
+
+  const { data: deletedPoojas, isLoading: loadingPoojas } = useQuery({
+    queryKey: ['admin-deleted-poojas'],
+    queryFn: () => base44.entities.Pooja.filter({ is_deleted: true }),
+  });
+
   // Restore mutations
   const restoreTempleMutation = useMutation({
     mutationFn: async (id) => {
@@ -89,6 +99,32 @@ export default function AdminTrash() {
       toast.success('Campaign restored successfully!');
       queryClient.invalidateQueries(['admin-deleted-campaigns']);
       queryClient.invalidateQueries(['admin-campaigns-list']);
+    }
+  });
+
+  const restoreProviderMutation = useMutation({
+    mutationFn: async (id) => {
+      await base44.entities.ProviderProfile.update(id, { is_deleted: false });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'restore', 'ProviderProfile', id);
+    },
+    onSuccess: () => {
+      toast.success('Provider restored successfully!');
+      queryClient.invalidateQueries(['admin-deleted-providers']);
+      queryClient.invalidateQueries(['admin-providers']);
+    }
+  });
+
+  const restorePoojaMutation = useMutation({
+    mutationFn: async (id) => {
+      await base44.entities.Pooja.update(id, { is_deleted: false });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'restore', 'Pooja', id);
+    },
+    onSuccess: () => {
+      toast.success('Pooja restored successfully!');
+      queryClient.invalidateQueries(['admin-deleted-poojas']);
+      queryClient.invalidateQueries(['admin-poojas']);
     }
   });
 
@@ -159,7 +195,7 @@ export default function AdminTrash() {
       </div>
 
       <Tabs defaultValue="temples">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="temples">
             Temples ({deletedTemples?.length || 0})
           </TabsTrigger>
@@ -168,6 +204,12 @@ export default function AdminTrash() {
           </TabsTrigger>
           <TabsTrigger value="campaigns">
             Campaigns ({deletedCampaigns?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="providers">
+            Providers ({deletedProviders?.length || 0})
+          </TabsTrigger>
+          <TabsTrigger value="poojas">
+            Poojas ({deletedPoojas?.length || 0})
           </TabsTrigger>
         </TabsList>
 
@@ -353,6 +395,112 @@ export default function AdminTrash() {
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-8 text-gray-500">
                       No deleted campaigns
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+
+        {/* Providers */}
+        <TabsContent value="providers">
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead className="w-48">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loadingProviders ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                    </TableCell>
+                  </TableRow>
+                ) : deletedProviders?.length > 0 ? (
+                  deletedProviders.map((provider) => (
+                    <TableRow key={provider.id}>
+                      <TableCell className="font-medium">{provider.display_name}</TableCell>
+                      <TableCell className="capitalize">{provider.provider_type}</TableCell>
+                      <TableCell>{provider.city}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => restoreProviderMutation.mutate(provider.id)}
+                            disabled={restoreProviderMutation.isPending}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Restore
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                      No deleted providers
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </TabsContent>
+
+        {/* Poojas */}
+        <TabsContent value="poojas">
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead className="w-48">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loadingPoojas ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                    </TableCell>
+                  </TableRow>
+                ) : deletedPoojas?.length > 0 ? (
+                  deletedPoojas.map((pooja) => (
+                    <TableRow key={pooja.id}>
+                      <TableCell className="font-medium">{pooja.name}</TableCell>
+                      <TableCell className="capitalize">{pooja.category?.replace('_', ' ')}</TableCell>
+                      <TableCell>{pooja.duration_minutes} min</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => restorePoojaMutation.mutate(pooja.id)}
+                            disabled={restorePoojaMutation.isPending}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-1" />
+                            Restore
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                      No deleted poojas
                     </TableCell>
                   </TableRow>
                 )}
