@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Donate from './pages/Donate';
 import EnhancedPoojaBooking from './pages/EnhancedPoojaBooking';
 import Home from './pages/Home';
+import HotelDetail from './pages/HotelDetail';
 import KundliGenerator from './pages/KundliGenerator';
 import MatchMaking from './pages/MatchMaking';
 import MyBookings from './pages/MyBookings';
@@ -34,7 +35,6 @@ import TempleDetail from './pages/TempleDetail';
 import TempleDetails from './pages/TempleDetails';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
-import HotelDetail from './pages/HotelDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +54,7 @@ export const PAGES = {
     "Donate": Donate,
     "EnhancedPoojaBooking": EnhancedPoojaBooking,
     "Home": Home,
+    "HotelDetail": HotelDetail,
     "KundliGenerator": KundliGenerator,
     "MatchMaking": MatchMaking,
     "MyBookings": MyBookings,
@@ -75,7 +76,6 @@ export const PAGES = {
     "TempleDetails": TempleDetails,
     "Temples": Temples,
     "Yatra": Yatra,
-    "HotelDetail": HotelDetail,
 }
 
 export const pagesConfig = {

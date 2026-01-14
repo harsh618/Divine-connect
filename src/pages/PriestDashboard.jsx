@@ -14,10 +14,15 @@ import {
   Star,
   TrendingUp,
   DollarSign,
-  CheckCircle
+  CheckCircle,
+  FileText,
+  Settings,
+  User
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import PriestCalendarManager from '@/components/priest/PriestCalendarManager';
+import PriestArticleManager from '@/components/priest/PriestArticleManager';
 
 export default function PriestDashboard() {
   const queryClient = useQueryClient();
@@ -140,14 +145,36 @@ export default function PriestDashboard() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Bookings */}
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="upcoming" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="upcoming">Upcoming Bookings</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
+        <Tabs defaultValue="bookings" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+            <TabsTrigger value="bookings" className="flex items-center gap-2">
+              <Flame className="w-4 h-4" />
+              Bookings
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="flex items-center gap-2">
+              <CalendarIcon className="w-4 h-4" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="articles" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Articles
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Profile
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Bookings Tab */}
+          <TabsContent value="bookings">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Bookings List */}
+              <div className="lg:col-span-2">
+                <Tabs defaultValue="upcoming" className="space-y-6">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="upcoming">Upcoming Bookings</TabsTrigger>
+                    <TabsTrigger value="completed">Completed</TabsTrigger>
+                  </TabsList>
 
               <TabsContent value="upcoming" className="space-y-4">
                 {upcomingBookings.length > 0 ? (
@@ -270,7 +297,72 @@ export default function PriestDashboard() {
               )}
             </Card>
           </div>
-        </div>
+            </div>
+          </TabsContent>
+
+          {/* Calendar Management Tab */}
+          <TabsContent value="calendar">
+            {profile ? (
+              <PriestCalendarManager profile={profile} bookings={bookings || []} />
+            ) : (
+              <Card className="p-12 text-center">
+                <CalendarIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">Loading calendar...</p>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Articles Tab */}
+          <TabsContent value="articles">
+            {profile ? (
+              <PriestArticleManager profile={profile} />
+            ) : (
+              <Card className="p-12 text-center">
+                <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">Loading articles...</p>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            <Card className="p-6">
+              <h3 className="font-semibold text-lg mb-6">Profile Information</h3>
+              {profile && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-gray-500">Display Name</p>
+                    <p className="font-medium">{profile.display_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">City</p>
+                    <p className="font-medium">{profile.city || 'Not set'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Experience</p>
+                    <p className="font-medium">{profile.years_of_experience || 0} years</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Languages</p>
+                    <p className="font-medium">{profile.languages?.join(', ') || 'Not set'}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-sm text-gray-500">Bio</p>
+                    <p className="font-medium">{profile.bio || 'No bio added'}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-sm text-gray-500">Specializations</p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {profile.specializations?.map((spec, i) => (
+                        <Badge key={i} variant="secondary">{spec}</Badge>
+                      )) || 'Not set'}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
