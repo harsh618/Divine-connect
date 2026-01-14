@@ -400,7 +400,19 @@ export default function Yatra() {
                   <p className="text-gray-500 font-light">Try adjusting your filters to find more options.</p>
                   <Button 
                     variant="link" 
-                    onClick={() => {setSearchQuery(''); setSelectedCity('all'); setFilters({ priceRange: [500, 10000], types: [], distance: [], amenities: [], mealPlans: [], features: [], minRating: 0 });}}
+                    onClick={() => {
+                      setSearchQuery(''); 
+                      setSelectedCity('all'); 
+                      setFilters({ 
+                        priceRange: [500, 10000], 
+                        types: [], 
+                        distance: [], 
+                        amenities: [], 
+                        mealPlans: [], 
+                        features: [], 
+                        minRating: 0 
+                      });
+                    }}
                     className="text-amber-600 mt-2"
                   >
                     Clear Filters
@@ -410,13 +422,13 @@ export default function Yatra() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Itinerary Planner Modal */}
-      <EnhancedItineraryPlanner 
-        open={showItineraryPlanner} 
-        onOpenChange={setShowItineraryPlanner} 
-      />
+        {/* Itinerary Planner Modal */}
+        <EnhancedItineraryPlanner 
+          open={showItineraryPlanner} 
+          onOpenChange={setShowItineraryPlanner} 
+        />
+      </div>
     </div>
   );
 }
