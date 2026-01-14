@@ -352,30 +352,61 @@ export default function Yatra() {
           </div>
         )}
 
-        {/* 3. All Hotels Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {isLoading ? (
-            Array(6).fill(0).map((_, i) => <HotelCardSkeleton key={i} />)
-          ) : (searchQuery || selectedCity !== 'all' ? filteredHotels : regularHotels)?.length > 0 ? (
-            (searchQuery || selectedCity !== 'all' ? filteredHotels : regularHotels).map((hotel) => (
-              <HotelCard key={hotel.id} hotel={hotel} />
-            ))
-          ) : (
-            <div className="col-span-full py-24 text-center">
-              <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Hotel className="w-8 h-8 text-stone-400" />
-              </div>
-              <h3 className="text-xl font-serif text-gray-900 mb-2">No hotels match your search</h3>
-              <p className="text-gray-500 font-light">Try adjusting your filters to find more options.</p>
-              <Button 
-                variant="link" 
-                onClick={() => {setSearchQuery(''); setSelectedCity('all');}}
-                className="text-amber-600 mt-2"
-              >
-                Clear Filters
-              </Button>
+        {/* Main Grid with Sidebar */}
+        <div className="flex gap-6">
+          {/* Filters Sidebar */}
+          {showFilters && (
+            <div className="hidden lg:block w-72 flex-shrink-0">
+              <YatraFilters 
+                filters={filters} 
+                onFilterChange={setFilters}
+                resultCount={filteredHotels.length}
+              />
             </div>
           )}
+
+          {/* Results */}
+          <div className="flex-1">
+            {/* Results Count */}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-gray-600">
+                <span className="font-semibold text-gray-900">{filteredHotels.length}</span> stays found
+                {selectedCity !== 'all' && ` in ${selectedCity}`}
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowItineraryPlanner(true)}
+                className="text-orange-600 border-orange-200 hover:bg-orange-50"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Plan Pilgrimage
+              </Button>
+            </div>
+
+            {/* Hotels Grid */}
+            <div className={`grid gap-6 ${showFilters ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+              {isLoading ? (
+                Array(6).fill(0).map((_, i) => <HotelCardSkeleton key={i} />)
+              ) : filteredHotels.length > 0 ? (
+                filteredHotels.map((hotel) => (
+                  <HotelCard key={hotel.id} hotel={hotel} />
+                ))
+              ) : (
+                <div className="col-span-full py-24 text-center">
+                  <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Hotel className="w-8 h-8 text-stone-400" />
+                  </div>
+                  <h3 className="text-xl font-serif text-gray-900 mb-2">No hotels match your search</h3>
+                  <p className="text-gray-500 font-light">Try adjusting your filters to find more options.</p>
+                  <Button 
+                    variant="link" 
+                    onClick={() => {setSearchQuery(''); setSelectedCity('all'); setFilters({ priceRange: [500, 10000], types: [], distance: [], amenities: [], mealPlans: [], features: [], minRating: 0 });}}
+                    className="text-amber-600 mt-2"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
