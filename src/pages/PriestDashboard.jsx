@@ -265,6 +265,30 @@ export default function PriestDashboard() {
             )}
           </TabsContent>
 
+          {/* Services Tab */}
+          <TabsContent value="services">
+            {profile ? (
+              <PriestServicesManager profile={profile} />
+            ) : (
+              <Card className="p-12 text-center">
+                <Package className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">Loading services...</p>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Earnings Tab */}
+          <TabsContent value="earnings">
+            {profile ? (
+              <PriestEarnings profile={profile} bookings={bookings || []} />
+            ) : (
+              <Card className="p-12 text-center">
+                <Wallet className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">Loading earnings...</p>
+              </Card>
+            )}
+          </TabsContent>
+
           {/* Articles Tab */}
           <TabsContent value="articles">
             {profile ? (
@@ -279,41 +303,14 @@ export default function PriestDashboard() {
 
           {/* Profile Tab */}
           <TabsContent value="profile">
-            <Card className="p-6">
-              <h3 className="font-semibold text-lg mb-6">Profile Information</h3>
-              {profile && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-gray-500">Display Name</p>
-                    <p className="font-medium">{profile.display_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">City</p>
-                    <p className="font-medium">{profile.city || 'Not set'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Experience</p>
-                    <p className="font-medium">{profile.years_of_experience || 0} years</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Languages</p>
-                    <p className="font-medium">{profile.languages?.join(', ') || 'Not set'}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <p className="text-sm text-gray-500">Bio</p>
-                    <p className="font-medium">{profile.bio || 'No bio added'}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <p className="text-sm text-gray-500">Specializations</p>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {profile.specializations?.map((spec, i) => (
-                        <Badge key={i} variant="secondary">{spec}</Badge>
-                      )) || 'Not set'}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Card>
+            {profile ? (
+              <PriestProfileEditor profile={profile} />
+            ) : (
+              <Card className="p-12 text-center">
+                <User className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-600">Loading profile...</p>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
