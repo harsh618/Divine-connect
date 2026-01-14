@@ -129,16 +129,22 @@ export default function EnhancedAdminStats({ onNavigate }) {
                            (donations?.filter(d => d.created_date && isWithinInterval(new Date(d.created_date), { start: lastMonthStart, end: lastMonthEnd })).reduce((sum, d) => sum + (d.amount || 0), 0) || 0);
   const revenueTrend = lastMonthRevenue > 0 ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100) : thisMonthRevenue > 0 ? 100 : 0;
 
-  // Chart data
+  // Chart data - real revenue calculation
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = subDays(new Date(), 6 - i);
+    const dateStr = format(date, 'yyyy-MM-dd');
     const dayBookings = bookings?.filter(b => 
-      b.created_date && format(new Date(b.created_date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-    ).length || 0;
+      b.created_date && format(new Date(b.created_date), 'yyyy-MM-dd') === dateStr
+    ) || [];
+    const dayDonations = donations?.filter(d => 
+      d.created_date && format(new Date(d.created_date), 'yyyy-MM-dd') === dateStr
+    ) || [];
+    
     return {
       name: format(date, 'EEE'),
-      bookings: dayBookings,
-      revenue: dayBookings * 2500 // Placeholder
+      bookings: dayBookings.length,
+      revenue: dayBookings.reduce((sum, b) => sum + (b.total_amount || 0), 0) + 
+               dayDonations.reduce((sum, d) => sum + (d.amount || 0), 0)
     };
   });
 
