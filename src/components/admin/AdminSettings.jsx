@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,30 +13,83 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   Settings, Bell, Mail, CreditCard, Shield, Database, 
   Globe, Server, Users, Lock, CheckCircle, AlertCircle,
-  RefreshCw, Download, Upload, Trash2, Key
+  RefreshCw, Download, Upload, Trash2, Key, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const defaultSettings = {
+  platformName: 'Divine Connector',
+  contactEmail: 'admin@divineconnector.com',
+  supportPhone: '+91 98765 43210',
+  timezone: 'Asia/Kolkata',
+  currency: 'INR',
+  emailNotifications: true,
+  smsNotifications: true,
+  whatsappNotifications: true,
+  pushNotifications: true,
+  maintenanceMode: false,
+  twoFactorAuth: false,
+  autoBackup: true,
+  platformFee: 5,
+  paymentGatewayFee: 2,
+};
+
 export default function AdminSettings() {
-  const [settings, setSettings] = useState({
-    platformName: 'Divine Connector',
-    contactEmail: 'admin@divineconnector.com',
-    supportPhone: '+91 98765 43210',
-    timezone: 'Asia/Kolkata',
-    currency: 'INR',
-    emailNotifications: true,
-    smsNotifications: true,
-    whatsappNotifications: true,
-    pushNotifications: true,
-    maintenanceMode: false,
-    twoFactorAuth: false,
-    autoBackup: true,
-    platformFee: 5,
-    paymentGatewayFee: 2,
+  const queryClient = useQueryClient();
+  const [settings, setSettings] = useState(defaultSettings);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch settings from database
+  const { data: savedSettings, isLoading } = useQuery({
+    queryKey: ['platform-settings'],
+    queryFn: async () => {
+      const allSettings = await base44.entities.PlatformSettings.list();
+      const settingsObj = { ...defaultSettings };
+      allSettings.forEach(s => {
+        try {
+          settingsObj[s.setting_key] = JSON.parse(s.setting_value);
+        } catch {
+          settingsObj[s.setting_key] = s.setting_value;
+        }
+      });
+      return settingsObj;
+    },
+  });
+
+  useEffect(() => {
+    if (savedSettings) {
+      setSettings(savedSettings);
+    }
+  }, [savedSettings]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (newSettings) => {
+      const existingSettings = await base44.entities.PlatformSettings.list();
+      const existingKeys = existingSettings.reduce((acc, s) => {
+        acc[s.setting_key] = s.id;
+        return acc;
+      }, {});
+
+      for (const [key, value] of Object.entries(newSettings)) {
+        const stringValue = JSON.stringify(value);
+        if (existingKeys[key]) {
+          await base44.entities.PlatformSettings.update(existingKeys[key], { setting_value: stringValue });
+        } else {
+          await base44.entities.PlatformSettings.create({ setting_key: key, setting_value: stringValue, setting_type: 'general' });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['platform-settings']);
+      toast.success('Settings saved successfully');
+    },
+    onError: () => {
+      toast.error('Failed to save settings');
+    }
   });
 
   const handleSave = () => {
-    toast.success('Settings saved successfully');
+    saveMutation.mutate(settings);
   };
 
   return (
@@ -377,8 +432,9 @@ export default function AdminSettings() {
       </Tabs>
 
       <div className="flex justify-end gap-3">
-        <Button variant="outline">Cancel</Button>
-        <Button onClick={handleSave} className="bg-orange-500 hover:bg-orange-600">
+        <Button variant="outline" onClick={() => setSettings(savedSettings || defaultSettings)}>Cancel</Button>
+        <Button onClick={handleSave} disabled={saveMutation.isPending} className="bg-orange-500 hover:bg-orange-600">
+          {saveMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
           Save Changes
         </Button>
       </div>
