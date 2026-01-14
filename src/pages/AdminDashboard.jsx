@@ -16,7 +16,8 @@ import {
   TrendingUp,
   DollarSign,
   UserCheck,
-  AlertCircle
+  AlertCircle,
+  Plus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -151,6 +152,14 @@ export default function AdminDashboard() {
 
           {/* Providers */}
           <TabsContent value="providers" className="mt-0">
+            <div className="flex justify-end mb-4">
+              <Link to={createPageUrl('AdminProviderOnboarding')}>
+                <Button className="bg-green-600 hover:bg-green-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Provider
+                </Button>
+              </Link>
+            </div>
             <AdminProviders />
           </TabsContent>
 
