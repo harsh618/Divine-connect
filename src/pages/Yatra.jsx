@@ -5,10 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Search, MapPin, Star, Hotel, Sparkles, Wifi, Car, Utensils, ArrowUpRight, Flame
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Search, MapPin, Star, Hotel, Sparkles, Wifi, Car, Utensils, ArrowUpRight, Flame,
+  SlidersHorizontal, Building2, Home, BedDouble
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import YatraSearchBox from '../components/yatra/YatraSearchBox';
+import YatraFilters from '../components/yatra/YatraFilters';
+import EnhancedItineraryPlanner from '../components/yatra/EnhancedItineraryPlanner';
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
 const HERO_IMAGES = [
@@ -114,10 +125,38 @@ function HotelCardSkeleton() {
   );
 }
 
+const SORT_OPTIONS = [
+  { value: 'recommended', label: 'Recommended' },
+  { value: 'price_low', label: 'Price (Low to High)' },
+  { value: 'price_high', label: 'Price (High to Low)' },
+  { value: 'distance', label: 'Distance (Nearest)' },
+  { value: 'rating', label: 'Rating (Highest)' }
+];
+
+const ACCOMMODATION_ICONS = {
+  hotel: Hotel,
+  dharamshala: Building2,
+  ashram: Home,
+  guesthouse: BedDouble
+};
+
 export default function Yatra() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
+  const [sortBy, setSortBy] = useState('recommended');
+  const [showFilters, setShowFilters] = useState(false);
+  const [showItineraryPlanner, setShowItineraryPlanner] = useState(false);
+  const [filters, setFilters] = useState({
+    priceRange: [500, 10000],
+    types: [],
+    distance: [],
+    amenities: [],
+    mealPlans: [],
+    features: [],
+    minRating: 0
+  });
+  const [searchParams, setSearchParams] = useState(null);
 
   // Rotate Hero Background
   useEffect(() => {
@@ -144,14 +183,46 @@ export default function Yatra() {
   // Filter hotels
   const filteredHotels = useMemo(() => {
     if (!allHotels) return [];
-    return allHotels.filter(hotel => {
+    let result = allHotels.filter(hotel => {
       const matchesSearch = !searchQuery || 
         hotel.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         hotel.city?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCity = selectedCity === 'all' || hotel.city === selectedCity;
-      return matchesSearch && matchesCity;
+      
+      // Price filter
+      const roomPrice = hotel.room_inventory?.[0]?.price_per_night || 1500;
+      const matchesPrice = roomPrice >= filters.priceRange[0] && roomPrice <= filters.priceRange[1];
+      
+      // Rating filter
+      const matchesRating = (hotel.rating_average || 4.5) >= filters.minRating;
+      
+      return matchesSearch && matchesCity && matchesPrice && matchesRating;
     });
-  }, [allHotels, searchQuery, selectedCity]);
+
+    // Sort
+    switch (sortBy) {
+      case 'price_low':
+        result.sort((a, b) => (a.room_inventory?.[0]?.price_per_night || 1500) - (b.room_inventory?.[0]?.price_per_night || 1500));
+        break;
+      case 'price_high':
+        result.sort((a, b) => (b.room_inventory?.[0]?.price_per_night || 1500) - (a.room_inventory?.[0]?.price_per_night || 1500));
+        break;
+      case 'rating':
+        result.sort((a, b) => (b.rating_average || 4.5) - (a.rating_average || 4.5));
+        break;
+      default:
+        break;
+    }
+
+    return result;
+  }, [allHotels, searchQuery, selectedCity, filters, sortBy]);
+
+  const handleSearch = (params) => {
+    setSearchParams(params);
+    if (params.destination) {
+      setSearchQuery(params.destination);
+    }
+  };
 
   // Featured hotels
   const featuredHotels = useMemo(() => {
@@ -201,38 +272,68 @@ export default function Yatra() {
         </div>
       </section>
 
-      {/* 2. Sticky Filter Bar & Grid */}
-      <div className="container mx-auto px-6 max-w-7xl relative z-20 -mt-8">
+      {/* Search Box Section */}
+      <div className="container mx-auto px-6 max-w-7xl relative z-20 -mt-8 mb-8">
+        <YatraSearchBox onSearch={handleSearch} />
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 max-w-7xl">
         
-        {/* Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-12 border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
-           <div className="relative flex-1 w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        {/* Sort & Filter Controls */}
+        <div className="bg-white rounded-2xl p-4 shadow-lg mb-6 border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative flex-1 md:flex-none md:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input 
-                 type="text" 
-                 placeholder="Search hotels by name or city..." 
-                 className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-sm"
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
+                type="text" 
+                placeholder="Refine search..." 
+                className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-orange-500 focus:ring-0 transition-all text-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-           </div>
-           
-           {/* Horizontal City Filter */}
-           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
-              {allCities.map((city) => (
-                 <button
-                    key={city.value}
-                    onClick={() => setSelectedCity(city.value)}
-                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
-                       selectedCity === city.value
-                       ? 'bg-orange-600 text-white shadow-lg'
-                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                 >
-                    {city.label}
-                 </button>
+            </div>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              className={showFilters ? 'bg-orange-50 border-orange-500' : ''}
+            >
+              <SlidersHorizontal className="w-4 h-4 mr-2" />
+              Filters
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            {/* City Filter */}
+            <div className="flex items-center gap-2 overflow-x-auto flex-1 md:flex-none pb-1 md:pb-0 scrollbar-hide">
+              {allCities.slice(0, 5).map((city) => (
+                <button
+                  key={city.value}
+                  onClick={() => setSelectedCity(city.value)}
+                  className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-all flex-shrink-0 ${
+                    selectedCity === city.value
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-orange-100'
+                  }`}
+                >
+                  {city.label}
+                </button>
               ))}
-           </div>
+            </div>
+            
+            {/* Sort */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Featured Hotels Section */}
@@ -275,8 +376,16 @@ export default function Yatra() {
               </Button>
             </div>
           )}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Itinerary Planner Modal */}
+      <EnhancedItineraryPlanner 
+        open={showItineraryPlanner} 
+        onOpenChange={setShowItineraryPlanner} 
+      />
     </div>
   );
 }
