@@ -11,7 +11,7 @@ import {
   UserCheck, Heart, Star, ArrowRight, Clock, CheckCircle2, AlertCircle,
   Activity, Eye, Flame, BarChart3
 } from 'lucide-react';
-import { format, subDays, isToday, isThisWeek } from 'date-fns';
+import { format, subDays, subMonths, isToday, isThisWeek, isThisMonth, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899'];
@@ -113,6 +113,22 @@ export default function EnhancedAdminStats({ onNavigate }) {
   const activeCampaigns = campaigns?.filter(c => c.status === 'active').length || 0;
   const totalRaised = campaigns?.reduce((sum, c) => sum + (c.raised_amount || 0), 0) || 0;
 
+  // Calculate dynamic trends (this month vs last month)
+  const thisMonthStart = startOfMonth(new Date());
+  const thisMonthEnd = endOfMonth(new Date());
+  const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
+  const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
+
+  const thisMonthUsers = users?.filter(u => u.created_date && isWithinInterval(new Date(u.created_date), { start: thisMonthStart, end: thisMonthEnd })).length || 0;
+  const lastMonthUsers = users?.filter(u => u.created_date && isWithinInterval(new Date(u.created_date), { start: lastMonthStart, end: lastMonthEnd })).length || 0;
+  const userTrend = lastMonthUsers > 0 ? Math.round(((thisMonthUsers - lastMonthUsers) / lastMonthUsers) * 100) : thisMonthUsers > 0 ? 100 : 0;
+
+  const thisMonthRevenue = (bookings?.filter(b => b.created_date && isWithinInterval(new Date(b.created_date), { start: thisMonthStart, end: thisMonthEnd })).reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0) +
+                           (donations?.filter(d => d.created_date && isWithinInterval(new Date(d.created_date), { start: thisMonthStart, end: thisMonthEnd })).reduce((sum, d) => sum + (d.amount || 0), 0) || 0);
+  const lastMonthRevenue = (bookings?.filter(b => b.created_date && isWithinInterval(new Date(b.created_date), { start: lastMonthStart, end: lastMonthEnd })).reduce((sum, b) => sum + (b.total_amount || 0), 0) || 0) +
+                           (donations?.filter(d => d.created_date && isWithinInterval(new Date(d.created_date), { start: lastMonthStart, end: lastMonthEnd })).reduce((sum, d) => sum + (d.amount || 0), 0) || 0);
+  const revenueTrend = lastMonthRevenue > 0 ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100) : thisMonthRevenue > 0 ? 100 : 0;
+
   // Chart data
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = subDays(new Date(), 6 - i);
@@ -182,8 +198,8 @@ export default function EnhancedAdminStats({ onNavigate }) {
           value={users?.length || 0}
           label="Total Users"
           color="bg-blue-500"
-          trend="this month"
-          trendValue={12}
+          trend="vs last month"
+          trendValue={userTrend}
           onClick={() => onNavigate?.('users')}
         />
         <StatCard
@@ -191,8 +207,8 @@ export default function EnhancedAdminStats({ onNavigate }) {
           value={`₹${totalRevenue.toLocaleString()}`}
           label="Total Revenue"
           color="bg-green-500"
-          trend="this month"
-          trendValue={8}
+          trend="vs last month"
+          trendValue={revenueTrend}
         />
         <StatCard
           icon={Heart}
