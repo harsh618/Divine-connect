@@ -37,7 +37,16 @@ const SPECIALIZATIONS = [
   { value: 'vedic', label: 'Vedic Astrology' },
   { value: 'tarot', label: 'Tarot Reading' },
   { value: 'numerology', label: 'Numerology' },
+  { value: 'palmistry', label: 'Palmistry' },
   { value: 'vastu', label: 'Vastu' },
+];
+
+const LANGUAGES = ['Hindi', 'English', 'Tamil', 'Telugu', 'Bengali', 'Gujarati', 'Marathi'];
+const EXPERIENCE_FILTERS = [
+  { value: 'all', label: 'Any Experience' },
+  { value: '5', label: '5+ Years' },
+  { value: '10', label: '10+ Years' },
+  { value: '15', label: '15+ Years' },
 ];
 
 function AstrologerCard({ provider, onChatClick }) {
@@ -173,6 +182,9 @@ export default function Astrology() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpec, setSelectedSpec] = useState('all');
+  const [selectedLanguage, setSelectedLanguage] = useState('all');
+  const [selectedExperience, setSelectedExperience] = useState('all');
+  const [minRating, setMinRating] = useState(0);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -231,8 +243,13 @@ export default function Astrology() {
     const matchesSearch = provider.display_name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSpec = selectedSpec === 'all' || 
       provider.specializations?.some(spec => spec.toLowerCase().includes(selectedSpec));
+    const matchesLanguage = selectedLanguage === 'all' || 
+      provider.languages?.some(lang => lang.toLowerCase() === selectedLanguage.toLowerCase());
+    const matchesExperience = selectedExperience === 'all' || 
+      (provider.years_of_experience || 0) >= parseInt(selectedExperience);
+    const matchesRating = (provider.rating_average || 4.5) >= minRating;
     const matchesAvailable = !showAvailableOnly || provider.is_available_now;
-    return matchesSearch && matchesSpec && matchesAvailable;
+    return matchesSearch && matchesSpec && matchesLanguage && matchesExperience && matchesRating && matchesAvailable;
   });
 
   const handleChatClick = (provider) => {
@@ -243,6 +260,9 @@ export default function Astrology() {
       }
       setSelectedProvider(provider);
       setChatOpen(true);
+    } else {
+      // Navigate to astrologer profile for booking
+      window.location.href = createPageUrl('AstrologerProfile') + `?id=${provider.id}`;
     }
   };
 
@@ -312,44 +332,105 @@ export default function Astrology() {
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-12 border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
-           <div className="relative flex-1 w-full">
+        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-8 border border-gray-100 space-y-4">
+          {/* Search and Specialization */}
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="relative flex-1 w-full">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input 
-                 type="text" 
-                 placeholder="Search astrologers by name..." 
-                 className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-sm"
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
+                type="text" 
+                placeholder="Search astrologers by name..." 
+                className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-           </div>
-           
-           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+            </div>
+            
+            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
               {SPECIALIZATIONS.map((spec) => (
-                 <button
-                    key={spec.value}
-                    onClick={() => setSelectedSpec(spec.value)}
-                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
-                       selectedSpec === spec.value
-                       ? 'bg-purple-600 text-white shadow-lg'
-                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                 >
-                    {spec.label}
-                 </button>
+                <button
+                  key={spec.value}
+                  onClick={() => setSelectedSpec(spec.value)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
+                    selectedSpec === spec.value
+                      ? 'bg-purple-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {spec.label}
+                </button>
               ))}
+            </div>
+          </div>
+          
+          {/* Advanced Filters */}
+          <div className="flex flex-wrap items-center gap-3 pt-3 border-t">
+            <span className="text-sm text-gray-500 font-medium">Filter by:</span>
+            
+            {/* Language Filter */}
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-sm focus:ring-purple-500 focus:border-purple-500"
+            >
+              <option value="all">All Languages</option>
+              {LANGUAGES.map(lang => (
+                <option key={lang} value={lang}>{lang}</option>
+              ))}
+            </select>
+            
+            {/* Experience Filter */}
+            <select
+              value={selectedExperience}
+              onChange={(e) => setSelectedExperience(e.target.value)}
+              className="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-sm focus:ring-purple-500 focus:border-purple-500"
+            >
+              {EXPERIENCE_FILTERS.map(exp => (
+                <option key={exp.value} value={exp.value}>{exp.label}</option>
+              ))}
+            </select>
+            
+            {/* Rating Filter */}
+            <button
+              onClick={() => setMinRating(minRating === 4 ? 0 : 4)}
+              className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                minRating === 4
+                  ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+                  : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+              }`}
+            >
+              <Star className={`w-3.5 h-3.5 ${minRating === 4 ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+              4+ Stars
+            </button>
+            
+            {/* Available Now Filter */}
+            <button
+              onClick={() => setShowAvailableOnly(!showAvailableOnly)}
+              className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+                showAvailableOnly
+                  ? 'bg-green-100 text-green-700 border border-green-300'
+                  : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${showAvailableOnly ? 'bg-green-500' : 'bg-gray-400'}`} />
+              Available Now
+            </button>
+            
+            {/* Clear Filters */}
+            {(selectedLanguage !== 'all' || selectedExperience !== 'all' || minRating > 0 || showAvailableOnly) && (
               <button
-                onClick={() => setShowAvailableOnly(!showAvailableOnly)}
-                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 flex items-center gap-2 ${
-                  showAvailableOnly
-                    ? 'bg-green-500 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                onClick={() => {
+                  setSelectedLanguage('all');
+                  setSelectedExperience('all');
+                  setMinRating(0);
+                  setShowAvailableOnly(false);
+                }}
+                className="text-sm text-purple-600 hover:underline"
               >
-                <span className={`w-2 h-2 rounded-full ${showAvailableOnly ? 'bg-white' : 'bg-green-500'}`} />
-                Available Now
+                Clear All
               </button>
-           </div>
+            )}
+          </div>
         </div>
 
         {/* Astrologers Grid */}
