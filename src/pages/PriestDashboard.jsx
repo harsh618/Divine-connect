@@ -216,22 +216,35 @@ export default function PriestDashboard() {
 
         {/* Main Content */}
         <Tabs defaultValue="bookings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
-            <TabsTrigger value="bookings" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 max-w-4xl">
+            <TabsTrigger value="bookings" className="flex items-center gap-2 relative">
               <Flame className="w-4 h-4" />
-              Bookings
+              <span className="hidden md:inline">Bookings</span>
+              {pendingRequests > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+                  {pendingRequests}
+                </span>
+              )}
             </TabsTrigger>
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <CalendarIcon className="w-4 h-4" />
-              Calendar
+              <span className="hidden md:inline">Calendar</span>
+            </TabsTrigger>
+            <TabsTrigger value="services" className="flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              <span className="hidden md:inline">Services</span>
+            </TabsTrigger>
+            <TabsTrigger value="earnings" className="flex items-center gap-2">
+              <Wallet className="w-4 h-4" />
+              <span className="hidden md:inline">Earnings</span>
             </TabsTrigger>
             <TabsTrigger value="articles" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              Articles
+              <span className="hidden md:inline">Content</span>
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              Profile
+              <span className="hidden md:inline">Profile</span>
             </TabsTrigger>
           </TabsList>
 
