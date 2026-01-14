@@ -84,69 +84,131 @@ export default function PriestDashboard() {
     return format(new Date(b.date), 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
   });
 
+  // Get today's schedule
+  const todaysSchedule = bookings?.filter(b => {
+    if (!b.date || b.status === 'cancelled') return false;
+    return isToday(new Date(b.date));
+  }) || [];
+
+  // Pending requests count
+  const pendingRequests = bookings?.filter(b => b.status === 'pending').length || 0;
+
+  // Month earnings
+  const thisMonthEarnings = completedBookings
+    .filter(b => {
+      if (!b.date) return false;
+      const d = new Date(b.date);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    })
+    .reduce((sum, b) => sum + (b.total_amount || 0), 0);
+
   return (
     <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-amber-500 py-12 px-6">
         <div className="container mx-auto max-w-7xl">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
-              <Flame className="w-8 h-8 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <Flame className="w-8 h-8 text-white" />
+                )}
+              </div>
+              <div>
+                <h1 className="text-3xl font-serif font-bold text-white mb-1">
+                  Welcome, {profile?.display_name || 'Panditji'}
+                </h1>
+                <p className="text-white/90">Manage your poojas and bookings</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-serif font-bold text-white mb-1">
-                Welcome, {profile?.display_name || 'Panditji'}
-              </h1>
-              <p className="text-white/90">Manage your poojas and bookings</p>
-            </div>
+            
+            {/* Notifications */}
+            {pendingRequests > 0 && (
+              <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full">
+                <Bell className="w-5 h-5 text-white" />
+                <span className="text-white font-medium">{pendingRequests} new request{pendingRequests > 1 ? 's' : ''}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <div className="container mx-auto max-w-7xl px-6 -mt-8">
+        {/* Today's Schedule Quick View */}
+        {todaysSchedule.length > 0 && (
+          <Card className="p-4 mb-6 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+            <div className="flex items-center gap-3 mb-3">
+              <AlertCircle className="w-5 h-5 text-orange-600" />
+              <h3 className="font-semibold text-orange-900">Today's Schedule ({todaysSchedule.length} pooja{todaysSchedule.length > 1 ? 's' : ''})</h3>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {todaysSchedule.map((b) => (
+                <Badge key={b.id} className="bg-white text-orange-700 border border-orange-200 px-3 py-1">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {b.time_slot || 'Time TBD'}
+                </Badge>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-6 bg-white shadow-lg">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <Card className="p-5 bg-white shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-red-100">
+                <Bell className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{pendingRequests}</p>
+                <p className="text-xs text-gray-500">New Requests</p>
+              </div>
+            </div>
+          </Card>
+          <Card className="p-5 bg-white shadow-lg">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-xl bg-orange-100">
-                <CalendarIcon className="w-6 h-6 text-orange-600" />
+                <CalendarIcon className="w-5 h-5 text-orange-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{upcomingBookings.length}</p>
-                <p className="text-sm text-gray-500">Upcoming</p>
+                <p className="text-xs text-gray-500">Upcoming</p>
               </div>
             </div>
           </Card>
-          <Card className="p-6 bg-white shadow-lg">
+          <Card className="p-5 bg-white shadow-lg">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-xl bg-green-100">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-green-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{completedBookings.length}</p>
-                <p className="text-sm text-gray-500">Completed</p>
+                <p className="text-xs text-gray-500">Completed</p>
               </div>
             </div>
           </Card>
-          <Card className="p-6 bg-white shadow-lg">
+          <Card className="p-5 bg-white shadow-lg">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-xl bg-blue-100">
-                <Star className="w-6 h-6 text-blue-600" />
+                <Star className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">{profile?.rating_average || 4.8}</p>
-                <p className="text-sm text-gray-500">Rating</p>
+                <p className="text-xs text-gray-500">Rating</p>
               </div>
             </div>
           </Card>
-          <Card className="p-6 bg-white shadow-lg">
+          <Card className="p-5 bg-white shadow-lg col-span-2 md:col-span-1">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-xl bg-purple-100">
-                <DollarSign className="w-6 h-6 text-purple-600" />
+                <Wallet className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">₹{totalEarnings.toLocaleString()}</p>
-                <p className="text-sm text-gray-500">Total Earnings</p>
+                <p className="text-2xl font-bold text-gray-900">₹{thisMonthEarnings.toLocaleString()}</p>
+                <p className="text-xs text-gray-500">This Month</p>
               </div>
             </div>
           </Card>
