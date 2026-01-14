@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import logAuditAction from './useAuditLog';
 
 export default function AdminUsers() {
   const queryClient = useQueryClient();
@@ -79,7 +80,11 @@ export default function AdminUsers() {
   );
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({ userId, newRole }) => base44.asServiceRole.entities.User.update(userId, { role: newRole }),
+    mutationFn: async ({ userId, newRole }) => {
+      await base44.asServiceRole.entities.User.update(userId, { role: newRole });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'update', 'User', userId, { role: newRole });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-users-list'] });
       toast.success('User role updated successfully');
