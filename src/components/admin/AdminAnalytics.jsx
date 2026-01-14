@@ -12,7 +12,7 @@ import {
   Heart, Star, MapPin, Clock, BarChart3, PieChart, LineChart,
   Download, Filter, ArrowUpRight, Target
 } from 'lucide-react';
-import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, isWithinInterval } from 'date-fns';
+import { format, subDays, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isWithinInterval } from 'date-fns';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   BarChart, Bar, PieChart as RechartsPie, Pie, Cell, LineChart as RechartsLine, Line, Legend
@@ -81,6 +81,35 @@ export default function AdminAnalytics() {
   const totalDonationRevenue = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
   const totalRevenue = totalBookingRevenue + totalDonationRevenue;
   const avgBookingValue = bookings.length > 0 ? Math.round(totalBookingRevenue / bookings.length) : 0;
+
+  // Dynamic trend calculations
+  const thisMonthStart = startOfMonth(new Date());
+  const thisMonthEnd = endOfMonth(new Date());
+  const lastMonthStart = startOfMonth(subMonths(new Date(), 1));
+  const lastMonthEnd = endOfMonth(subMonths(new Date(), 1));
+
+  const calcTrend = (thisMonth, lastMonth) => {
+    if (lastMonth === 0) return thisMonth > 0 ? 100 : 0;
+    return Math.round(((thisMonth - lastMonth) / lastMonth) * 100);
+  };
+
+  const thisMonthRevenue = bookings.filter(b => b.created_date && isWithinInterval(new Date(b.created_date), { start: thisMonthStart, end: thisMonthEnd })).reduce((sum, b) => sum + (b.total_amount || 0), 0) +
+                           donations.filter(d => d.created_date && isWithinInterval(new Date(d.created_date), { start: thisMonthStart, end: thisMonthEnd })).reduce((sum, d) => sum + (d.amount || 0), 0);
+  const lastMonthRevenue = bookings.filter(b => b.created_date && isWithinInterval(new Date(b.created_date), { start: lastMonthStart, end: lastMonthEnd })).reduce((sum, b) => sum + (b.total_amount || 0), 0) +
+                           donations.filter(d => d.created_date && isWithinInterval(new Date(d.created_date), { start: lastMonthStart, end: lastMonthEnd })).reduce((sum, d) => sum + (d.amount || 0), 0);
+  const revenueTrend = calcTrend(thisMonthRevenue, lastMonthRevenue);
+
+  const thisMonthBookings = bookings.filter(b => b.created_date && isWithinInterval(new Date(b.created_date), { start: thisMonthStart, end: thisMonthEnd })).length;
+  const lastMonthBookings = bookings.filter(b => b.created_date && isWithinInterval(new Date(b.created_date), { start: lastMonthStart, end: lastMonthEnd })).length;
+  const bookingTrend = calcTrend(thisMonthBookings, lastMonthBookings);
+
+  const thisMonthUsers = users.filter(u => u.created_date && isWithinInterval(new Date(u.created_date), { start: thisMonthStart, end: thisMonthEnd })).length;
+  const lastMonthUsers = users.filter(u => u.created_date && isWithinInterval(new Date(u.created_date), { start: lastMonthStart, end: lastMonthEnd })).length;
+  const userTrend = calcTrend(thisMonthUsers, lastMonthUsers);
+
+  const thisMonthDonations = donations.filter(d => d.created_date && isWithinInterval(new Date(d.created_date), { start: thisMonthStart, end: thisMonthEnd })).reduce((sum, d) => sum + (d.amount || 0), 0);
+  const lastMonthDonations = donations.filter(d => d.created_date && isWithinInterval(new Date(d.created_date), { start: lastMonthStart, end: lastMonthEnd })).reduce((sum, d) => sum + (d.amount || 0), 0);
+  const donationTrend = calcTrend(thisMonthDonations, lastMonthDonations);
   
   // Generate chart data based on time range
   const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
@@ -122,14 +151,27 @@ export default function AdminAnalytics() {
     .sort((a, b) => b.bookings - a.bookings)
     .slice(0, 5);
 
-  // Geographic distribution (placeholder)
-  const geoData = [
-    { name: 'Maharashtra', value: 35 },
-    { name: 'Uttar Pradesh', value: 25 },
-    { name: 'Karnataka', value: 15 },
-    { name: 'Tamil Nadu', value: 12 },
-    { name: 'Others', value: 13 },
-  ];
+  // Geographic distribution from real data
+  const geoDataMap = {};
+  users.forEach(u => {
+    const state = u.state || 'Unknown';
+    geoDataMap[state] = (geoDataMap[state] || 0) + 1;
+  });
+  providers.forEach(p => {
+    const state = p.state || p.city || 'Unknown';
+    geoDataMap[state] = (geoDataMap[state] || 0) + 1;
+  });
+  temples.forEach(t => {
+    const state = t.state || 'Unknown';
+    geoDataMap[state] = (geoDataMap[state] || 0) + 1;
+  });
+  
+  const geoDataSorted = Object.entries(geoDataMap)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
+  
+  const geoData = geoDataSorted.length > 0 ? geoDataSorted : [{ name: 'No data', value: 0 }];
 
   return (
     <div className="space-y-6">
@@ -162,7 +204,7 @@ export default function AdminAnalytics() {
         <MetricCard
           title="Total Revenue"
           value={`₹${totalRevenue.toLocaleString()}`}
-          change={12}
+          change={revenueTrend}
           icon={DollarSign}
           color="bg-green-500"
           subValue={`₹${avgBookingValue.toLocaleString()} avg booking`}
@@ -170,7 +212,7 @@ export default function AdminAnalytics() {
         <MetricCard
           title="Total Bookings"
           value={bookings.length}
-          change={8}
+          change={bookingTrend}
           icon={Calendar}
           color="bg-blue-500"
           subValue={`${bookings.filter(b => b.status === 'completed').length} completed`}
@@ -178,14 +220,14 @@ export default function AdminAnalytics() {
         <MetricCard
           title="Total Users"
           value={users.length}
-          change={15}
+          change={userTrend}
           icon={Users}
           color="bg-purple-500"
         />
         <MetricCard
           title="Donation Revenue"
           value={`₹${totalDonationRevenue.toLocaleString()}`}
-          change={20}
+          change={donationTrend}
           icon={Heart}
           color="bg-pink-500"
           subValue={`${donations.length} donations`}
