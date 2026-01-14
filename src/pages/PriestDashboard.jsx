@@ -17,12 +17,20 @@ import {
   CheckCircle,
   FileText,
   Settings,
-  User
+  User,
+  Package,
+  Wallet,
+  Bell,
+  AlertCircle
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isToday, isTomorrow } from 'date-fns';
 import { toast } from 'sonner';
 import PriestCalendarManager from '@/components/priest/PriestCalendarManager';
 import PriestArticleManager from '@/components/priest/PriestArticleManager';
+import PriestProfileEditor from '@/components/priest/PriestProfileEditor';
+import PriestServicesManager from '@/components/priest/PriestServicesManager';
+import PriestEarnings from '@/components/priest/PriestEarnings';
+import PriestBookingManager from '@/components/priest/PriestBookingManager';
 
 export default function PriestDashboard() {
   const queryClient = useQueryClient();
