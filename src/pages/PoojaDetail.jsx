@@ -464,42 +464,70 @@ export default function PoojaDetail() {
                   </div>
 
                   <div className="p-6 space-y-6">
-                     {/* Mode Selection */}
-                     <div className="space-y-3">
+                     {/* Mode Selection - 4 Options */}
+                     <div className="space-y-2">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Select Mode</label>
                         
+                        {/* Virtual - Live Participation */}
                         {pooja.base_price_virtual > 0 && (
-                           <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-amber-500 cursor-pointer bg-gray-50 hover:bg-amber-50/50 transition-all group">
+                           <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-purple-500 cursor-pointer bg-gray-50 hover:bg-purple-50/50 transition-all group">
                               <div className="flex items-center gap-3">
-                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-200 group-hover:border-amber-200">
-                                    <Video className="w-4 h-4 text-gray-600 group-hover:text-amber-600" />
+                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-200 group-hover:border-purple-200">
+                                    <Video className="w-4 h-4 text-gray-600 group-hover:text-purple-600" />
                                  </div>
-                                 <span className="text-sm font-medium text-gray-700">Virtual Pooja</span>
+                                 <div>
+                                    <span className="text-sm font-medium text-gray-700 block">Virtual - Live</span>
+                                    <span className="text-[10px] text-gray-500">Join via video call</span>
+                                 </div>
                               </div>
                               <span className="text-sm font-semibold text-gray-900">₹{pooja.base_price_virtual}</span>
                            </div>
                         )}
 
+                        {/* Virtual - On Behalf */}
+                        {pooja.base_price_virtual > 0 && (
+                           <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-purple-500 cursor-pointer bg-gray-50 hover:bg-purple-50/50 transition-all group">
+                              <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-200 group-hover:border-purple-200">
+                                    <Video className="w-4 h-4 text-gray-600 group-hover:text-purple-600" />
+                                 </div>
+                                 <div>
+                                    <span className="text-sm font-medium text-gray-700 block">Virtual - On Behalf</span>
+                                    <span className="text-[10px] text-gray-500">Recording sent later</span>
+                                 </div>
+                              </div>
+                              <span className="text-sm font-semibold text-gray-900">₹{pooja.base_price_virtual}</span>
+                           </div>
+                        )}
+
+                        {/* At Temple - Recommended */}
                         {pooja.base_price_temple > 0 && (
                            <div className="flex items-center justify-between p-3 rounded-xl border-2 border-amber-500 bg-amber-50/30 cursor-pointer relative">
-                              <div className="absolute -top-3 right-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">RECOMMENDED</div>
+                              <div className="absolute -top-2 right-3 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">RECOMMENDED</div>
                               <div className="flex items-center gap-3">
                                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-amber-200">
                                     <Flame className="w-4 h-4 text-amber-600" />
                                  </div>
-                                 <span className="text-sm font-medium text-gray-900">At Temple</span>
+                                 <div>
+                                    <span className="text-sm font-medium text-gray-900 block">At Temple</span>
+                                    <span className="text-[10px] text-gray-500">Visit the temple</span>
+                                 </div>
                               </div>
                               <span className="text-sm font-semibold text-gray-900">₹{pooja.base_price_temple}</span>
                            </div>
                         )}
 
+                        {/* At Home */}
                         {pooja.base_price_in_person > 0 && (
-                           <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-amber-500 cursor-pointer bg-gray-50 hover:bg-amber-50/50 transition-all group">
+                           <div className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-orange-500 cursor-pointer bg-gray-50 hover:bg-orange-50/50 transition-all group">
                               <div className="flex items-center gap-3">
-                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-200 group-hover:border-amber-200">
-                                    <Users className="w-4 h-4 text-gray-600 group-hover:text-amber-600" />
+                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-200 group-hover:border-orange-200">
+                                    <Users className="w-4 h-4 text-gray-600 group-hover:text-orange-600" />
                                  </div>
-                                 <span className="text-sm font-medium text-gray-700">In-Person</span>
+                                 <div>
+                                    <span className="text-sm font-medium text-gray-700 block">At My Home</span>
+                                    <span className="text-[10px] text-gray-500">Priest visits you</span>
+                                 </div>
                               </div>
                               <span className="text-sm font-semibold text-gray-900">₹{pooja.base_price_in_person}</span>
                            </div>
