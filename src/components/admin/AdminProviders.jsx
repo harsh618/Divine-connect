@@ -42,11 +42,17 @@ export default function AdminProviders() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvider, setSelectedProvider] = useState(null);
+  const [selectedHotel, setSelectedHotel] = useState(null);
   const [filterType, setFilterType] = useState('all');
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['admin-providers'],
     queryFn: () => base44.entities.ProviderProfile.filter({ is_deleted: false }),
+  });
+
+  const { data: hotels, isLoading: loadingHotels } = useQuery({
+    queryKey: ['admin-hotels'],
+    queryFn: () => base44.entities.Hotel.filter({ is_deleted: false }),
   });
 
   const verifyMutation = useMutation({
@@ -93,9 +99,39 @@ export default function AdminProviders() {
       provider.provider_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       provider.city?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesType = filterType === 'all' || provider.provider_type === filterType;
+    const matchesType = filterType === 'all' || filterType === 'hotel' ? false : provider.provider_type === filterType || filterType === 'all';
     
     return matchesSearch && matchesType;
+  });
+
+  const filteredHotels = hotels?.filter(hotel => {
+    const matchesSearch = hotel.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      hotel.city?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch && (filterType === 'all' || filterType === 'hotel');
+  });
+
+  const toggleHotelActiveMutation = useMutation({
+    mutationFn: ({ id, is_active }) => base44.entities.Hotel.update(id, { is_active }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-hotels']);
+      toast.success('Hotel status updated');
+    }
+  });
+
+  const toggleHotelFeaturedMutation = useMutation({
+    mutationFn: ({ id, is_featured }) => base44.entities.Hotel.update(id, { is_featured }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-hotels']);
+      toast.success('Featured status updated');
+    }
+  });
+
+  const deleteHotelMutation = useMutation({
+    mutationFn: (id) => base44.entities.Hotel.update(id, { is_deleted: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-hotels']);
+      toast.success('Hotel deleted');
+    }
   });
 
   return (
@@ -120,6 +156,7 @@ export default function AdminProviders() {
               <SelectItem value="all">All Providers</SelectItem>
               <SelectItem value="priest">Priests</SelectItem>
               <SelectItem value="astrologer">Astrologers</SelectItem>
+              <SelectItem value="hotel">Hotels</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -290,6 +327,210 @@ export default function AdminProviders() {
           </TableBody>
         </Table>
       </Card>
+
+      {/* Hotels Table */}
+      {(filterType === 'all' || filterType === 'hotel') && (
+        <Card className="overflow-hidden">
+          <div className="p-4 border-b bg-blue-50">
+            <h3 className="font-semibold text-blue-900">Hotels ({filteredHotels?.length || 0})</h3>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Hotel</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Rooms</TableHead>
+                <TableHead>Rating</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Featured</TableHead>
+                <TableHead className="w-12">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loadingHotels ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+                  </TableCell>
+                </TableRow>
+              ) : filteredHotels?.length > 0 ? (
+                filteredHotels.map((hotel) => (
+                  <TableRow key={hotel.id} className={!hotel.is_active ? 'opacity-50' : ''}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {hotel.thumbnail_url ? (
+                          <img src={hotel.thumbnail_url} alt={hotel.name} className="w-10 h-10 object-cover rounded" />
+                        ) : (
+                          <div className="w-10 h-10 bg-blue-100 rounded flex items-center justify-center text-xs text-blue-600">
+                            🏨
+                          </div>
+                        )}
+                        <div className="font-medium">{hotel.name}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{hotel.city}, {hotel.state}</TableCell>
+                    <TableCell>{hotel.room_inventory?.reduce((sum, r) => sum + (r.total_rooms || 0), 0) || 0} rooms</TableCell>
+                    <TableCell>
+                      {hotel.rating_average > 0 ? (
+                        <span>{hotel.rating_average.toFixed(1)} ⭐</span>
+                      ) : (
+                        <span className="text-gray-400">No ratings</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={hotel.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                        {hotel.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {hotel.is_featured && (
+                        <Badge className="bg-amber-100 text-amber-700">
+                          <Star className="w-3 h-3 mr-1 fill-current" />
+                          Featured
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setSelectedHotel(hotel)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => toggleHotelActiveMutation.mutate({ id: hotel.id, is_active: !hotel.is_active })}
+                          >
+                            {hotel.is_active ? (
+                              <>
+                                <XCircle className="w-4 h-4 mr-2" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Activate
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => toggleHotelFeaturedMutation.mutate({ id: hotel.id, is_featured: !hotel.is_featured })}
+                          >
+                            {hotel.is_featured ? (
+                              <>
+                                <StarOff className="w-4 h-4 mr-2" />
+                                Remove Featured
+                              </>
+                            ) : (
+                              <>
+                                <Star className="w-4 h-4 mr-2" />
+                                Mark Featured
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              if (confirm(`Delete ${hotel.name}?`)) {
+                                deleteHotelMutation.mutate(hotel.id);
+                              }
+                            }} 
+                            className="text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    No hotels found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </Card>
+      )}
+
+      {/* Hotel Details Modal */}
+      <Dialog open={!!selectedHotel} onOpenChange={() => setSelectedHotel(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Hotel Details</DialogTitle>
+          </DialogHeader>
+          {selectedHotel && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                {selectedHotel.thumbnail_url ? (
+                  <img src={selectedHotel.thumbnail_url} alt={selectedHotel.name} className="w-20 h-20 object-cover rounded-lg" />
+                ) : (
+                  <div className="w-20 h-20 bg-blue-100 rounded-lg flex items-center justify-center text-3xl">
+                    🏨
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-xl font-bold">{selectedHotel.name}</h3>
+                  <p className="text-gray-500">{selectedHotel.city}, {selectedHotel.state}</p>
+                </div>
+              </div>
+              
+              {selectedHotel.description && (
+                <div>
+                  <h4 className="font-semibold mb-2">Description</h4>
+                  <p className="text-gray-600">{selectedHotel.description}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold mb-1">Contact</h4>
+                  <p className="text-gray-600">{selectedHotel.contact_phone || 'N/A'}</p>
+                  <p className="text-gray-600">{selectedHotel.contact_email || 'N/A'}</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">Rating</h4>
+                  <p className="text-gray-600">{selectedHotel.rating_average?.toFixed(1) || 'N/A'} ({selectedHotel.total_reviews || 0} reviews)</p>
+                </div>
+              </div>
+
+              {selectedHotel.amenities?.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Amenities</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedHotel.amenities.map((amenity, idx) => (
+                      <Badge key={idx} variant="secondary">{amenity}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedHotel.room_inventory?.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Room Inventory</h4>
+                  <div className="space-y-2">
+                    {selectedHotel.room_inventory.map((room, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                        <span className="font-medium">{room.room_type}</span>
+                        <span className="text-gray-600">{room.available_rooms}/{room.total_rooms} available • ₹{room.price_per_night}/night</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!selectedProvider} onOpenChange={() => setSelectedProvider(null)}>
         <DialogContent className="max-w-2xl">
