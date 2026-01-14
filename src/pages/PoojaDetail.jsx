@@ -84,6 +84,8 @@ export default function PoojaDetail() {
   const [location, setLocation] = useState('');
   const [needsHotel, setNeedsHotel] = useState(false);
   const [selectedHotel, setSelectedHotel] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [numRooms, setNumRooms] = useState(1);
   const [selectedTemple, setSelectedTemple] = useState(null);
 
   const { data: pooja, isLoading } = useQuery({
@@ -202,9 +204,9 @@ export default function PoojaDetail() {
     }
     
     // Add hotel cost if selected
-    if (selectedHotel && needsHotel) {
-      const roomPrice = selectedHotel.room_inventory?.[0]?.price_per_night || 1500;
-      totalAmount += roomPrice;
+    if (selectedHotel && needsHotel && selectedRoom) {
+      const roomPrice = selectedRoom.price_per_night || 1500;
+      totalAmount += roomPrice * numRooms;
     }
 
     bookingMutation.mutate({
@@ -219,8 +221,8 @@ export default function PoojaDetail() {
       items_arranged_by: itemsArrangedBy,
       location: selectedMode === 'in_person' ? location : null,
       total_amount: totalAmount,
-      special_requirements: selectedHotel ? 
-        `${specialRequirements ? specialRequirements + ' | ' : ''}Hotel: ${selectedHotel.name}` : 
+      special_requirements: selectedHotel && selectedRoom ? 
+        `${specialRequirements ? specialRequirements + ' | ' : ''}Hotel: ${selectedHotel.name} - ${selectedRoom.room_type} x ${numRooms} room(s)` : 
         specialRequirements,
       temple_id: selectedMode === 'temple' ? selectedTemple?.id : null
     });
@@ -802,7 +804,7 @@ export default function PoojaDetail() {
 
             {/* Hotel Selection */}
             {selectedMode === 'temple' && needsHotel && selectedTemple && (
-              <div className="space-y-3 animate-in slide-in-from-top-2">
+              <div className="space-y-4 animate-in slide-in-from-top-2">
                 <Label className="font-medium">Select Hotel in {selectedTemple.city}</Label>
                 
                 {hotelsLoading ? (
@@ -810,13 +812,17 @@ export default function PoojaDetail() {
                     <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
                   </div>
                 ) : nearbyHotels?.length > 0 ? (
-                  <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
                     {nearbyHotels.map((hotel) => {
-                      const roomPrice = hotel.room_inventory?.[0]?.price_per_night || 1500;
+                      const startingPrice = Math.min(...(hotel.room_inventory?.map(r => r.price_per_night) || [1500]));
                       return (
                         <div
                           key={hotel.id}
-                          onClick={() => setSelectedHotel(hotel)}
+                          onClick={() => {
+                            setSelectedHotel(hotel);
+                            setSelectedRoom(null);
+                            setNumRooms(1);
+                          }}
                           className={`p-3 rounded-lg border cursor-pointer transition-all ${
                             selectedHotel?.id === hotel.id 
                               ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500' 
@@ -853,7 +859,7 @@ export default function PoojaDetail() {
                                     </span>
                                   ))}
                                 </div>
-                                <span className="font-semibold text-orange-600">₹{roomPrice}/night</span>
+                                <span className="font-semibold text-orange-600">from ₹{startingPrice}/night</span>
                               </div>
                             </div>
                           </div>
@@ -863,6 +869,92 @@ export default function PoojaDetail() {
                   </div>
                 ) : (
                   <p className="text-center text-gray-500 py-4">No hotels available in this area</p>
+                )}
+
+                {/* Room Type Selection */}
+                {selectedHotel && selectedHotel.room_inventory?.length > 0 && (
+                  <div className="space-y-3 p-4 bg-gray-50 rounded-xl border">
+                    <Label className="font-medium text-gray-800">Select Room Type for {numDevotees} devotee(s)</Label>
+                    <p className="text-xs text-gray-500 mb-2">
+                      💡 We recommend {Math.ceil(numDevotees / 2)} room(s) for {numDevotees} devotee(s)
+                    </p>
+                    
+                    <div className="space-y-2">
+                      {selectedHotel.room_inventory.map((room, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            setSelectedRoom(room);
+                            // Auto-calculate rooms needed based on devotees
+                            const roomsNeeded = Math.ceil(numDevotees / (room.max_occupancy || 2));
+                            setNumRooms(Math.min(roomsNeeded, room.available_rooms || 10));
+                          }}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            selectedRoom?.room_type === room.room_type 
+                              ? 'border-orange-500 bg-orange-100' 
+                              : 'border-gray-200 bg-white hover:border-orange-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h5 className="font-semibold text-gray-800">{room.room_type}</h5>
+                                {selectedRoom?.room_type === room.room_type && (
+                                  <CheckCircle className="w-4 h-4 text-orange-500" />
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Max {room.max_occupancy || 2} guests • {room.available_rooms || 0} available
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold text-orange-600">₹{room.price_per_night}</p>
+                              <p className="text-xs text-gray-500">/night</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Number of Rooms */}
+                    {selectedRoom && (
+                      <div className="pt-3 border-t">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm">Number of Rooms</Label>
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={() => setNumRooms(Math.max(1, numRooms - 1))}
+                              disabled={numRooms <= 1}
+                            >
+                              -
+                            </Button>
+                            <span className="w-8 text-center font-semibold">{numRooms}</span>
+                            <Button 
+                              variant="outline" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={() => setNumRooms(Math.min(selectedRoom.available_rooms || 10, numRooms + 1))}
+                              disabled={numRooms >= (selectedRoom.available_rooms || 10)}
+                            >
+                              +
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="mt-2 p-2 bg-orange-100 rounded-lg">
+                          <div className="flex justify-between text-sm">
+                            <span>{selectedRoom.room_type} × {numRooms}</span>
+                            <span className="font-bold text-orange-700">₹{selectedRoom.price_per_night * numRooms}/night</span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">
+                            Total capacity: {(selectedRoom.max_occupancy || 2) * numRooms} guests
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -924,10 +1016,10 @@ export default function PoojaDetail() {
                     <span>₹{pooja.items_arrangement_cost}</span>
                   </div>
                 )}
-                {selectedHotel && (
+                {selectedHotel && selectedRoom && (
                   <div className="flex justify-between">
-                    <span>{selectedHotel.name}</span>
-                    <span>₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
+                    <span>{selectedHotel.name} - {selectedRoom.room_type} × {numRooms}</span>
+                    <span>₹{selectedRoom.price_per_night * numRooms}</span>
                   </div>
                 )}
                 <div className="flex justify-between pt-2 border-t border-amber-200 font-semibold">
@@ -935,7 +1027,7 @@ export default function PoojaDetail() {
                   <span className="text-amber-700">
                     ₹{(pooja[`base_price_${selectedMode === 'in_person' ? 'in_person' : selectedMode}`] || 0) + 
                       (itemsArrangedBy === 'priest' ? (pooja.items_arrangement_cost || 0) : 0) +
-                      (selectedHotel ? (selectedHotel.room_inventory?.[0]?.price_per_night || 1500) : 0)}
+                      (selectedRoom ? (selectedRoom.price_per_night * numRooms) : 0)}
                   </span>
                 </div>
               </div>
@@ -948,7 +1040,7 @@ export default function PoojaDetail() {
             </Button>
             <Button 
               onClick={handleBookPooja} 
-              disabled={bookingMutation.isPending || (needsHotel && !selectedHotel)}
+              disabled={bookingMutation.isPending || (needsHotel && (!selectedHotel || !selectedRoom))}
               className="flex-1 bg-black hover:bg-stone-800"
             >
               {bookingMutation.isPending ? (
