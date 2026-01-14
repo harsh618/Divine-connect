@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -19,21 +20,94 @@ import {
 } from "@/components/ui/popover";
 import { 
   Search, Bell, HelpCircle, ChevronDown, LogOut, User, 
-  Settings, ExternalLink, Check, X, Calendar, Heart, UserPlus
+  Settings, ExternalLink, Check, X, Calendar, Heart, UserPlus, Building2, Loader2
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { format } from 'date-fns';
-
-const sampleNotifications = [
-  { id: 1, type: 'booking', title: 'New booking received', desc: 'Temple visit - ₹2,500', time: '10 min ago', read: false },
-  { id: 2, type: 'donation', title: 'Donation received', desc: '₹5,100 for Temple Renovation', time: '1 hour ago', read: false },
-  { id: 3, type: 'provider', title: 'Provider verification pending', desc: 'Pandit Verma requires approval', time: '2 hours ago', read: true },
-  { id: 4, type: 'user', title: 'New user registered', desc: 'Priya Sharma joined', time: '3 hours ago', read: true },
-];
+import { format, formatDistanceToNow } from 'date-fns';
 
 export default function AdminHeader({ user, collapsed }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [notifications, setNotifications] = useState(sampleNotifications);
+
+  // Fetch real data for notifications
+  const { data: recentBookings = [] } = useQuery({
+    queryKey: ['admin-recent-bookings'],
+    queryFn: () => base44.entities.Booking.filter({ is_deleted: false }, '-created_date', 5),
+  });
+
+  const { data: recentDonations = [] } = useQuery({
+    queryKey: ['admin-recent-donations'],
+    queryFn: () => base44.entities.Donation.list('-created_date', 5),
+  });
+
+  const { data: pendingProviders = [] } = useQuery({
+    queryKey: ['admin-pending-providers'],
+    queryFn: async () => {
+      const providers = await base44.entities.ProviderProfile.filter({ is_deleted: false, is_verified: false });
+      return providers;
+    },
+  });
+
+  const { data: recentUsers = [] } = useQuery({
+    queryKey: ['admin-recent-users'],
+    queryFn: () => base44.entities.User.list('-created_date', 5),
+  });
+
+  // Generate real notifications from data
+  const notifications = useMemo(() => {
+    const notifs = [];
+    
+    // Recent bookings
+    recentBookings.slice(0, 2).forEach(booking => {
+      notifs.push({
+        id: `booking-${booking.id}`,
+        type: 'booking',
+        title: 'New booking received',
+        desc: `${booking.booking_type?.replace('_', ' ')} - ₹${booking.total_amount?.toLocaleString() || 0}`,
+        time: booking.created_date ? formatDistanceToNow(new Date(booking.created_date), { addSuffix: true }) : 'recently',
+        read: false
+      });
+    });
+
+    // Recent donations
+    recentDonations.slice(0, 2).forEach(donation => {
+      notifs.push({
+        id: `donation-${donation.id}`,
+        type: 'donation',
+        title: 'Donation received',
+        desc: `₹${donation.amount?.toLocaleString() || 0} received`,
+        time: donation.created_date ? formatDistanceToNow(new Date(donation.created_date), { addSuffix: true }) : 'recently',
+        read: false
+      });
+    });
+
+    // Pending verifications
+    pendingProviders.slice(0, 2).forEach(provider => {
+      notifs.push({
+        id: `provider-${provider.id}`,
+        type: 'provider',
+        title: 'Provider verification pending',
+        desc: `${provider.display_name} requires approval`,
+        time: provider.created_date ? formatDistanceToNow(new Date(provider.created_date), { addSuffix: true }) : 'recently',
+        read: true
+      });
+    });
+
+    // Recent users
+    recentUsers.slice(0, 2).forEach(u => {
+      notifs.push({
+        id: `user-${u.id}`,
+        type: 'user',
+        title: 'New user registered',
+        desc: `${u.full_name || u.email} joined`,
+        time: u.created_date ? formatDistanceToNow(new Date(u.created_date), { addSuffix: true }) : 'recently',
+        read: true
+      });
+    });
+
+    // Sort by most recent and limit
+    return notifs.slice(0, 8);
+  }, [recentBookings, recentDonations, pendingProviders, recentUsers]);
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleLogout = () => {

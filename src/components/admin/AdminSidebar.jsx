@@ -1,60 +1,86 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   LayoutDashboard, Users, TrendingUp, Heart, Building2, Flame,
   Calendar, UserCheck, FileText, Settings, Trash2, Bell, Moon, Sun,
-  HelpCircle, LogOut, ChevronRight, Shield, BarChart3, Megaphone
+  HelpCircle, LogOut, ChevronRight, Shield, BarChart3, Megaphone, Hotel
 } from 'lucide-react';
 
-const menuSections = [
-  {
-    title: 'Overview',
-    items: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
-      { id: 'analytics', label: 'Analytics', icon: BarChart3, badge: null },
-    ]
-  },
-  {
-    title: 'User Management',
-    items: [
-      { id: 'users', label: 'Users', icon: Users, badge: null },
-      { id: 'providers', label: 'Providers', icon: UserCheck, badge: '3', badgeColor: 'bg-orange-500' },
-    ]
-  },
-  {
-    title: 'Services',
-    items: [
-      { id: 'temples', label: 'Temples', icon: Building2, badge: null },
-      { id: 'poojas', label: 'Poojas', icon: Flame, badge: null },
-      { id: 'bookings', label: 'All Bookings', icon: Calendar, badge: '5', badgeColor: 'bg-blue-500' },
-      { id: 'pooja_bookings', label: 'Pooja Bookings', icon: Calendar, badge: null },
-    ]
-  },
-  {
-    title: 'Donations',
-    items: [
-      { id: 'donations', label: 'Campaigns', icon: Heart, badge: null },
-    ]
-  },
-  {
-    title: 'Content',
-    items: [
-      { id: 'articles', label: 'Articles', icon: FileText, badge: '2', badgeColor: 'bg-purple-500' },
-      { id: 'auspicious', label: 'Auspicious Days', icon: Calendar, badge: null },
-    ]
-  },
-  {
-    title: 'System',
-    items: [
-      { id: 'settings', label: 'Settings', icon: Settings, badge: null },
-      { id: 'trash', label: 'Trash', icon: Trash2, badge: null },
-    ]
-  }
-];
-
 export default function AdminSidebar({ activeTab, setActiveTab, collapsed, setCollapsed, darkMode, setDarkMode }) {
+  // Fetch real counts for badges
+  const { data: pendingProviders = [] } = useQuery({
+    queryKey: ['sidebar-pending-providers'],
+    queryFn: async () => {
+      const providers = await base44.entities.ProviderProfile.filter({ is_deleted: false, is_verified: false });
+      return providers;
+    },
+  });
+
+  const { data: pendingBookings = [] } = useQuery({
+    queryKey: ['sidebar-pending-bookings'],
+    queryFn: async () => {
+      const bookings = await base44.entities.Booking.filter({ is_deleted: false, status: 'pending' });
+      return bookings;
+    },
+  });
+
+  const { data: pendingArticles = [] } = useQuery({
+    queryKey: ['sidebar-pending-articles'],
+    queryFn: async () => {
+      const articles = await base44.entities.Article.filter({ is_deleted: false, status: 'pending' });
+      return articles;
+    },
+  });
+
+  const menuSections = [
+    {
+      title: 'Overview',
+      items: [
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+        { id: 'analytics', label: 'Analytics', icon: BarChart3, badge: null },
+      ]
+    },
+    {
+      title: 'User Management',
+      items: [
+        { id: 'users', label: 'Users', icon: Users, badge: null },
+        { id: 'providers', label: 'Providers & Hotels', icon: UserCheck, badge: pendingProviders.length > 0 ? pendingProviders.length.toString() : null, badgeColor: 'bg-orange-500' },
+      ]
+    },
+    {
+      title: 'Services',
+      items: [
+        { id: 'temples', label: 'Temples', icon: Building2, badge: null },
+        { id: 'poojas', label: 'Poojas', icon: Flame, badge: null },
+        { id: 'bookings', label: 'All Bookings', icon: Calendar, badge: pendingBookings.length > 0 ? pendingBookings.length.toString() : null, badgeColor: 'bg-blue-500' },
+        { id: 'pooja_bookings', label: 'Pooja Bookings', icon: Calendar, badge: null },
+      ]
+    },
+    {
+      title: 'Donations',
+      items: [
+        { id: 'donations', label: 'Campaigns', icon: Heart, badge: null },
+      ]
+    },
+    {
+      title: 'Content',
+      items: [
+        { id: 'articles', label: 'Articles', icon: FileText, badge: pendingArticles.length > 0 ? pendingArticles.length.toString() : null, badgeColor: 'bg-purple-500' },
+        { id: 'auspicious', label: 'Auspicious Days', icon: Calendar, badge: null },
+      ]
+    },
+    {
+      title: 'System',
+      items: [
+        { id: 'settings', label: 'Settings', icon: Settings, badge: null },
+        { id: 'trash', label: 'Trash', icon: Trash2, badge: null },
+      ]
+    }
+  ];
   return (
     <div className={`${collapsed ? 'w-20' : 'w-64'} bg-gray-900 text-white h-screen flex flex-col transition-all duration-300 fixed left-0 top-0 z-50`}>
       {/* Logo */}
