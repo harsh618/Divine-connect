@@ -982,15 +982,15 @@ export default function TempleDetail() {
 
       {/* Booking Modal */}
       <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="sm:max-w-lg max-h-[85vh]">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Schedule Your Visit</DialogTitle>
             <DialogDescription>
               Book your darshan at {temple?.name}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
+          <div className="space-y-4 overflow-y-auto flex-1 pr-2 -mr-2">
             <div>
               <Label className="mb-2 block text-sm font-medium">Start Date</Label>
               <Calendar
@@ -1221,26 +1221,29 @@ export default function TempleDetail() {
             )}
           </div>
 
-          {/* Booking Summary */}
-          {selectedHotel && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
-              <p className="text-sm font-medium text-gray-800">Booking Summary</p>
-              <div className="flex justify-between text-sm mt-2">
-                <span className="text-gray-600">Temple Visit</span>
-                <span className="text-green-600">Free</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">{selectedHotel.name}</span>
-                <span className="text-gray-800">₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
-              </div>
-              <div className="flex justify-between text-sm font-semibold mt-2 pt-2 border-t border-orange-200">
-                <span>Total</span>
-                <span className="text-orange-600">₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
-              </div>
-            </div>
-          )}
+          </div>
 
-          <div className="flex gap-3 pt-4 border-t">
+          {/* Booking Summary - Fixed at bottom */}
+          <div className="flex-shrink-0 pt-4 border-t space-y-3">
+            {selectedHotel && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <p className="text-sm font-medium text-gray-800">Booking Summary</p>
+                <div className="flex justify-between text-sm mt-2">
+                  <span className="text-gray-600">Temple Visit</span>
+                  <span className="text-green-600">Free</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 truncate max-w-[150px]">{selectedHotel.name}</span>
+                  <span className="text-gray-800">₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
+                </div>
+                <div className="flex justify-between text-sm font-semibold mt-2 pt-2 border-t border-orange-200">
+                  <span>Total</span>
+                  <span className="text-orange-600">₹{selectedHotel.room_inventory?.[0]?.price_per_night || 1500}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
             <Button variant="outline" onClick={() => setShowBookingModal(false)} className="flex-1">
               Cancel
             </Button>
@@ -1256,6 +1259,7 @@ export default function TempleDetail() {
               )}
               Confirm Booking
             </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
