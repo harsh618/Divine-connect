@@ -50,15 +50,7 @@ import FAQSection from '../components/faq/FAQSection';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
-const timeSlots = [
-  '6:00 AM - 8:00 AM',
-  '8:00 AM - 10:00 AM',
-  '10:00 AM - 12:00 PM',
-  '12:00 PM - 2:00 PM',
-  '2:00 PM - 4:00 PM',
-  '4:00 PM - 6:00 PM',
-  '6:00 PM - 8:00 PM'
-];
+import TimeSlotPicker from '../components/booking/TimeSlotPicker';
 
 export default function PoojaDetail() {
   const navigate = useNavigate();
@@ -690,19 +682,11 @@ export default function PoojaDetail() {
             )}
 
             {/* Time Slot Selection */}
-            <div>
-              <Label className="mb-2 block text-sm font-medium">Select Time Slot</Label>
-              <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a time slot" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeSlots.map((slot) => (
-                    <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <TimeSlotPicker
+              value={selectedTimeSlot}
+              onChange={setSelectedTimeSlot}
+              label="Select Time Slot"
+            />
 
             {/* Available Priest */}
             {availablePriests.length > 0 && startDate && selectedTimeSlot && (

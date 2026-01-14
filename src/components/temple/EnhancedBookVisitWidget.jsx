@@ -40,14 +40,7 @@ import {
 import { format, addDays } from 'date-fns';
 import { toast } from 'sonner';
 
-const TIME_SLOTS = [
-  '6:00 AM - 8:00 AM (Morning Darshan)',
-  '8:00 AM - 10:00 AM',
-  '10:00 AM - 12:00 PM',
-  '2:00 PM - 4:00 PM',
-  '4:00 PM - 6:00 PM (Evening Aarti)',
-  '6:00 PM - 8:00 PM'
-];
+import TimeSlotPicker from '../booking/TimeSlotPicker';
 
 /**
  * Enhanced Book Visit Widget for Temple Detail Page
@@ -303,19 +296,11 @@ export default function EnhancedBookVisitWidget({
           )}
 
           {/* Time Slot */}
-          <div>
-            <Label className="font-semibold mb-3 block">Select Time Slot</Label>
-            <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a time slot" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_SLOTS.map((slot) => (
-                  <SelectItem key={slot} value={slot}>{slot}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <TimeSlotPicker
+            value={selectedTimeSlot}
+            onChange={setSelectedTimeSlot}
+            label="Select Time Slot"
+          />
 
           {/* Priest Allocation Status */}
           {selectedDate && selectedTimeSlot && (
