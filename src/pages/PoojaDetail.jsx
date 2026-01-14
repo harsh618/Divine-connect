@@ -51,6 +51,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 import TimeSlotPicker from '../components/booking/TimeSlotPicker';
+import ComprehensivePoojaBooking from '../components/booking/ComprehensivePoojaBooking';
 
 export default function PoojaDetail() {
   const navigate = useNavigate();
