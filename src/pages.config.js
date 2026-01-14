@@ -1,4 +1,5 @@
 import AdminDashboard from './pages/AdminDashboard';
+import AdminProviderOnboarding from './pages/AdminProviderOnboarding';
 import AdminUserAnalytics from './pages/AdminUserAnalytics';
 import AdminUserDetail from './pages/AdminUserDetail';
 import ArticleDetail from './pages/ArticleDetail';
@@ -36,12 +37,12 @@ import TempleDetail from './pages/TempleDetail';
 import TempleDetails from './pages/TempleDetails';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
-import AdminProviderOnboarding from './pages/AdminProviderOnboarding';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminDashboard": AdminDashboard,
+    "AdminProviderOnboarding": AdminProviderOnboarding,
     "AdminUserAnalytics": AdminUserAnalytics,
     "AdminUserDetail": AdminUserDetail,
     "ArticleDetail": ArticleDetail,
@@ -79,7 +80,6 @@ export const PAGES = {
     "TempleDetails": TempleDetails,
     "Temples": Temples,
     "Yatra": Yatra,
-    "AdminProviderOnboarding": AdminProviderOnboarding,
 }
 
 export const pagesConfig = {

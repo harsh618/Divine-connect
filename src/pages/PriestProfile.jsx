@@ -2,34 +2,39 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Star, MapPin, Languages, Award, Calendar, MessageCircle, Video, Phone, Heart, Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft, User, Flame, Calendar, Image, Star, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+
+import PriestHeroSection from '../components/priest-profile/PriestHeroSection';
+import PriestAboutSection from '../components/priest-profile/PriestAboutSection';
+import PriestServicesSection from '../components/priest-profile/PriestServicesSection';
+import PriestGallerySection from '../components/priest-profile/PriestGallerySection';
+import PriestAvailabilitySection from '../components/priest-profile/PriestAvailabilitySection';
+import PriestReviewsSection from '../components/priest-profile/PriestReviewsSection';
+import PriestBookingSidebar from '../components/priest-profile/PriestBookingSidebar';
+import BackButton from '../components/ui/BackButton';
 
 export default function PriestProfile() {
-  // Capture the ID once on initial mount to prevent it from being lost on re-renders
   const providerId = useMemo(() => {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('id');
   }, []);
+  
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('about');
 
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const userData = await base44.auth.me();
-        setUser(userData);
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
+          const userData = await base44.auth.me();
+          setUser(userData);
+        }
       } catch (error) {
         setUser(null);
       }
@@ -40,7 +45,10 @@ export default function PriestProfile() {
   const { data: provider, isLoading } = useQuery({
     queryKey: ['provider-profile', providerId],
     queryFn: async () => {
-      const providers = await base44.entities.ProviderProfile.filter({ is_deleted: false, is_hidden: false });
+      const providers = await base44.entities.ProviderProfile.filter({ 
+        is_deleted: false, 
+        is_hidden: false 
+      });
       return providers.find(p => p.id === providerId) || null;
     },
     enabled: !!providerId
@@ -87,20 +95,55 @@ export default function PriestProfile() {
     }
   });
 
+  const handleBook = (mode) => {
+    if (!user) {
+      base44.auth.redirectToLogin();
+      return;
+    }
+    
+    // Navigate to booking page or open modal
+    if (provider.provider_type === 'astrologer') {
+      window.location.href = `${createPageUrl('AstrologerProfile')}?id=${providerId}`;
+    } else {
+      // For priests, could open a booking modal
+      toast.info('Booking feature coming soon!');
+    }
+  };
+
+  const handleSelectSlot = (slotData) => {
+    if (!user) {
+      base44.auth.redirectToLogin();
+      return;
+    }
+    toast.info(`Selected slot: ${slotData.slot.start_time} - ${slotData.slot.end_time}`);
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-orange-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-white">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-orange-500 mx-auto mb-4" />
+          <p className="text-gray-500">Loading profile...</p>
+        </div>
       </div>
     );
   }
 
   if (!provider) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-orange-50 to-white">
+        <div className="text-center max-w-md mx-auto px-6">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <User className="w-10 h-10 text-gray-400" />
+          </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Provider Not Found</h2>
-          <p className="text-gray-500">The provider you're looking for doesn't exist.</p>
+          <p className="text-gray-500 mb-6">The provider you're looking for doesn't exist or has been removed.</p>
+          <Link to={createPageUrl('Priests')}>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Browse Priests
+            </Button>
+          </Link>
         </div>
       </div>
     );
@@ -108,174 +151,112 @@ export default function PriestProfile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50/30 to-white pb-24 md:pb-8">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            <Avatar className="w-32 h-32 border-4 border-white shadow-xl">
-              <AvatarImage src={provider.avatar_url} />
-              <AvatarFallback className="text-4xl bg-orange-600">
-                {provider.display_name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h1 className="text-4xl font-serif font-bold mb-2">{provider.display_name}</h1>
-                  <Badge variant="secondary" className="capitalize mb-3">
-                    {provider.provider_type}
-                  </Badge>
-                </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => toggleFavoriteMutation.mutate()}
-                  className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
-                >
-                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                </Button>
-              </div>
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 z-20">
+        <BackButton />
+      </div>
 
-              <div className="flex flex-wrap gap-4 text-orange-100">
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-current" />
-                  <span className="font-semibold">{provider.rating_average?.toFixed(1) || 'New'}</span>
-                  <span className="text-sm">({provider.total_consultations} consultations)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  <span>{provider.years_of_experience} years experience</span>
-                </div>
-              </div>
-            </div>
+      {/* Hero Section */}
+      <PriestHeroSection 
+        provider={provider}
+        isFavorite={isFavorite}
+        onToggleFavorite={() => toggleFavoriteMutation.mutate()}
+        onBook={handleBook}
+      />
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 md:px-6 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Column - Main Content */}
+          <div className="flex-1 min-w-0">
+            {/* Tabs Navigation */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="w-full justify-start bg-white border shadow-sm rounded-xl p-1 mb-6 overflow-x-auto flex-nowrap">
+                <TabsTrigger value="about" className="flex-shrink-0">
+                  <User className="w-4 h-4 mr-2" />
+                  About
+                </TabsTrigger>
+                <TabsTrigger value="services" className="flex-shrink-0">
+                  <Flame className="w-4 h-4 mr-2" />
+                  Services
+                </TabsTrigger>
+                <TabsTrigger value="availability" className="flex-shrink-0">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Availability
+                </TabsTrigger>
+                <TabsTrigger value="gallery" className="flex-shrink-0">
+                  <Image className="w-4 h-4 mr-2" />
+                  Gallery
+                </TabsTrigger>
+                <TabsTrigger value="reviews" className="flex-shrink-0">
+                  <Star className="w-4 h-4 mr-2" />
+                  Reviews
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="about" className="mt-0">
+                <PriestAboutSection provider={provider} />
+              </TabsContent>
+
+              <TabsContent value="services" className="mt-0">
+                <PriestServicesSection 
+                  provider={provider} 
+                  onBookService={handleBook}
+                />
+              </TabsContent>
+
+              <TabsContent value="availability" className="mt-0">
+                <PriestAvailabilitySection 
+                  provider={provider}
+                  onSelectSlot={handleSelectSlot}
+                />
+              </TabsContent>
+
+              <TabsContent value="gallery" className="mt-0">
+                <PriestGallerySection provider={provider} />
+              </TabsContent>
+
+              <TabsContent value="reviews" className="mt-0">
+                <PriestReviewsSection provider={provider} />
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Right Column - Booking Sidebar (Desktop) */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            <PriestBookingSidebar 
+              provider={provider}
+              onBook={handleBook}
+            />
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Left Column - Details */}
-          <div className="md:col-span-2 space-y-6">
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-4">About</h2>
-                <p className="text-gray-600 leading-relaxed">
-                  {provider.bio || 'No bio available'}
-                </p>
-              </CardContent>
-            </Card>
-
-            {provider.specializations?.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold mb-4">Specializations</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {provider.specializations.map((spec, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-sm">
-                        {spec}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+      {/* Mobile Fixed Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-2xl p-4 lg:hidden z-50">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            {provider.provider_type === 'astrologer' && provider.consultation_rate_chat ? (
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-orange-600">₹{provider.consultation_rate_chat}</span>
+                <span className="text-sm text-gray-500">/min</span>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-600">
+                Contact for pricing
+              </div>
             )}
-
-            {provider.languages?.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Languages className="w-5 h-5 text-orange-600" />
-                    <h2 className="text-xl font-bold">Languages</h2>
-                  </div>
-                  <p className="text-gray-600">{provider.languages.join(', ')}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {provider.certifications?.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Award className="w-5 h-5 text-orange-600" />
-                    <h2 className="text-xl font-bold">Certifications</h2>
-                  </div>
-                  <ul className="space-y-2">
-                    {provider.certifications.map((cert, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-gray-600">
-                        <span className="text-orange-500">•</span>
-                        <span>{cert}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            )}
+            <p className="text-xs text-gray-500">
+              {provider.is_available_now ? '● Available Now' : 'View availability'}
+            </p>
           </div>
-
-          {/* Right Column - Booking */}
-          <div className="space-y-6">
-            <Card className="sticky top-6">
-              <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-4">Consultation Rates</h3>
-                
-                {provider.provider_type === 'astrologer' && (
-                  <div className="space-y-4">
-                    {provider.consultation_rate_chat && (
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <MessageCircle className="w-5 h-5 text-gray-600" />
-                          <span className="text-sm font-medium">Chat</span>
-                        </div>
-                        <span className="font-bold text-orange-600">₹{provider.consultation_rate_chat}/min</span>
-                      </div>
-                    )}
-                    
-                    {provider.consultation_rate_voice && (
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-5 h-5 text-gray-600" />
-                          <span className="text-sm font-medium">Voice Call</span>
-                        </div>
-                        <span className="font-bold text-orange-600">₹{provider.consultation_rate_voice}/min</span>
-                      </div>
-                    )}
-                    
-                    {provider.consultation_rate_video && (
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <Video className="w-5 h-5 text-gray-600" />
-                          <span className="text-sm font-medium">Video Call</span>
-                        </div>
-                        <span className="font-bold text-orange-600">₹{provider.consultation_rate_video}/min</span>
-                      </div>
-                    )}
-
-                    {!provider.consultation_rate_chat && !provider.consultation_rate_voice && !provider.consultation_rate_video && (
-                      <p className="text-sm text-gray-500 italic text-center py-4">Contact for pricing</p>
-                    )}
-                  </div>
-                )}
-
-                {provider.provider_type === 'priest' && (
-                  <p className="text-sm text-gray-500 italic text-center py-4">Contact for service pricing</p>
-                )}
-
-                <Button 
-                  onClick={() => setShowBookingModal(true)}
-                  className="w-full mt-6 bg-orange-500 hover:bg-orange-600"
-                  disabled={!provider.is_available_now}
-                >
-                  {provider.is_available_now ? 'Book Consultation' : 'Currently Unavailable'}
-                </Button>
-
-                {provider.is_available_now && (
-                  <p className="text-xs text-center text-green-600 mt-2">● Available now</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          <Button 
+            onClick={() => handleBook()}
+            className="flex-1 max-w-[200px] h-12 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold rounded-xl"
+          >
+            <MessageSquare className="w-5 h-5 mr-2" />
+            Book Now
+          </Button>
         </div>
       </div>
     </div>
