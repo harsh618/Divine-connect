@@ -1,17 +1,19 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
   MapPin, Star, Hotel, Wifi, Car, Utensils, 
   ChevronLeft, ChevronRight, Calendar as CalendarIcon,
-  Check, Loader2, Phone, Mail, CheckCircle, Sparkles
+  Check, Loader2, Phone, Mail, CheckCircle, Sparkles,
+  Users, Plus, Minus, Shield, Clock, Coffee, Wind, Waves, Dumbbell, Info
 } from 'lucide-react';
 import { format, addDays, differenceInDays } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -20,11 +22,24 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import HotelBookingFlow from '../components/yatra/HotelBookingFlow';
 
 const amenityIcons = {
   wifi: Wifi,
   parking: Car,
   restaurant: Utensils,
+  ac: Wind,
+  pool: Waves,
+  gym: Dumbbell,
+  breakfast: Coffee,
+  hotwater: Coffee
+};
+
+const AMENITY_CATEGORIES = {
+  basic: ['Free Parking', '24-hour Reception', 'Power Backup', 'Luggage Storage', 'Daily Housekeeping'],
+  dining: ['Vegetarian Restaurant', 'Breakfast Included', 'Room Service', 'Free Tea/Coffee', 'Dining Hall'],
+  spiritual: ['Meditation Room', 'Temple Bell Wake-up', 'Pooja Room', 'Morning Bhajans', 'Yoga Sessions'],
+  safety: ['CCTV Surveillance', 'Fire Safety', 'Doctor on Call', 'Security Guards']
 };
 
 export default function HotelDetail() {
@@ -35,11 +50,23 @@ export default function HotelDetail() {
 
   const queryClient = useQueryClient();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [checkInDate, setCheckInDate] = useState(null);
-  const [checkOutDate, setCheckOutDate] = useState(null);
+  const [checkInDate, setCheckInDate] = useState(addDays(new Date(), 1));
+  const [checkOutDate, setCheckOutDate] = useState(addDays(new Date(), 3));
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [guests, setGuests] = useState(2);
+  const [guests, setGuests] = useState({ adults: 2, children: 0, seniors: 0, infants: 0 });
+  const [showBookingFlow, setShowBookingFlow] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) setUser(await base44.auth.me());
+      } catch (e) {}
+    };
+    loadUser();
+  }, []);
 
   const { data: hotel, isLoading } = useQuery({
     queryKey: ['hotel', hotelId],
@@ -340,7 +367,7 @@ export default function HotelDetail() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="w-full justify-start rounded-xl h-12 border-gray-200">
                           <CalendarIcon className="w-4 h-4 mr-2 text-amber-500" />
-                          {checkInDate ? format(checkInDate, 'MMM d, yyyy') : 'Select date'}
+                          {format(checkInDate, 'MMM d, yyyy')}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -348,9 +375,11 @@ export default function HotelDetail() {
                           mode="single"
                           selected={checkInDate}
                           onSelect={(date) => {
-                            setCheckInDate(date);
-                            if (date && (!checkOutDate || checkOutDate <= date)) {
-                              setCheckOutDate(addDays(date, 1));
+                            if (date) {
+                              setCheckInDate(date);
+                              if (checkOutDate <= date) {
+                                setCheckOutDate(addDays(date, 1));
+                              }
                             }
                           }}
                           disabled={(date) => date < new Date()}
@@ -366,15 +395,15 @@ export default function HotelDetail() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="w-full justify-start rounded-xl h-12 border-gray-200">
                           <CalendarIcon className="w-4 h-4 mr-2 text-amber-500" />
-                          {checkOutDate ? format(checkOutDate, 'MMM d, yyyy') : 'Select date'}
+                          {format(checkOutDate, 'MMM d, yyyy')}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
                         <Calendar
                           mode="single"
                           selected={checkOutDate}
-                          onSelect={setCheckOutDate}
-                          disabled={(date) => date <= (checkInDate || new Date())}
+                          onSelect={(date) => date && setCheckOutDate(date)}
+                          disabled={(date) => date <= checkInDate}
                         />
                       </PopoverContent>
                     </Popover>
@@ -383,21 +412,54 @@ export default function HotelDetail() {
                   {/* Guests */}
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-2 block">Guests</label>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="rounded-full"
-                        onClick={() => setGuests(Math.max(1, guests - 1))}
-                      >-</Button>
-                      <span className="flex-1 text-center font-serif text-xl">{guests}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="rounded-full"
-                        onClick={() => setGuests(Math.min(10, guests + 1))}
-                      >+</Button>
-                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start rounded-xl h-12 border-gray-200">
+                          <Users className="w-4 h-4 mr-2 text-amber-500" />
+                          {guests.adults + guests.children + guests.seniors} Guests
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">Adults</span>
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setGuests({ ...guests, adults: Math.max(1, guests.adults - 1) })}>
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="w-6 text-center">{guests.adults}</span>
+                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setGuests({ ...guests, adults: guests.adults + 1 })}>
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">Children</span>
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setGuests({ ...guests, children: Math.max(0, guests.children - 1) })}>
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="w-6 text-center">{guests.children}</span>
+                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setGuests({ ...guests, children: guests.children + 1 })}>
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">Seniors (60+)</span>
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setGuests({ ...guests, seniors: Math.max(0, guests.seniors - 1) })}>
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="w-6 text-center">{guests.seniors}</span>
+                              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setGuests({ ...guests, seniors: guests.seniors + 1 })}>
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   {/* Selected Room Display */}
@@ -426,15 +488,33 @@ export default function HotelDetail() {
 
                   <Button
                     className="w-full h-14 text-white font-semibold text-lg rounded-2xl bg-amber-600 hover:bg-amber-700"
-                    onClick={handleBookNow}
-                    disabled={!checkInDate || !checkOutDate || !selectedRoom || bookingMutation.isPending}
+                    onClick={() => {
+                      if (!user) {
+                        base44.auth.redirectToLogin();
+                        return;
+                      }
+                      if (!selectedRoom) {
+                        toast.error('Please select a room type');
+                        return;
+                      }
+                      setShowBookingFlow(true);
+                    }}
+                    disabled={!selectedRoom}
                   >
-                    {bookingMutation.isPending ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      'Book Now'
-                    )}
+                    Book Now
                   </Button>
+
+                  {/* Trust Badges */}
+                  <div className="pt-4 border-t space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Shield className="w-4 h-4 text-green-600" />
+                      <span>Free cancellation (24h policy)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock className="w-4 h-4 text-blue-600" />
+                      <span>Check-in: 12 PM | Check-out: 10 AM</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -442,55 +522,18 @@ export default function HotelDetail() {
         </div>
       </div>
 
-      {/* Success Popup */}
-      <Dialog open={showSuccessPopup} onOpenChange={setShowSuccessPopup}>
-        <DialogContent className="max-w-md p-0 overflow-hidden rounded-[2rem]">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-8 text-center text-white">
-            <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-12 h-12" />
-            </div>
-            <h2 className="text-2xl font-serif mb-2">Congratulations!</h2>
-            <p className="text-white/80">Your stay has been booked successfully</p>
-          </div>
-          <div className="p-6 space-y-4">
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">Hotel</span>
-                <span className="font-semibold">{hotel?.name}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">Check-in</span>
-                <span className="font-semibold">{checkInDate && format(checkInDate, 'MMM d, yyyy')}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">Check-out</span>
-                <span className="font-semibold">{checkOutDate && format(checkOutDate, 'MMM d, yyyy')}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-100">
-                <span className="text-gray-500">Room</span>
-                <span className="font-semibold">{selectedRoom?.room_type}</span>
-              </div>
-              <div className="flex justify-between pt-3">
-                <span className="font-semibold">Total Paid</span>
-                <span className="font-serif text-xl text-amber-600">₹{totalPrice.toLocaleString()}</span>
-              </div>
-            </div>
-            <div className="flex gap-3 pt-2">
-              <Link to={createPageUrl('MyBookings')} className="flex-1">
-                <Button variant="outline" className="w-full rounded-xl h-12">
-                  View Bookings
-                </Button>
-              </Link>
-              <Button
-                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white rounded-xl h-12"
-                onClick={handleSuccessClose}
-              >
-                Done
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Hotel Booking Flow Modal */}
+      {hotel && selectedRoom && (
+        <HotelBookingFlow 
+          hotel={hotel}
+          room={selectedRoom}
+          checkIn={checkInDate}
+          checkOut={checkOutDate}
+          guests={guests}
+          open={showBookingFlow}
+          onOpenChange={setShowBookingFlow}
+        />
+      )}
     </div>
   );
 }
