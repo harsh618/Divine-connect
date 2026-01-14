@@ -37,6 +37,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import logAuditAction from './useAuditLog';
 
 export default function AdminProviders() {
   const queryClient = useQueryClient();
@@ -56,8 +57,11 @@ export default function AdminProviders() {
   });
 
   const verifyMutation = useMutation({
-    mutationFn: ({ id, is_verified }) => 
-      base44.entities.ProviderProfile.update(id, { is_verified }),
+    mutationFn: async ({ id, is_verified }) => {
+      await base44.entities.ProviderProfile.update(id, { is_verified });
+      const user = await base44.auth.me();
+      await logAuditAction(user, is_verified ? 'verify' : 'unverify', 'ProviderProfile', id, { is_verified });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-providers']);
       toast.success('Provider status updated');
@@ -65,7 +69,11 @@ export default function AdminProviders() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.ProviderProfile.update(id, { is_deleted: true }),
+    mutationFn: async (id) => {
+      await base44.entities.ProviderProfile.update(id, { is_deleted: true });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'delete', 'ProviderProfile', id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-providers']);
       toast.success('Provider deleted');
