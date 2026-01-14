@@ -30,6 +30,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import logAuditAction from './useAuditLog';
 
 export default function AdminTrash() {
   const queryClient = useQueryClient();
@@ -53,7 +54,11 @@ export default function AdminTrash() {
 
   // Restore mutations
   const restoreTempleMutation = useMutation({
-    mutationFn: (id) => base44.entities.Temple.update(id, { is_deleted: false }),
+    mutationFn: async (id) => {
+      await base44.entities.Temple.update(id, { is_deleted: false });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'restore', 'Temple', id);
+    },
     onSuccess: () => {
       toast.success('Temple restored successfully!');
       queryClient.invalidateQueries(['admin-deleted-temples']);
@@ -62,7 +67,11 @@ export default function AdminTrash() {
   });
 
   const restoreBookingMutation = useMutation({
-    mutationFn: (id) => base44.entities.Booking.update(id, { is_deleted: false }),
+    mutationFn: async (id) => {
+      await base44.entities.Booking.update(id, { is_deleted: false });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'restore', 'Booking', id);
+    },
     onSuccess: () => {
       toast.success('Booking restored successfully!');
       queryClient.invalidateQueries(['admin-deleted-bookings']);
@@ -71,7 +80,11 @@ export default function AdminTrash() {
   });
 
   const restoreCampaignMutation = useMutation({
-    mutationFn: (id) => base44.entities.DonationCampaign.update(id, { is_deleted: false }),
+    mutationFn: async (id) => {
+      await base44.entities.DonationCampaign.update(id, { is_deleted: false });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'restore', 'DonationCampaign', id);
+    },
     onSuccess: () => {
       toast.success('Campaign restored successfully!');
       queryClient.invalidateQueries(['admin-deleted-campaigns']);
@@ -81,7 +94,11 @@ export default function AdminTrash() {
 
   // Permanent delete mutations
   const deleteTempleMutation = useMutation({
-    mutationFn: (id) => base44.entities.Temple.delete(id),
+    mutationFn: async (id) => {
+      await base44.entities.Temple.delete(id);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'permanent_delete', 'Temple', id);
+    },
     onSuccess: () => {
       toast.success('Temple permanently deleted');
       queryClient.invalidateQueries(['admin-deleted-temples']);
@@ -90,7 +107,11 @@ export default function AdminTrash() {
   });
 
   const deleteBookingMutation = useMutation({
-    mutationFn: (id) => base44.entities.Booking.delete(id),
+    mutationFn: async (id) => {
+      await base44.entities.Booking.delete(id);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'permanent_delete', 'Booking', id);
+    },
     onSuccess: () => {
       toast.success('Booking permanently deleted');
       queryClient.invalidateQueries(['admin-deleted-bookings']);
@@ -99,7 +120,11 @@ export default function AdminTrash() {
   });
 
   const deleteCampaignMutation = useMutation({
-    mutationFn: (id) => base44.entities.DonationCampaign.delete(id),
+    mutationFn: async (id) => {
+      await base44.entities.DonationCampaign.delete(id);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'permanent_delete', 'DonationCampaign', id);
+    },
     onSuccess: () => {
       toast.success('Campaign permanently deleted');
       queryClient.invalidateQueries(['admin-deleted-campaigns']);

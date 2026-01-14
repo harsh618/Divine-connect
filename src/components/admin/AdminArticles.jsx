@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
+import logAuditAction from './useAuditLog';
 
 export default function AdminArticles() {
   const queryClient = useQueryClient();
@@ -70,7 +71,7 @@ export default function AdminArticles() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       const user = await base44.auth.me();
-      return base44.entities.Article.create({
+      const result = await base44.entities.Article.create({
         ...data,
         source: 'admin',
         author_id: user.id,
@@ -78,6 +79,8 @@ export default function AdminArticles() {
         status: 'approved',
         is_published: true
       });
+      await logAuditAction(user, 'create', 'Article', result.id, { title: data.title });
+      return result;
     },
     onSuccess: () => {
       toast.success('Article created successfully');
@@ -88,7 +91,11 @@ export default function AdminArticles() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Article.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      await base44.entities.Article.update(id, data);
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'update', 'Article', id, { title: data.title });
+    },
     onSuccess: () => {
       toast.success('Article updated');
       queryClient.invalidateQueries(['admin-articles']);
@@ -96,7 +103,11 @@ export default function AdminArticles() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Article.update(id, { is_deleted: true }),
+    mutationFn: async (id) => {
+      await base44.entities.Article.update(id, { is_deleted: true });
+      const user = await base44.auth.me();
+      await logAuditAction(user, 'delete', 'Article', id);
+    },
     onSuccess: () => {
       toast.success('Article deleted');
       queryClient.invalidateQueries(['admin-articles']);
