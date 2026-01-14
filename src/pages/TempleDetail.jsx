@@ -1221,8 +1221,6 @@ export default function TempleDetail() {
             )}
           </div>
 
-          </div>
-
           {/* Booking Summary - Fixed at bottom */}
           <div className="flex-shrink-0 pt-4 border-t space-y-3">
             {selectedHotel && (
