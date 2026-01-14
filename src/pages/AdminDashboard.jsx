@@ -1,28 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Building2, 
-  Calendar,
-  Heart,
-  Trash2,
-  Settings,
-  TrendingUp,
-  DollarSign,
-  UserCheck,
-  AlertCircle,
-  Plus
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-import AdminStats from '@/components/admin/AdminStats';
+import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminHeader from '@/components/admin/AdminHeader';
+import EnhancedAdminStats from '@/components/admin/EnhancedAdminStats';
+import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import AdminUsers from '@/components/admin/AdminUsers';
 import AdminTemples from '@/components/admin/AdminTemples';
 import AdminPoojas from '@/components/admin/AdminPoojas';
@@ -33,25 +16,16 @@ import AdminDonations from '@/components/admin/AdminDonations';
 import AdminArticles from '@/components/admin/AdminArticles';
 import AdminAuspiciousDays from '@/components/admin/AdminAuspiciousDays';
 import AdminTrash from '@/components/admin/AdminTrash';
-
-const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'users', label: 'Users', icon: Users },
-  { id: 'user_analytics', label: 'User Analytics', icon: TrendingUp },
-  { id: 'temples', label: 'Temples', icon: Building2 },
-  { id: 'poojas', label: 'Poojas', icon: Settings },
-  { id: 'pooja_bookings', label: 'Pooja Bookings', icon: Calendar },
-  { id: 'providers', label: 'Providers', icon: UserCheck },
-  { id: 'bookings', label: 'All Bookings', icon: Calendar },
-  { id: 'donations', label: 'Donations', icon: Heart },
-  { id: 'articles', label: 'Articles', icon: TrendingUp },
-  { id: 'auspicious', label: 'Auspicious Days', icon: Calendar },
-  { id: 'trash', label: 'Trash', icon: Trash2 },
-];
+import AdminSettings from '@/components/admin/AdminSettings';
+import { Button } from "@/components/ui/button";
+import { Plus, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [collapsed, setCollapsed] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -71,88 +45,33 @@ export default function AdminDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-gray-500">Loading admin panel...</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
-              <p className="text-sm text-gray-500">Manage Divine Platform</p>
-            </div>
-            <Link to={createPageUrl('Home')}>
-              <Button variant="outline">Back to App</Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          {/* Navigation Tabs */}
-          <TabsList className="grid grid-cols-4 lg:grid-cols-12 h-auto p-1 bg-white rounded-xl mb-8">
-            {navItems.map((item) => (
-              <TabsTrigger
-                key={item.id}
-                value={item.id}
-                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-orange-50 data-[state=active]:text-orange-600"
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="text-xs">{item.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {/* Dashboard */}
-          <TabsContent value="dashboard" className="mt-0">
-            <AdminStats />
-          </TabsContent>
-
-          {/* Users */}
-          <TabsContent value="users" className="mt-0">
-            <AdminUsers />
-          </TabsContent>
-
-          {/* User Analytics */}
-          <TabsContent value="user_analytics" className="mt-0">
-            <div className="text-center py-12 bg-white rounded-lg">
-              <TrendingUp className="w-16 h-16 text-orange-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">User Analytics Dashboard</h3>
-              <p className="text-gray-600 mb-6">View detailed user behavior, engagement metrics, and interaction patterns</p>
-              <Link to={createPageUrl('AdminUserAnalytics')}>
-                <Button className="bg-orange-500 hover:bg-orange-600">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Open User Analytics
-                </Button>
-              </Link>
-            </div>
-          </TabsContent>
-
-          {/* Temples */}
-          <TabsContent value="temples" className="mt-0">
-            <AdminTemples />
-          </TabsContent>
-
-          {/* Poojas */}
-          <TabsContent value="poojas" className="mt-0">
-            <AdminPoojas />
-          </TabsContent>
-
-          {/* Pooja Bookings */}
-          <TabsContent value="pooja_bookings" className="mt-0">
-            <AdminPoojaBookings />
-          </TabsContent>
-
-          {/* Providers */}
-          <TabsContent value="providers" className="mt-0">
-            <div className="flex justify-end mb-4">
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return <EnhancedAdminStats onNavigate={setActiveTab} />;
+      case 'analytics':
+        return <AdminAnalytics />;
+      case 'users':
+        return <AdminUsers />;
+      case 'temples':
+        return <AdminTemples />;
+      case 'poojas':
+        return <AdminPoojas />;
+      case 'pooja_bookings':
+        return <AdminPoojaBookings />;
+      case 'providers':
+        return (
+          <div className="space-y-4">
+            <div className="flex justify-end">
               <Link to={createPageUrl('AdminProviderOnboarding')}>
                 <Button className="bg-green-600 hover:bg-green-700">
                   <Plus className="w-4 h-4 mr-2" />
@@ -161,33 +80,46 @@ export default function AdminDashboard() {
               </Link>
             </div>
             <AdminProviders />
-          </TabsContent>
+          </div>
+        );
+      case 'bookings':
+        return <AdminBookings />;
+      case 'donations':
+        return <AdminDonations />;
+      case 'articles':
+        return <AdminArticles />;
+      case 'auspicious':
+        return <AdminAuspiciousDays />;
+      case 'settings':
+        return <AdminSettings />;
+      case 'trash':
+        return <AdminTrash />;
+      default:
+        return <EnhancedAdminStats onNavigate={setActiveTab} />;
+    }
+  };
 
-          {/* Bookings */}
-          <TabsContent value="bookings" className="mt-0">
-            <AdminBookings />
-          </TabsContent>
+  return (
+    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-100'}`}>
+      {/* Sidebar */}
+      <AdminSidebar 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+      />
 
-          {/* Donations */}
-          <TabsContent value="donations" className="mt-0">
-            <AdminDonations />
-          </TabsContent>
+      {/* Main Content */}
+      <div className={`transition-all duration-300 ${collapsed ? 'ml-20' : 'ml-64'}`}>
+        {/* Header */}
+        <AdminHeader user={user} collapsed={collapsed} />
 
-          {/* Articles */}
-          <TabsContent value="articles" className="mt-0">
-            <AdminArticles />
-          </TabsContent>
-
-          {/* Auspicious Days */}
-          <TabsContent value="auspicious" className="mt-0">
-            <AdminAuspiciousDays />
-          </TabsContent>
-
-          {/* Trash */}
-          <TabsContent value="trash" className="mt-0">
-            <AdminTrash />
-          </TabsContent>
-        </Tabs>
+        {/* Page Content */}
+        <main className="p-6">
+          {renderContent()}
+        </main>
       </div>
     </div>
   );
