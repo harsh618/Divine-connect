@@ -22,11 +22,14 @@ import {
   DollarSign,
   Clock,
   Loader2,
-  Award
+  Award,
+  Building2,
+  Flame
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import BackButton from '../components/ui/BackButton';
 
 export default function BecomeProvider() {
   const [step, setStep] = useState(1);
@@ -76,13 +79,16 @@ export default function BecomeProvider() {
     <div className="min-h-screen bg-gradient-to-b from-purple-50/50 to-white pb-24 md:pb-8">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 py-16 px-6">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
-            Join as a Service Provider
-          </h1>
-          <p className="text-white/80 text-lg max-w-2xl mx-auto">
-            Share your knowledge and help devotees on their spiritual journey
-          </p>
+        <div className="container mx-auto">
+          <BackButton label="Back to Home" className="text-white/80 hover:text-white mb-4" />
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
+              Join Our Platform
+            </h1>
+            <p className="text-white/80 text-lg max-w-2xl mx-auto">
+              Share your services and help devotees on their spiritual journey
+            </p>
+          </div>
         </div>
       </div>
 
@@ -106,7 +112,7 @@ export default function BecomeProvider() {
           {step === 1 && (
             <Card className="p-8">
               <h2 className="text-2xl font-semibold text-center mb-8">Choose Your Role</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card 
                   className={`p-6 cursor-pointer transition-all ${
                     formData.provider_type === 'priest' 
@@ -117,7 +123,7 @@ export default function BecomeProvider() {
                 >
                   <div className="text-center">
                     <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
-                      <span className="text-3xl">🙏</span>
+                      <Flame className="w-8 h-8 text-orange-600" />
                     </div>
                     <h3 className="text-xl font-semibold mb-2">Priest / Pandit</h3>
                     <p className="text-gray-600 text-sm">
@@ -150,6 +156,20 @@ export default function BecomeProvider() {
                     )}
                   </div>
                 </Card>
+
+                <Link to={createPageUrl('HotelOnboarding')} className="block">
+                  <Card className="p-6 cursor-pointer transition-all hover:shadow-lg hover:border-blue-300 h-full">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                        <Building2 className="w-8 h-8 text-blue-600" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">Hotel Partner</h3>
+                      <p className="text-gray-600 text-sm">
+                        List your hotel for temple pilgrims and devotees
+                      </p>
+                    </div>
+                  </Card>
+                </Link>
               </div>
               <Button 
                 onClick={() => setStep(2)}
