@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, XCircle, Search, Eye, EyeOff, Pencil, Plus, MoreVertical, Trash2, Star, StarOff, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Eye, EyeOff, Pencil, Plus, MoreVertical, Trash2, Star, StarOff, Loader2, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { toast } from 'sonner';
@@ -38,6 +38,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import logAuditAction from './useAuditLog';
+import AdminHotelForm from './AdminHotelForm';
 
 export default function AdminProviders() {
   const queryClient = useQueryClient();
@@ -45,6 +46,8 @@ export default function AdminProviders() {
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [filterType, setFilterType] = useState('all');
+  const [showHotelForm, setShowHotelForm] = useState(false);
+  const [editingHotel, setEditingHotel] = useState(null);
 
   const { data: providers, isLoading } = useQuery({
     queryKey: ['admin-providers'],
@@ -168,12 +171,24 @@ export default function AdminProviders() {
             </SelectContent>
           </Select>
         </div>
-        <Link to={createPageUrl('ProviderOnboarding')}>
-          <Button className="bg-orange-500 hover:bg-orange-600">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Provider
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => {
+              setEditingHotel(null);
+              setShowHotelForm(true);
+            }}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            <Building2 className="w-4 h-4 mr-2" />
+            Add Hotel
           </Button>
-        </Link>
+          <Link to={createPageUrl('ProviderOnboarding')}>
+            <Button className="bg-orange-500 hover:bg-orange-600">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Provider
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Table */}
@@ -410,6 +425,13 @@ export default function AdminProviders() {
                             <Eye className="w-4 h-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setEditingHotel(hotel);
+                            setShowHotelForm(true);
+                          }}>
+                            <Pencil className="w-4 h-4 mr-2" />
+                            Edit Hotel
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             onClick={() => toggleHotelActiveMutation.mutate({ id: hotel.id, is_active: !hotel.is_active })}
@@ -539,6 +561,16 @@ export default function AdminProviders() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Hotel Form Modal */}
+      <AdminHotelForm
+        open={showHotelForm}
+        onOpenChange={(open) => {
+          setShowHotelForm(open);
+          if (!open) setEditingHotel(null);
+        }}
+        editingHotel={editingHotel}
+      />
 
       <Dialog open={!!selectedProvider} onOpenChange={() => setSelectedProvider(null)}>
         <DialogContent className="max-w-2xl">
