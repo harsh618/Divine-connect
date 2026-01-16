@@ -47,6 +47,8 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'Donate', icon: Heart, page: 'Donate' },
   ];
 
+  const [isHotelAdmin, setIsHotelAdmin] = useState(false);
+
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -64,13 +66,24 @@ function LayoutContent({ children, currentPageName }) {
           if (profiles && profiles.length > 0) {
             setUserRole(profiles[0].provider_type);
           }
+
+          // Check if user is a hotel admin
+          const hotels = await base44.entities.Hotel.filter({
+            admin_user_id: userData.id,
+            is_deleted: false
+          });
+          if (hotels && hotels.length > 0) {
+            setIsHotelAdmin(true);
+          }
         } else {
           setUser(null);
           setUserRole(null);
+          setIsHotelAdmin(false);
         }
       } catch (e) {
         setUser(null);
         setUserRole(null);
+        setIsHotelAdmin(false);
       }
     };
     loadUser();
@@ -146,6 +159,15 @@ function LayoutContent({ children, currentPageName }) {
                         <DropdownMenuItem>
                           <Stars className="w-4 h-4 mr-2" />
                           Astrologer Dashboard
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+
+                    {isHotelAdmin && (
+                      <Link to={createPageUrl('HotelDashboard')}>
+                        <DropdownMenuItem>
+                          <Building2 className="w-4 h-4 mr-2" />
+                          Hotel Dashboard
                         </DropdownMenuItem>
                       </Link>
                     )}
