@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Flame, Stars, Users, ArrowRight, CheckCircle } from 'lucide-react';
+import { Flame, Stars, Users, ArrowRight, CheckCircle, Building2 } from 'lucide-react';
 
 export default function JoinUsSection() {
   return (
@@ -47,7 +47,7 @@ export default function JoinUsSection() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Priest Card */}
           <Card className="overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
             <div className="relative h-48 bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
@@ -122,6 +122,46 @@ export default function JoinUsSection() {
               <Link to={createPageUrl('OnboardAstrologer')}>
                 <Button className="w-full bg-purple-500 hover:bg-purple-600 text-white py-6 text-lg group">
                   Register as Astrologer
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
+          </Card>
+
+          {/* Hotel Partner Card */}
+          <Card className="overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <div className="relative h-48 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/10" />
+              <Building2 className="w-20 h-20 text-white relative z-10" />
+            </div>
+            <div className="p-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Join as Hotel Partner</h3>
+              <p className="text-gray-600 mb-6">
+                List your property for temple pilgrims and devotees. Connect with travelers on their spiritual journeys.
+              </p>
+              
+              <div className="space-y-3 mb-8">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Access to spiritual travelers</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Easy booking management dashboard</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Promote your property near temples</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-gray-700">Seasonal promotions and offers</span>
+                </div>
+              </div>
+
+              <Link to={createPageUrl('HotelOnboarding')}>
+                <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-6 text-lg group">
+                  Register Your Hotel
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
