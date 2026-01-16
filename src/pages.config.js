@@ -11,6 +11,7 @@ import AstrologyProfile from './pages/AstrologyProfile';
 import BecomeProvider from './pages/BecomeProvider';
 import CampaignDetail from './pages/CampaignDetail';
 import Dashboard from './pages/Dashboard';
+import Donate from './pages/Donate';
 import EnhancedPoojaBooking from './pages/EnhancedPoojaBooking';
 import Home from './pages/Home';
 import HotelDashboard from './pages/HotelDashboard';
@@ -36,7 +37,7 @@ import TempleDetail from './pages/TempleDetail';
 import TempleDetails from './pages/TempleDetails';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
-import Donate from './pages/Donate';
+import HotelOnboarding from './pages/HotelOnboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +55,7 @@ export const PAGES = {
     "BecomeProvider": BecomeProvider,
     "CampaignDetail": CampaignDetail,
     "Dashboard": Dashboard,
+    "Donate": Donate,
     "EnhancedPoojaBooking": EnhancedPoojaBooking,
     "Home": Home,
     "HotelDashboard": HotelDashboard,
@@ -79,7 +81,7 @@ export const PAGES = {
     "TempleDetails": TempleDetails,
     "Temples": Temples,
     "Yatra": Yatra,
-    "Donate": Donate,
+    "HotelOnboarding": HotelOnboarding,
 }
 
 export const pagesConfig = {
