@@ -17,6 +17,84 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+function DataExportSection() {
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportData, setExportData] = useState(null);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const response = await base44.functions.invoke('exportAllData', {});
+      setExportData(response.data.exports);
+      toast.success('Data exported successfully!');
+    } catch (error) {
+      toast.error('Export failed: ' + error.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const downloadCSV = (entityName, csvContent) => {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${entityName}_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
+  const downloadAll = () => {
+    if (!exportData) return;
+    Object.entries(exportData).forEach(([name, data]) => {
+      if (data.csv && data.count > 0) {
+        setTimeout(() => downloadCSV(name, data.csv), 100);
+      }
+    });
+  };
+
+  return (
+    <div className="border-t pt-4 mt-4">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="font-medium">Export All Data</p>
+          <p className="text-sm text-gray-500">Download all platform data as CSV files</p>
+        </div>
+        <Button onClick={handleExport} disabled={isExporting} variant="outline">
+          {isExporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+          {isExporting ? 'Exporting...' : 'Export All Data'}
+        </Button>
+      </div>
+
+      {exportData && (
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <p className="text-sm font-medium text-gray-700">Available Downloads:</p>
+            <Button size="sm" onClick={downloadAll} variant="outline">
+              <Download className="w-3 h-3 mr-1" />
+              Download All
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-64 overflow-y-auto">
+            {Object.entries(exportData).map(([name, data]) => (
+              <div key={name} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                <div>
+                  <span className="font-medium">{name}</span>
+                  <span className="text-gray-500 ml-1">({data.count})</span>
+                </div>
+                {data.count > 0 && (
+                  <Button size="sm" variant="ghost" onClick={() => downloadCSV(name, data.csv)} className="h-6 px-2">
+                    <Download className="w-3 h-3" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const defaultSettings = {
   platformName: 'Divine Connector',
   contactEmail: 'admin@divineconnector.com',
@@ -416,6 +494,8 @@ export default function AdminSettings() {
                   </Button>
                 </div>
               </div>
+
+              <DataExportSection />
               <div className="flex items-center justify-between py-3 border-t">
                 <div>
                   <p className="font-medium text-red-600">Maintenance Mode</p>
