@@ -16,6 +16,7 @@ import EnhancedPoojaBooking from './pages/EnhancedPoojaBooking';
 import Home from './pages/Home';
 import HotelDashboard from './pages/HotelDashboard';
 import HotelDetail from './pages/HotelDetail';
+import HotelOnboarding from './pages/HotelOnboarding';
 import KundliGenerator from './pages/KundliGenerator';
 import MatchMaking from './pages/MatchMaking';
 import MyBookings from './pages/MyBookings';
@@ -37,7 +38,6 @@ import TempleDetail from './pages/TempleDetail';
 import TempleDetails from './pages/TempleDetails';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
-import HotelOnboarding from './pages/HotelOnboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +60,7 @@ export const PAGES = {
     "Home": Home,
     "HotelDashboard": HotelDashboard,
     "HotelDetail": HotelDetail,
+    "HotelOnboarding": HotelOnboarding,
     "KundliGenerator": KundliGenerator,
     "MatchMaking": MatchMaking,
     "MyBookings": MyBookings,
@@ -81,7 +82,6 @@ export const PAGES = {
     "TempleDetails": TempleDetails,
     "Temples": Temples,
     "Yatra": Yatra,
-    "HotelOnboarding": HotelOnboarding,
 }
 
 export const pagesConfig = {

@@ -18,6 +18,7 @@ import AdminAuspiciousDays from '@/components/admin/AdminAuspiciousDays';
 import AdminTrash from '@/components/admin/AdminTrash';
 import AdminSettings from '@/components/admin/AdminSettings';
 import AdminAuditLog from '@/components/admin/AdminAuditLog';
+import PlatformHealthCheck from '@/components/admin/PlatformHealthCheck';
 import { Button } from "@/components/ui/button";
 import { Plus, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -97,6 +98,8 @@ export default function AdminDashboard() {
         return <AdminAuditLog />;
       case 'trash':
         return <AdminTrash />;
+      case 'health':
+        return <PlatformHealthCheck />;
       default:
         return <EnhancedAdminStats onNavigate={setActiveTab} />;
     }
