@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   LayoutDashboard, Users, TrendingUp, Heart, Building2, Flame,
   Calendar, UserCheck, FileText, Settings, Trash2, Bell, Moon, Sun,
-  HelpCircle, LogOut, ChevronRight, Shield, BarChart3, Megaphone, Hotel
+  HelpCircle, LogOut, ChevronRight, Shield, BarChart3, Megaphone, Hotel, Activity
 } from 'lucide-react';
 
 export default function AdminSidebar({ activeTab, setActiveTab, collapsed, setCollapsed, darkMode, setDarkMode }) {
@@ -76,6 +76,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, collapsed, setCo
     {
       title: 'System',
       items: [
+        { id: 'health', label: 'Platform Health', icon: Activity, badge: null },
         { id: 'settings', label: 'Settings', icon: Settings, badge: null },
         { id: 'audit', label: 'Audit Log', icon: Shield, badge: null },
         { id: 'trash', label: 'Trash', icon: Trash2, badge: null },
