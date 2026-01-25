@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import AgentAssistChat from './components/yatra/AgentAssistChat';
 import { LanguageProvider, useLanguage } from './components/LanguageContext';
+import { TranslationProvider, useTranslation } from './components/TranslationProvider';
 
 import {
   DropdownMenu,
@@ -42,6 +43,7 @@ function LayoutContent({ children, currentPageName }) {
   const [userRole, setUserRole] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const { language, changeLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -52,12 +54,12 @@ function LayoutContent({ children, currentPageName }) {
   ];
 
   const navLinks = [
-    { name: 'Mandir', icon: Building2, page: 'Temples' },
-    { name: 'Pooja', icon: Flame, page: 'Pooja' },
-    { name: 'Yatra', icon: Compass, page: 'Yatra' },
-    { name: 'Pandit', icon: Users, page: 'PriestPandit' },
-    { name: 'Jyotish', icon: Stars, page: 'Astrology' },
-    { name: 'Daan', icon: Heart, page: 'Donate' },
+    { name: t('Mandir'), icon: Building2, page: 'Temples' },
+    { name: t('Pooja'), icon: Flame, page: 'Pooja' },
+    { name: t('Yatra'), icon: Compass, page: 'Yatra' },
+    { name: t('Pandit'), icon: Users, page: 'PriestPandit' },
+    { name: t('Jyotish'), icon: Stars, page: 'Astrology' },
+    { name: t('Daan'), icon: Heart, page: 'Donate' },
   ];
 
   const [isHotelAdmin, setIsHotelAdmin] = useState(false);
@@ -260,7 +262,7 @@ function LayoutContent({ children, currentPageName }) {
                   onClick={() => base44.auth.redirectToLogin()}
                   className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-md px-5 text-xs uppercase tracking-wider font-semibold transition-all border-0 shadow-lg"
                 >
-                  Sign In
+                  {t('Sign In')}
                 </Button>
               )}
 
@@ -279,7 +281,7 @@ function LayoutContent({ children, currentPageName }) {
                     <Link to={createPageUrl('Home')} onClick={() => setIsOpen(false)}>
                       <Button variant="ghost" className="w-full justify-start">
                         <Home className="w-5 h-5 mr-3" />
-                        Home
+                        {t('Home')}
                       </Button>
                     </Link>
                     {navLinks.map((link) => (
@@ -309,23 +311,23 @@ function LayoutContent({ children, currentPageName }) {
           <div className="flex items-center justify-around py-3">
             <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Home className="w-5 h-5" />
-              <span className="text-xs mt-1">Home</span>
+              <span className="text-xs mt-1">{t('Home')}</span>
             </Link>
             <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Stars className="w-5 h-5" />
-              <span className="text-xs mt-1">Journey</span>
+              <span className="text-xs mt-1">{t('Journey')}</span>
             </Link>
             <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Flame className="w-5 h-5" />
-              <span className="text-xs mt-1">Bookings</span>
+              <span className="text-xs mt-1">{t('Bookings')}</span>
             </Link>
             <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Heart className="w-5 h-5" />
-              <span className="text-xs mt-1">Daan</span>
+              <span className="text-xs mt-1">{t('Daan')}</span>
             </Link>
             <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <User className="w-5 h-5" />
-              <span className="text-xs mt-1">Profile</span>
+              <span className="text-xs mt-1">{t('Profile')}</span>
             </Link>
           </div>
         </nav>
@@ -340,7 +342,9 @@ function LayoutContent({ children, currentPageName }) {
         export default function Layout({ children, currentPageName }) {
           return (
             <LanguageProvider>
-              <LayoutContent children={children} currentPageName={currentPageName} />
+              <TranslationProvider>
+                <LayoutContent children={children} currentPageName={currentPageName} />
+              </TranslationProvider>
             </LanguageProvider>
           );
         }
