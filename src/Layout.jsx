@@ -13,16 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { 
-  Menu, 
   User, 
   LogOut, 
   Home, 
@@ -31,28 +23,18 @@ import {
   Stars, 
   Users, 
   Heart,
-  Search,
   Settings,
   Compass,
-  Edit,
-  Languages
+  Edit
 } from 'lucide-react';
 
 function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
   const [isHotelAdmin, setIsHotelAdmin] = useState(false);
-  const { language, changeLanguage } = useLanguage();
+  const [isLoading, setIsLoading] = useState(true);
+  const { language } = useLanguage();
   const { t } = useTranslation();
-
-  const languages = [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
-    { code: 'ml', name: 'മലയാളം', flag: '🇮🇳' },
-    { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
-    { code: 'te', name: 'తెలుగు', flag: '🇮🇳' }
-  ];
 
   const navLinks = [
     { name: t('Mandir'), icon: Building2, page: 'Temples' },
@@ -65,6 +47,7 @@ function LayoutContent({ children, currentPageName }) {
 
   useEffect(() => {
     const loadUser = async () => {
+      setIsLoading(true);
       try {
         const authenticated = await base44.auth.isAuthenticated();
         
@@ -72,13 +55,14 @@ function LayoutContent({ children, currentPageName }) {
           setUser(null);
           setUserRole(null);
           setIsHotelAdmin(false);
+          setIsLoading(false);
           return;
         }
 
         const userData = await base44.auth.me();
         setUser(userData);
         
-        // Only fetch additional data if we have a valid user
+        // Fetch provider profile separately with error handling
         try {
           const profiles = await base44.entities.ProviderProfile.filter({ 
             user_id: userData.id, 
@@ -88,10 +72,11 @@ function LayoutContent({ children, currentPageName }) {
           if (profiles && profiles.length > 0) {
             setUserRole(profiles[0].provider_type);
           }
-        } catch (profileError) {
-          console.error("Could not load provider profile:", profileError);
+        } catch (e) {
+          // Silently fail - user may not have a provider profile
         }
 
+        // Fetch hotel admin status separately
         try {
           const hotels = await base44.entities.Hotel.filter({
             admin_user_id: userData.id,
@@ -100,22 +85,28 @@ function LayoutContent({ children, currentPageName }) {
           if (hotels && hotels.length > 0) {
             setIsHotelAdmin(true);
           }
-        } catch (hotelError) {
-          console.error("Could not load hotel data:", hotelError);
+        } catch (e) {
+          // Silently fail - user may not be a hotel admin
         }
 
       } catch (error) {
-        console.error("Authentication error:", error);
         setUser(null);
         setUserRole(null);
         setIsHotelAdmin(false);
       }
+      setIsLoading(false);
     };
     
     loadUser();
   }, []);
 
-  const isHomePage = currentPageName === 'Home';
+  const handleSignIn = () => {
+    base44.auth.redirectToLogin();
+  };
+
+  const handleSignOut = () => {
+    base44.auth.logout(createPageUrl('Home'));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
@@ -145,9 +136,11 @@ function LayoutContent({ children, currentPageName }) {
               ))}
             </div>
 
-            {/* Right Side */}
+            {/* Right Side - Auth Buttons */}
             <div className="flex items-center gap-2 md:gap-3">
-              {user ? (
+              {isLoading ? (
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-200 animate-pulse" />
+              ) : user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
@@ -239,80 +232,84 @@ function LayoutContent({ children, currentPageName }) {
                       </Link>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => base44.auth.logout(createPageUrl('Home'))}>
+                    <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="w-4 h-4 mr-2" />
                       {t('Sign Out')}
-                      </DropdownMenuItem>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
                 <Button
-                  onClick={() => base44.auth.redirectToLogin()}
-                  size="icon"
-                  className="w-9 h-9 md:w-auto md:h-auto md:px-5 md:py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-full md:rounded-md transition-all border-0 shadow-lg"
+                  onClick={handleSignIn}
+                  className="h-9 md:h-10 px-4 md:px-6 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-full transition-all border-0 shadow-lg text-xs md:text-sm font-semibold"
                 >
-                  <User className="w-4 h-4 md:hidden" />
-                  <span className="hidden md:inline text-xs uppercase tracking-wider font-semibold">{t('Sign In')}</span>
+                  <User className="w-4 h-4 mr-2" />
+                  {t('Sign In')}
                 </Button>
               )}
-                </div>
-                </div>
-                </div>
-                </nav>
+            </div>
+          </div>
+        </div>
+      </nav>
 
       {/* Page Content */}
       <main className="pt-14 md:pt-16">
         {children}
       </main>
 
-      {/* Mobile Bottom Navigation - Only show when logged in */}
-      {user && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 shadow-lg">
-          <div className="grid grid-cols-7 gap-1 py-2 px-1 safe-area-bottom">
-            <Link to={createPageUrl('Home')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Home' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Home className="w-5 h-5" />
-              <span className="text-[9px] mt-1 font-medium">{t('Home')}</span>
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 shadow-lg">
+        <div className="grid grid-cols-7 gap-1 py-2 px-1 safe-area-bottom">
+          <Link to={createPageUrl('Home')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Home' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+            <Home className="w-5 h-5" />
+            <span className="text-[9px] mt-1 font-medium">{t('Home')}</span>
+          </Link>
+          <Link to={createPageUrl('Temples')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Temples' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+            <Building2 className="w-5 h-5" />
+            <span className="text-[9px] mt-1 font-medium">{t('Mandir')}</span>
+          </Link>
+          <Link to={createPageUrl('Pooja')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Pooja' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+            <Flame className="w-5 h-5" />
+            <span className="text-[9px] mt-1 font-medium">{t('Pooja')}</span>
+          </Link>
+          <Link to={createPageUrl('Yatra')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Yatra' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+            <Compass className="w-5 h-5" />
+            <span className="text-[9px] mt-1 font-medium">{t('Yatra')}</span>
+          </Link>
+          <Link to={createPageUrl('PriestPandit')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'PriestPandit' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+            <Users className="w-5 h-5" />
+            <span className="text-[9px] mt-1 font-medium">{t('Pandit')}</span>
+          </Link>
+          <Link to={createPageUrl('Astrology')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Astrology' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+            <Stars className="w-5 h-5" />
+            <span className="text-[9px] mt-1 font-medium">{t('Jyotish')}</span>
+          </Link>
+          {user ? (
+            <Link to={createPageUrl('Profile')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Profile' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <User className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Profile')}</span>
             </Link>
-            <Link to={createPageUrl('Temples')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Temples' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Building2 className="w-5 h-5" />
-              <span className="text-[9px] mt-1 font-medium">{t('Mandir')}</span>
-            </Link>
-            <Link to={createPageUrl('Pooja')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Pooja' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Flame className="w-5 h-5" />
-              <span className="text-[9px] mt-1 font-medium">{t('Pooja')}</span>
-            </Link>
-            <Link to={createPageUrl('Yatra')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Yatra' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Compass className="w-5 h-5" />
-              <span className="text-[9px] mt-1 font-medium">{t('Yatra')}</span>
-            </Link>
-            <Link to={createPageUrl('PriestPandit')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'PriestPandit' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Users className="w-5 h-5" />
-              <span className="text-[9px] mt-1 font-medium">{t('Pandit')}</span>
-            </Link>
-            <Link to={createPageUrl('Astrology')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Astrology' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Stars className="w-5 h-5" />
-              <span className="text-[9px] mt-1 font-medium">{t('Jyotish')}</span>
-            </Link>
-            <Link to={createPageUrl('Donate')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Donate' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Heart className="w-5 h-5" />
-              <span className="text-[9px] mt-1 font-medium">{t('Daan')}</span>
-            </Link>
-          </div>
-        </nav>
-        )}
-
-        {/* Global Agent Assist Chat */}
-        <AgentAssistChat />
+          ) : (
+            <button onClick={handleSignIn} className="flex flex-col items-center py-2 rounded-lg transition-all text-orange-600">
+              <User className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Sign In')}</span>
+            </button>
+          )}
         </div>
-        );
-        }
+      </nav>
 
-        export default function Layout({ children, currentPageName }) {
-          return (
-            <LanguageProvider>
-              <TranslationProvider>
-                <LayoutContent children={children} currentPageName={currentPageName} />
-              </TranslationProvider>
-            </LanguageProvider>
-          );
-        }
+      {/* Global Agent Assist Chat */}
+      <AgentAssistChat />
+    </div>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <LanguageProvider>
+      <TranslationProvider>
+        <LayoutContent children={children} currentPageName={currentPageName} />
+      </TranslationProvider>
+    </LanguageProvider>
+  );
+}
