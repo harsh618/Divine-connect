@@ -308,26 +308,34 @@ function LayoutContent({ children, currentPageName }) {
       {/* Mobile Bottom Navigation - Only show when logged in */}
       {user && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 shadow-lg">
-          <div className="flex items-center justify-around py-2 px-1 safe-area-bottom">
-            <Link to={createPageUrl('Home')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'Home' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Home className="w-6 h-6" />
-              <span className="text-[10px] mt-1 font-medium">{t('Home')}</span>
+          <div className="grid grid-cols-7 gap-1 py-2 px-1 safe-area-bottom">
+            <Link to={createPageUrl('Home')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Home' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Home className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Home')}</span>
             </Link>
-            <Link to={createPageUrl('MyJourney')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'MyJourney' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Stars className="w-6 h-6" />
-              <span className="text-[10px] mt-1 font-medium">{t('Journey')}</span>
+            <Link to={createPageUrl('Temples')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Temples' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Building2 className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Mandir')}</span>
             </Link>
-            <Link to={createPageUrl('MyBookings')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'MyBookings' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Flame className="w-6 h-6" />
-              <span className="text-[10px] mt-1 font-medium">{t('Bookings')}</span>
+            <Link to={createPageUrl('Pooja')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Pooja' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Flame className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Pooja')}</span>
             </Link>
-            <Link to={createPageUrl('Donate')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'Donate' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <Heart className="w-6 h-6" />
-              <span className="text-[10px] mt-1 font-medium">{t('Daan')}</span>
+            <Link to={createPageUrl('Yatra')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Yatra' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Compass className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Yatra')}</span>
             </Link>
-            <Link to={createPageUrl('Profile')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'Profile' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
-              <User className="w-6 h-6" />
-              <span className="text-[10px] mt-1 font-medium">{t('Profile')}</span>
+            <Link to={createPageUrl('PriestPandit')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'PriestPandit' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Users className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Pandit')}</span>
+            </Link>
+            <Link to={createPageUrl('Astrology')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Astrology' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Stars className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Jyotish')}</span>
+            </Link>
+            <Link to={createPageUrl('Donate')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Donate' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Heart className="w-5 h-5" />
+              <span className="text-[9px] mt-1 font-medium">{t('Daan')}</span>
             </Link>
           </div>
         </nav>

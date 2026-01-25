@@ -77,10 +77,10 @@ function CampaignCard({ campaign, onDonate }) {
 
   return (
     <div className="group block h-full">
-      <div className="relative h-full bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
+      <div className="relative h-full bg-white rounded-xl md:rounded-2xl overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
         
         {/* Image Section */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <div className="relative aspect-[4/3] md:aspect-[4/3] overflow-hidden bg-gray-100">
           <img 
             src={imgSrc} 
             alt={campaign.title}
@@ -107,16 +107,16 @@ function CampaignCard({ campaign, onDonate }) {
         </div>
 
         {/* Content Section */}
-        <div className="p-4">
-          <p className="text-xs text-amber-600 uppercase tracking-wide mb-1">
+        <div className="p-3 md:p-4">
+          <p className="text-[10px] md:text-xs text-amber-600 uppercase tracking-wide mb-1">
             {campaign.category?.replace(/_/g, ' ') || 'Seva'}
           </p>
 
-          <h3 className="font-semibold text-gray-900 text-lg mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
+          <h3 className="font-semibold text-gray-900 text-base md:text-lg mb-1.5 md:mb-2 group-hover:text-amber-700 transition-colors line-clamp-1">
             {campaign.title}
           </h3>
 
-          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+          <p className="text-gray-500 text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
             {campaign.description || `Support this noble cause and make a difference in the lives of many.`}
           </p>
 
