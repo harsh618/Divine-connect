@@ -85,19 +85,19 @@ export default function Temples() {
             Sacred Destinations
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-serif text-white mb-8 leading-tight drop-shadow-2xl">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif text-white mb-6 md:mb-8 leading-tight drop-shadow-2xl px-4">
             Find Your <span className="text-amber-200 italic">Sanctuary</span>
           </h1>
           
           {/* Integrated Search Bar (Glassmorphism) */}
-          <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-xl border border-white/20 p-2 rounded-full flex items-center shadow-2xl">
-            <div className="pl-4">
-               <Search className="w-5 h-5 text-white/70" />
+          <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-xl border border-white/20 p-1.5 md:p-2 rounded-full flex items-center shadow-2xl px-4">
+            <div className="pl-2 md:pl-4">
+               <Search className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
             </div>
             <input
               type="text"
-              placeholder="Search 'Kashi Vishwanath' or 'Ayodhya'..."
-              className="w-full bg-transparent border-none text-white placeholder-white/60 focus:ring-0 px-4 h-12 text-lg"
+              placeholder="Search 'Kashi Vishwanath'..."
+              className="w-full bg-transparent border-none text-white placeholder-white/60 focus:ring-0 px-3 md:px-4 h-10 md:h-12 text-base md:text-lg"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />

@@ -66,10 +66,10 @@ export default function FeaturedTemplesMinimal({ temples, isLoading }) {
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="flex items-start justify-between mb-12">
           <div>
-            <h2 className="text-4xl md:text-5xl font-serif font-semibold text-orange-900 mb-3 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-orange-900 mb-2 md:mb-3 tracking-tight">
               {t('Sacred Portals')}
             </h2>
-            <p className="text-orange-700/70">{t('Discover divine temples across the cosmos')}</p>
+            <p className="text-sm md:text-base text-orange-700/70">{t('Discover divine temples across the cosmos')}</p>
           </div>
           <Link to={createPageUrl('Temples')}>
             <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">

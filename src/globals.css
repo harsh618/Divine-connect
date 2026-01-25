@@ -104,15 +104,55 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-/* Mobile touch targets */
+/* Mobile optimizations */
 @media (max-width: 768px) {
+  /* Touch targets */
   button,
-  a {
+  a.button,
+  [role="button"] {
     min-height: 44px;
+    min-width: 44px;
   }
   
-  input {
-    font-size: 16px; /* Prevents iOS zoom */
+  /* Prevent iOS zoom on input focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Better spacing for mobile */
+  body {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+  
+  /* Safe area for notched devices */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Better scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
   }
 }
 

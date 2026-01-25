@@ -120,10 +120,10 @@ function LayoutContent({ children, currentPageName }) {
             </Link>
 
             {/* Desktop Links */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6 lg:gap-8">
               {navLinks.map((link) => (
                 <Link key={link.name} to={createPageUrl(link.page)}>
-                  <span className={`text-xs transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
+                  <span className={`text-xs lg:text-sm transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
                     currentPageName === link.page 
                       ? 'text-orange-600 border-orange-600 font-semibold' 
                       : 'text-gray-700 border-transparent hover:text-orange-500 hover:border-orange-400'
@@ -307,27 +307,27 @@ function LayoutContent({ children, currentPageName }) {
 
       {/* Mobile Bottom Navigation - Only show when logged in */}
       {user && (
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50">
-          <div className="flex items-center justify-around py-3">
-            <Link to={createPageUrl('Home')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <Home className="w-5 h-5" />
-              <span className="text-xs mt-1">{t('Home')}</span>
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 shadow-lg">
+          <div className="flex items-center justify-around py-2 px-1 safe-area-bottom">
+            <Link to={createPageUrl('Home')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'Home' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Home className="w-6 h-6" />
+              <span className="text-[10px] mt-1 font-medium">{t('Home')}</span>
             </Link>
-            <Link to={createPageUrl('MyJourney')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <Stars className="w-5 h-5" />
-              <span className="text-xs mt-1">{t('Journey')}</span>
+            <Link to={createPageUrl('MyJourney')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'MyJourney' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Stars className="w-6 h-6" />
+              <span className="text-[10px] mt-1 font-medium">{t('Journey')}</span>
             </Link>
-            <Link to={createPageUrl('MyBookings')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <Flame className="w-5 h-5" />
-              <span className="text-xs mt-1">{t('Bookings')}</span>
+            <Link to={createPageUrl('MyBookings')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'MyBookings' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Flame className="w-6 h-6" />
+              <span className="text-[10px] mt-1 font-medium">{t('Bookings')}</span>
             </Link>
-            <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <Heart className="w-5 h-5" />
-              <span className="text-xs mt-1">{t('Daan')}</span>
+            <Link to={createPageUrl('Donate')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'Donate' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <Heart className="w-6 h-6" />
+              <span className="text-[10px] mt-1 font-medium">{t('Daan')}</span>
             </Link>
-            <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <User className="w-5 h-5" />
-              <span className="text-xs mt-1">{t('Profile')}</span>
+            <Link to={createPageUrl('Profile')} className={`flex flex-col items-center px-3 py-2 rounded-lg transition-all min-w-[60px] ${currentPageName === 'Profile' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+              <User className="w-6 h-6" />
+              <span className="text-[10px] mt-1 font-medium">{t('Profile')}</span>
             </Link>
           </div>
         </nav>

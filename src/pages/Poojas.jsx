@@ -168,12 +168,12 @@ export default function Poojas() {
         </div>
 
         <div className="relative z-10 container mx-auto px-6 max-w-7xl">
-          <div className="max-w-3xl">
-             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-medium uppercase tracking-widest mb-4">
+          <div className="max-w-3xl px-4">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-medium uppercase tracking-widest mb-3 md:mb-4">
                 <Sparkles className="w-3 h-3 text-amber-400" />
                 Vedic Rituals
              </div>
-             <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 leading-none drop-shadow-xl">
+             <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif text-white mb-4 md:mb-6 leading-tight drop-shadow-xl">
                 Ancient Prayers,<br/>
                 <span className="italic text-white/70">Modern Blessings.</span>
              </h1>

@@ -126,25 +126,25 @@ export default function MinimalHero() {
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        <h1 className="text-6xl md:text-8xl font-serif font-medium text-white mb-6 tracking-tight leading-[0.95] mix-blend-overlay">
+        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-medium text-white mb-4 md:mb-6 tracking-tight leading-tight md:leading-[0.95] mix-blend-overlay px-4">
           {t('Find Your Inner')}<br />{t('Sanctum')}
         </h1>
         
-        <p className="text-lg md:text-xl text-white/70 mb-16 font-light tracking-wide max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-white/70 mb-8 md:mb-16 font-light tracking-wide max-w-2xl mx-auto px-4">
           {t('Step into a portal of ancient wisdom and modern spirituality')}
         </p>
 
         {/* Floating Omnibox */}
-        <div className="relative max-w-2xl mx-auto" ref={searchRef}>
-          <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-2 shadow-[0_0_60px_-15px_rgba(217,119,6,0.3)] animate-[breathing_4s_ease-in-out_infinite]">
-            <div className="flex items-center gap-4 px-6 py-4">
-              <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
+        <div className="relative max-w-2xl mx-auto px-4" ref={searchRef}>
+          <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 md:p-2 shadow-[0_0_60px_-15px_rgba(217,119,6,0.3)] animate-[breathing_4s_ease-in-out_infinite]">
+            <div className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 md:py-4">
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-amber-400 flex-shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={typedText}
-                className="flex-1 bg-transparent border-0 text-white placeholder:text-white/50 focus:outline-none text-base"
+                className="flex-1 bg-transparent border-0 text-white placeholder:text-white/50 focus:outline-none text-sm md:text-base"
               />
               {isSearching ? (
                 <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />

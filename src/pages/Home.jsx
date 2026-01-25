@@ -46,15 +46,15 @@ export default function Home() {
       <JoinUsSection />
       
       {/* Footer */}
-      <footer className="bg-foreground text-background py-20 px-6 mt-32">
+      <footer className="bg-foreground text-background py-12 md:py-20 px-4 md:px-6 mt-16 md:mt-32">
         <div className="container mx-auto max-w-7xl">
           {/* Brand Block */}
-          <div className="mb-16 pb-12 border-b border-background/10">
-            <h3 className="text-2xl font-normal tracking-wider mb-4">MANDIRSUTRA</h3>
-            <p className="text-background/70 text-base mb-3 max-w-md font-light">
+          <div className="mb-8 md:mb-16 pb-8 md:pb-12 border-b border-background/10">
+            <h3 className="text-xl md:text-2xl font-normal tracking-wider mb-3 md:mb-4">MANDIRSUTRA</h3>
+            <p className="text-background/70 text-sm md:text-base mb-2 md:mb-3 max-w-md font-light">
               Discover temples, book poojas and astrologers, and donate to trusted causes across India
             </p>
-            <p className="text-background/50 text-sm font-light">
+            <p className="text-background/50 text-xs md:text-sm font-light">
               2025 · Built with devotion in India
             </p>
           </div>
