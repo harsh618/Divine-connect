@@ -136,29 +136,6 @@ function LayoutContent({ children, currentPageName }) {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
-              {/* Language Selector */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="rounded-full hover:bg-orange-100"
-                  >
-                    <Languages className="w-5 h-5 text-gray-700" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuRadioGroup value={language} onValueChange={changeLanguage}>
-                    {languages.map((lang) => (
-                      <DropdownMenuRadioItem key={lang.code} value={lang.code}>
-                        <span className="mr-2">{lang.flag}</span>
-                        {lang.name}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
