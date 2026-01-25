@@ -116,28 +116,28 @@ export default function Temples() {
       </section>
 
       {/* 2. Sticky Filter Bar (Airbnb Style) */}
-      <div className="sticky top-16 z-30 bg-[#FAFAF9]/95 backdrop-blur-md border-b border-gray-200/50 py-4 shadow-sm">
-        <div className="container mx-auto px-6 max-w-7xl">
-           <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
+      <div className="sticky top-16 z-30 bg-[#FAFAF9]/95 backdrop-blur-md border-b border-gray-200/50 py-3 md:py-4 shadow-sm">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 justify-between">
               
               {/* Deity Horizontal Scroll (Primary Filter) */}
               <div className="w-full md:w-auto overflow-x-auto scrollbar-hide">
-                 <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2">Deity:</span>
-                    {DEITIES.map(deity => (
-                       <button
-                          key={deity}
-                          onClick={() => setSelectedDeity(deity)}
-                          className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                             selectedDeity === deity
-                             ? 'bg-amber-600 text-white shadow-lg shadow-amber-200'
-                             : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
-                          }`}
-                       >
-                          {deity}
-                       </button>
-                    ))}
-                 </div>
+                <div className="flex items-center gap-1.5 md:gap-2">
+                   <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider mr-1 md:mr-2">Deity:</span>
+                   {DEITIES.map(deity => (
+                      <button
+                         key={deity}
+                         onClick={() => setSelectedDeity(deity)}
+                         className={`whitespace-nowrap px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all ${
+                            selectedDeity === deity
+                            ? 'bg-amber-600 text-white shadow-lg shadow-amber-200'
+                            : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+                         }`}
+                      >
+                         {deity}
+                      </button>
+                   ))}
+                </div>
               </div>
 
               {/* Utility Filters (State & Live) */}

@@ -130,10 +130,10 @@ function CampaignCard({ campaign, onDonate }) {
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-3 mb-3 text-xs text-gray-500">
+          <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3 text-[10px] md:text-xs text-gray-500">
             {campaign.donor_count > 0 && (
               <span className="flex items-center gap-1">
-                <Heart className="w-3.5 h-3.5 text-pink-500" />
+                <Heart className="w-3 h-3 md:w-3.5 md:h-3.5 text-pink-500" />
                 {campaign.donor_count} donors
               </span>
             )}
@@ -147,9 +147,9 @@ function CampaignCard({ campaign, onDonate }) {
               onDonate(campaign);
             }}
             disabled={campaign.status !== 'active'}
-            className="w-full h-10 bg-amber-600 hover:bg-amber-700 text-white"
+            className="w-full h-9 md:h-10 bg-amber-600 hover:bg-amber-700 text-white text-xs md:text-sm"
           >
-            <Heart className="w-4 h-4 mr-2" />
+            <Heart className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5 md:mr-2" />
             Donate Now
           </Button>
         </div>
@@ -288,21 +288,21 @@ export default function Donate() {
       <div className="container mx-auto px-6 max-w-7xl relative z-20 -mt-8">
         
         {/* Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-12 border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
-           <div className="flex items-center gap-2 overflow-x-auto w-full pb-2 md:pb-0 scrollbar-hide">
+        <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-xl shadow-stone-200/50 mb-8 md:mb-12 border border-gray-100 flex flex-col md:flex-row gap-3 md:gap-4 items-center">
+           <div className="flex items-center gap-1.5 md:gap-2 overflow-x-auto w-full pb-2 md:pb-0 scrollbar-hide">
               {CATEGORIES.map((cat) => {
                 const CatIcon = cat.icon;
                 return (
                   <button
                     key={cat.value}
                     onClick={() => setSelectedCategory(cat.value)}
-                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 flex items-center gap-2 ${
+                    className={`whitespace-nowrap px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all flex-shrink-0 flex items-center gap-1.5 md:gap-2 ${
                        selectedCategory === cat.value
                        ? 'bg-orange-600 text-white shadow-lg'
                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
-                    <CatIcon className="w-4 h-4" />
+                    <CatIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     {cat.label}
                   </button>
                 );

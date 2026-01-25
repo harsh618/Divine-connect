@@ -55,7 +55,7 @@ function AstrologerCard({ provider, onChatClick }) {
 
   return (
     <div className="group block h-full">
-      <div className={`relative h-full bg-white rounded-2xl overflow-hidden border transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${
+      <div className={`relative h-full bg-white rounded-xl md:rounded-2xl overflow-hidden border transition-all duration-500 hover:shadow-xl hover:-translate-y-1 ${
         isAI ? 'border-purple-200' : 'border-gray-100'
       }`}>
         
@@ -105,18 +105,18 @@ function AstrologerCard({ provider, onChatClick }) {
         </div>
 
         {/* Content Section */}
-        <div className="p-4">
-          <p className="text-xs uppercase tracking-wide mb-1" style={{ color: isAI ? '#9333ea' : '#d97706' }}>
+        <div className="p-3 md:p-4">
+          <p className="text-[10px] md:text-xs uppercase tracking-wide mb-1" style={{ color: isAI ? '#9333ea' : '#d97706' }}>
             {isAI ? 'AI Astrologer' : (provider.city || 'India')}
           </p>
 
-          <h3 className={`font-semibold text-gray-900 text-lg mb-2 transition-colors line-clamp-1 ${
+          <h3 className={`font-semibold text-gray-900 text-base md:text-lg mb-1.5 md:mb-2 transition-colors line-clamp-1 ${
             isAI ? 'group-hover:text-purple-700' : 'group-hover:text-amber-700'
           }`}>
             {provider.display_name}
           </h3>
 
-          <p className="text-gray-500 text-sm line-clamp-2 mb-3">
+          <p className="text-gray-500 text-xs md:text-sm line-clamp-2 mb-2 md:mb-3">
             {provider.bio || (isAI ? 'Get instant astrological guidance powered by advanced AI. Free unlimited consultations.' : `Expert in ${(provider.specializations || ['Vedic Astrology']).slice(0, 2).join(', ')}.`)}
           </p>
 
@@ -332,26 +332,26 @@ export default function Astrology() {
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-8 border border-gray-100 space-y-4">
+        <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-xl shadow-stone-200/50 mb-6 md:mb-8 border border-gray-100 space-y-3 md:space-y-4">
           {/* Search and Specialization */}
-          <div className="flex flex-col md:flex-row gap-4 items-center">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center">
             <div className="relative flex-1 w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
               <input 
                 type="text" 
-                placeholder="Search astrologers by name..." 
-                className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-sm"
+                placeholder="Search astrologers..." 
+                className="w-full pl-9 md:pl-10 pr-3 md:pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-xs md:text-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+            <div className="flex items-center gap-1.5 md:gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
               {SPECIALIZATIONS.map((spec) => (
                 <button
                   key={spec.value}
                   onClick={() => setSelectedSpec(spec.value)}
-                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
+                  className={`whitespace-nowrap px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all flex-shrink-0 ${
                     selectedSpec === spec.value
                       ? 'bg-purple-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

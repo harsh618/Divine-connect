@@ -35,7 +35,7 @@ function PoojaCard({ pooja }) {
 
   return (
     <Link to={createPageUrl(`PoojaDetail?id=${pooja.id}`)} className="group block h-full">
-      <div className="relative h-full bg-white rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
+      <div className="relative h-full bg-white rounded-xl md:rounded-[2rem] overflow-hidden border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-amber-100/50 hover:-translate-y-1">
         
         {/* Image Section */}
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
@@ -69,16 +69,16 @@ function PoojaCard({ pooja }) {
         </div>
 
         {/* Content Section */}
-        <div className="p-6 relative">
-          <p className="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-2">
+        <div className="p-4 md:p-6 relative">
+          <p className="text-[9px] md:text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-1.5 md:mb-2">
             {pooja.category?.replace('_', ' ') || 'Vedic Ritual'}
           </p>
 
-          <h3 className="font-serif text-2xl text-gray-900 leading-tight mb-3 group-hover:text-amber-700 transition-colors">
+          <h3 className="font-serif text-lg md:text-2xl text-gray-900 leading-tight mb-2 md:mb-3 group-hover:text-amber-700 transition-colors">
             {pooja.name}
           </h3>
 
-          <p className="text-gray-500 text-sm leading-relaxed line-clamp-2 mb-6 font-light">
+          <p className="text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 mb-4 md:mb-6 font-light">
             {pooja.purpose || pooja.description || "Perform this sacred ritual to invoke blessings and peace."}
           </p>
 
@@ -185,25 +185,25 @@ export default function Poojas() {
       <div className="container mx-auto px-6 max-w-7xl relative z-20 -mt-8">
         
         {/* Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 shadow-xl shadow-stone-200/50 mb-12 border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+        <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-xl shadow-stone-200/50 mb-8 md:mb-12 border border-gray-100 flex flex-col md:flex-row gap-3 md:gap-4 items-center">
            <div className="relative flex-1 w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" />
               <input 
                  type="text" 
-                 placeholder="Search for 'Ganesh' or 'Peace'..." 
-                 className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-sm"
+                 placeholder="Search poojas..." 
+                 className="w-full pl-9 md:pl-10 pr-3 md:pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-amber-500 focus:ring-0 transition-all text-xs md:text-sm"
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
               />
            </div>
            
            {/* Horizontal Category Scroll */}
-           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+           <div className="flex items-center gap-1.5 md:gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
               {CATEGORIES.map((cat) => (
                  <button
                     key={cat.value}
                     onClick={() => setSelectedCategory(cat.value)}
-                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
+                    className={`whitespace-nowrap px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all flex-shrink-0 ${
                        selectedCategory === cat.value
                        ? 'bg-black text-white shadow-lg'
                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
