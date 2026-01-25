@@ -42,6 +42,7 @@ function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isHotelAdmin, setIsHotelAdmin] = useState(false);
   const { language, changeLanguage } = useLanguage();
   const { t } = useTranslation();
 
@@ -62,17 +63,23 @@ function LayoutContent({ children, currentPageName }) {
     { name: t('Daan'), icon: Heart, page: 'Donate' },
   ];
 
-  const [isHotelAdmin, setIsHotelAdmin] = useState(false);
-
   useEffect(() => {
     const loadUser = async () => {
       try {
         const authenticated = await base44.auth.isAuthenticated();
-        if (authenticated) {
-          const userData = await base44.auth.me();
-          setUser(userData);
-          
-          // Check if user has a provider profile
+        
+        if (!authenticated) {
+          setUser(null);
+          setUserRole(null);
+          setIsHotelAdmin(false);
+          return;
+        }
+
+        const userData = await base44.auth.me();
+        setUser(userData);
+        
+        // Only fetch additional data if we have a valid user
+        try {
           const profiles = await base44.entities.ProviderProfile.filter({ 
             user_id: userData.id, 
             is_deleted: false,
@@ -81,8 +88,11 @@ function LayoutContent({ children, currentPageName }) {
           if (profiles && profiles.length > 0) {
             setUserRole(profiles[0].provider_type);
           }
+        } catch (profileError) {
+          console.error("Could not load provider profile:", profileError);
+        }
 
-          // Check if user is a hotel admin
+        try {
           const hotels = await base44.entities.Hotel.filter({
             admin_user_id: userData.id,
             is_deleted: false
@@ -90,17 +100,18 @@ function LayoutContent({ children, currentPageName }) {
           if (hotels && hotels.length > 0) {
             setIsHotelAdmin(true);
           }
-        } else {
-          setUser(null);
-          setUserRole(null);
-          setIsHotelAdmin(false);
+        } catch (hotelError) {
+          console.error("Could not load hotel data:", hotelError);
         }
-      } catch (e) {
+
+      } catch (error) {
+        console.error("Authentication error:", error);
         setUser(null);
         setUserRole(null);
         setIsHotelAdmin(false);
       }
     };
+    
     loadUser();
   }, []);
 
