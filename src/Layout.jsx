@@ -179,7 +179,7 @@ function LayoutContent({ children, currentPageName }) {
                     <Link to={createPageUrl('Profile')}>
                       <DropdownMenuItem>
                         <User className="w-4 h-4 mr-2" />
-                        Profile
+                        {t('Profile')}
                       </DropdownMenuItem>
                     </Link>
 
@@ -187,7 +187,7 @@ function LayoutContent({ children, currentPageName }) {
                       <Link to={createPageUrl('PriestDashboard')}>
                         <DropdownMenuItem>
                           <Flame className="w-4 h-4 mr-2" />
-                          Priest Dashboard
+                          {t('Priest Dashboard')}
                         </DropdownMenuItem>
                       </Link>
                     )}
@@ -196,7 +196,7 @@ function LayoutContent({ children, currentPageName }) {
                       <Link to={createPageUrl('AstrologerDashboard')}>
                         <DropdownMenuItem>
                           <Stars className="w-4 h-4 mr-2" />
-                          Astrologer Dashboard
+                          {t('Astrologer Dashboard')}
                         </DropdownMenuItem>
                       </Link>
                     )}
@@ -205,7 +205,7 @@ function LayoutContent({ children, currentPageName }) {
                       <Link to={createPageUrl('HotelDashboard')}>
                         <DropdownMenuItem>
                           <Building2 className="w-4 h-4 mr-2" />
-                          Hotel Dashboard
+                          {t('Hotel Dashboard')}
                         </DropdownMenuItem>
                       </Link>
                     )}
@@ -215,19 +215,19 @@ function LayoutContent({ children, currentPageName }) {
                         <Link to={createPageUrl('AstrologyProfile')}>
                           <DropdownMenuItem>
                             <Stars className="w-4 h-4 mr-2" />
-                            Astrology Profile
+                            {t('Astrology Profile')}
                           </DropdownMenuItem>
                         </Link>
                         <Link to={createPageUrl('MyKundalis')}>
                           <DropdownMenuItem>
                             <Stars className="w-4 h-4 mr-2" />
-                            My Kundalis
+                            {t('My Kundalis')}
                           </DropdownMenuItem>
                         </Link>
                         <Link to={createPageUrl('MyBookings')}>
                           <DropdownMenuItem>
                             <Flame className="w-4 h-4 mr-2" />
-                            My Bookings
+                            {t('My Bookings')}
                           </DropdownMenuItem>
                         </Link>
                       </>
@@ -237,7 +237,7 @@ function LayoutContent({ children, currentPageName }) {
                       <Link to={createPageUrl('AdminDashboard')}>
                         <DropdownMenuItem>
                           <Settings className="w-4 h-4 mr-2" />
-                          Admin Panel
+                          {t('Admin Panel')}
                         </DropdownMenuItem>
                       </Link>
                     )}
@@ -246,14 +246,14 @@ function LayoutContent({ children, currentPageName }) {
                       <Link to={createPageUrl('EditorDashboard')}>
                         <DropdownMenuItem>
                           <Edit className="w-4 h-4 mr-2" />
-                          Content Editor
+                          {t('Content Editor')}
                         </DropdownMenuItem>
                       </Link>
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => base44.auth.logout(createPageUrl('Home'))}>
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {t('Sign Out')}
                       </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
