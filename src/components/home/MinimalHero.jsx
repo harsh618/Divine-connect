@@ -127,7 +127,7 @@ export default function MinimalHero() {
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-medium text-white mb-4 md:mb-6 tracking-tight leading-tight md:leading-[0.95] mix-blend-overlay px-4">
-          {t('Find Your Inner')}<br />{t('Sanctum')}
+          {t('Find Your Inner')}<br />{t('Peace')}
         </h1>
         
         <p className="text-base sm:text-lg md:text-xl text-white/70 mb-8 md:mb-16 font-light tracking-wide max-w-2xl mx-auto px-4">
