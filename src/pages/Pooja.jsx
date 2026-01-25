@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Clock, Video, Sparkles, ArrowUpRight, Flame, Filter, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import SEO from '../components/SEO';
 
 // --- Assets & Constants ---
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1604608672516-f1e3c1f9f6e6?w=800";
