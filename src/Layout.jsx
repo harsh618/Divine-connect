@@ -235,14 +235,15 @@ function LayoutContent({ children, currentPageName }) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button
-                  onClick={() => base44.auth.redirectToLogin()}
-                  size="icon"
-                  className="w-9 h-9 md:w-auto md:h-auto md:px-5 md:py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-full md:rounded-md transition-all border-0 shadow-lg"
-                >
-                  <User className="w-4 h-4 md:hidden" />
-                  <span className="hidden md:inline text-xs uppercase tracking-wider font-semibold">{t('Sign In')}</span>
-                </Button>
+                <Link to={createPageUrl('Login')}>
+                  <Button
+                    size="icon"
+                    className="w-9 h-9 md:w-auto md:h-auto md:px-5 md:py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-full md:rounded-md transition-all border-0 shadow-lg"
+                  >
+                    <User className="w-4 h-4 md:hidden" />
+                    <span className="hidden md:inline text-xs uppercase tracking-wider font-semibold">{t('Sign In')}</span>
+                  </Button>
+                </Link>
               )}
                 </div>
                 </div>
