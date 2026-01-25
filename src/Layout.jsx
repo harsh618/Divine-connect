@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import AgentAssistChat from './components/yatra/AgentAssistChat';
-import { LanguageProvider } from './components/LanguageContext';
+import { LanguageProvider, useLanguage } from './components/LanguageContext';
 
 import {
   DropdownMenu,
@@ -12,6 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import {
   Sheet,
@@ -31,13 +33,23 @@ import {
   Search,
   Settings,
   Compass,
-  Edit
+  Edit,
+  Languages
 } from 'lucide-react';
 
 function LayoutContent({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const { language, changeLanguage } = useLanguage();
+
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
+    { code: 'ml', name: 'മലയാളം', flag: '🇮🇳' },
+    { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
+    { code: 'te', name: 'తెలుగు', flag: '🇮🇳' }
+  ];
 
   const navLinks = [
     { name: 'Mandir', icon: Building2, page: 'Temples' },
@@ -122,6 +134,29 @@ function LayoutContent({ children, currentPageName }) {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
+              {/* Language Selector */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="rounded-full hover:bg-orange-100"
+                  >
+                    <Languages className="w-5 h-5 text-gray-700" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuRadioGroup value={language} onValueChange={changeLanguage}>
+                    {languages.map((lang) => (
+                      <DropdownMenuRadioItem key={lang.code} value={lang.code}>
+                        <span className="mr-2">{lang.flag}</span>
+                        {lang.name}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
