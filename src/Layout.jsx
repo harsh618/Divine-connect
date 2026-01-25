@@ -110,12 +110,12 @@ function LayoutContent({ children, currentPageName }) {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
       {/* Desktop Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-orange-200 shadow-lg">
-        <div className="container mx-auto px-8 max-w-7xl">
-          <div className="flex items-center justify-between h-16">
+        <div className="container mx-auto px-4 md:px-8 max-w-7xl">
+          <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo */}
-            <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-              <span className="text-xl font-serif tracking-wide bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent font-bold">
-                MandirSutra
+            <Link to={createPageUrl('Home')} className="flex items-center">
+              <span className="text-base md:text-xl font-serif bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent font-bold">
+                Mandir<span className="inline-block w-0.5 md:w-1"></span>Sutra
               </span>
             </Link>
 
@@ -135,16 +135,16 @@ function LayoutContent({ children, currentPageName }) {
             </div>
 
             {/* Right Side */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg"
+                      className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg"
                     >
-                      <User className="w-4 h-4" />
+                      <User className="w-4 h-4 md:w-5 md:h-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -237,48 +237,20 @@ function LayoutContent({ children, currentPageName }) {
               ) : (
                 <Button
                   onClick={() => base44.auth.redirectToLogin()}
-                  className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-md px-5 text-xs uppercase tracking-wider font-semibold transition-all border-0 shadow-lg"
+                  size="icon"
+                  className="w-9 h-9 md:w-auto md:h-auto md:px-5 md:py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-full md:rounded-md transition-all border-0 shadow-lg"
                 >
-                  {t('Sign In')}
+                  <User className="w-4 h-4 md:hidden" />
+                  <span className="hidden md:inline text-xs uppercase tracking-wider font-semibold">{t('Sign In')}</span>
                 </Button>
               )}
-
-              {/* Mobile Menu */}
-              <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild className="md:hidden">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                  >
-                    <Menu className="w-6 h-6" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-72">
-                  <div className="flex flex-col gap-2 mt-8">
-                    <Link to={createPageUrl('Home')} onClick={() => setIsOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start">
-                        <Home className="w-5 h-5 mr-3" />
-                        {t('Home')}
-                      </Button>
-                    </Link>
-                    {navLinks.map((link) => (
-                      <Link key={link.name} to={createPageUrl(link.page)} onClick={() => setIsOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start">
-                          <link.icon className="w-5 h-5 mr-3" />
-                          {link.name}
-                        </Button>
-                      </Link>
-                    ))}
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
-        </div>
-      </nav>
+                </div>
+                </div>
+                </div>
+                </nav>
 
       {/* Page Content */}
-      <main className="pt-16">
+      <main className="pt-14 md:pt-16">
         {children}
       </main>
 
