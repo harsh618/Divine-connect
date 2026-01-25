@@ -147,12 +147,33 @@ export default function MinimalHero() {
               {isSearching ? (
                 <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />
               ) : (
-                <Button 
-                  onClick={() => searchResults.length > 0 && handleResultClick(searchResults[0])}
-                  className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold px-6 py-2 text-sm"
-                >
-                  Search
-                </Button>
+                <div className="relative group">
+                  <Button 
+                    className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold px-6 py-2 text-sm"
+                  >
+                    Explore
+                  </Button>
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <Link to={createPageUrl('Temples')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors">
+                      Mandir
+                    </Link>
+                    <Link to={createPageUrl('Pooja')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                      Pooja
+                    </Link>
+                    <Link to={createPageUrl('Astrology')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                      Jyotish
+                    </Link>
+                    <Link to={createPageUrl('PriestPandit')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                      Priest
+                    </Link>
+                    <Link to={createPageUrl('Yatra')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                      Yatra
+                    </Link>
+                    <Link to={createPageUrl('Donate')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                      Daan
+                    </Link>
+                  </div>
+                </div>
               )}
             </div>
           </div>

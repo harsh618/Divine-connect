@@ -62,7 +62,7 @@ export default function Home() {
               <ul className="space-y-3">
                 <li>
                   <Link to={createPageUrl('Temples')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
-                    Temples
+                    Mandir
                   </Link>
                 </li>
                 <li>
@@ -72,7 +72,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link to={createPageUrl('Astrology')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
-                    Astrology
+                    Jyotish
                   </Link>
                 </li>
                 <li>
@@ -112,7 +112,7 @@ export default function Home() {
               <ul className="space-y-3">
                 <li>
                   <Link to={createPageUrl('Donate')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
-                    Donate
+                    Daan
                   </Link>
                 </li>
                 <li>

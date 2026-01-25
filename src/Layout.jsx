@@ -39,12 +39,12 @@ function LayoutContent({ children, currentPageName }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Temple', icon: Building2, page: 'Temples' },
+    { name: 'Mandir', icon: Building2, page: 'Temples' },
     { name: 'Pooja', icon: Flame, page: 'Pooja' },
     { name: 'Yatra', icon: Compass, page: 'Yatra' },
     { name: 'Priest/Pandit', icon: Users, page: 'PriestPandit' },
-    { name: 'Astrology', icon: Stars, page: 'Astrology' },
-    { name: 'Donate', icon: Heart, page: 'Donate' },
+    { name: 'Jyotish', icon: Stars, page: 'Astrology' },
+    { name: 'Daan', icon: Heart, page: 'Donate' },
   ];
 
   const [isHotelAdmin, setIsHotelAdmin] = useState(false);
@@ -276,7 +276,7 @@ function LayoutContent({ children, currentPageName }) {
             </Link>
             <Link to={createPageUrl('Donate')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <Heart className="w-5 h-5" />
-              <span className="text-xs mt-1">Donate</span>
+              <span className="text-xs mt-1">Daan</span>
             </Link>
             <Link to={createPageUrl('Profile')} className="flex flex-col items-center p-2 text-muted-foreground hover:text-foreground transition-colors">
               <User className="w-5 h-5" />
