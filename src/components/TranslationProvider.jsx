@@ -56,19 +56,12 @@ export const TranslationProvider = ({ children }) => {
     setPending(prev => new Set(prev).add(cacheKey));
 
     try {
-      const languageNames = {
-        hi: 'Hindi',
-        ml: 'Malayalam',
-        ta: 'Tamil',
-        te: 'Telugu'
-      };
-
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Translate the following text to ${languageNames[targetLang]}. Only return the translated text, nothing else:\n\n${text}`,
-        add_context_from_internet: false
+      const response = await base44.functions.invoke('translateText', {
+        texts: [text],
+        targetLanguage: targetLang
       });
 
-      const translation = result.trim();
+      const translation = response.data.translations[0];
       
       // Update cache
       setCache(prev => ({
