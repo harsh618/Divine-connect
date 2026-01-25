@@ -32,14 +32,21 @@ export default function AdminDashboard() {
   useEffect(() => {
     const loadUser = async () => {
       try {
+        const isAuthenticated = await base44.auth.isAuthenticated();
+        if (!isAuthenticated) {
+          base44.auth.redirectToLogin(createPageUrl('AdminDashboard'));
+          return;
+        }
+
         const userData = await base44.auth.me();
-        if (userData.role !== 'admin') {
+        if (userData.role !== 'admin' && userData.app_role !== 'admin') {
           window.location.href = createPageUrl('Home');
           return;
         }
         setUser(userData);
-      } catch {
-        base44.auth.redirectToLogin();
+      } catch (error) {
+        console.error('Admin authentication error:', error);
+        base44.auth.redirectToLogin(createPageUrl('AdminDashboard'));
       }
     };
     loadUser();
