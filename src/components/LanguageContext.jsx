@@ -18,6 +18,14 @@ export const LanguageProvider = ({ children }) => {
   useEffect(() => {
     const loadUserLanguage = async () => {
       try {
+        // First check if user is authenticated
+        const isAuthenticated = await base44.auth.isAuthenticated();
+        if (!isAuthenticated) {
+          setLanguage('en');
+          setLoading(false);
+          return;
+        }
+        
         const user = await base44.auth.me();
         if (user?.preferred_language) {
           setLanguage(user.preferred_language);
@@ -34,7 +42,10 @@ export const LanguageProvider = ({ children }) => {
   const changeLanguage = async (newLanguage) => {
     setLanguage(newLanguage);
     try {
-      await base44.auth.updateMe({ preferred_language: newLanguage });
+      const isAuthenticated = await base44.auth.isAuthenticated();
+      if (isAuthenticated) {
+        await base44.auth.updateMe({ preferred_language: newLanguage });
+      }
     } catch (error) {
       console.error('Failed to update language preference:', error);
     }
