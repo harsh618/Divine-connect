@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import SEO from '../components/SEO';
 import MinimalHero from '../components/home/MinimalHero';
 import FeaturedTemplesMinimal from '../components/home/FeaturedTemplesMinimal';
 import AuspiciousTimeline from '../components/home/AuspiciousTimeline';
@@ -186,6 +187,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import SEO from '../components/SEO';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -253,7 +254,13 @@ export default function Donate() {
   const regularCampaigns = filteredCampaigns?.filter(c => !c.is_trending) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
+    <>
+      <SEO 
+        title="Donate to Noble Causes | MandirSutra"
+        description="Support temple renovations, gaushalas, anna daan, education, and medical aid. Make a difference with transparent donations to verified spiritual and charitable causes."
+        image={HERO_IMAGES[0]}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
       
       {/* Cinematic Hero */}
       <section className="relative h-[60vh] flex items-end justify-center overflow-hidden pb-16">
@@ -444,6 +451,7 @@ export default function Donate() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
+      </div>
+      </>
+      );
+      }

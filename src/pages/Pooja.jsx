@@ -141,7 +141,12 @@ export default function Pooja() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
+    <>
+      <SEO 
+        title="Book Vedic Poojas & Rituals | MandirSutra"
+        description="Book authentic Vedic poojas and rituals with verified priests. Virtual, in-person, and temple-based services. Graha Shanti, Satyanarayan, Ganesh, and more."
+      />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
       
       {/* 1. Cinematic Hero */}
       <section className="relative h-[60vh] flex items-end justify-center overflow-hidden pb-16">
@@ -248,6 +253,7 @@ export default function Pooja() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import SEO from '../components/SEO';
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -60,7 +61,13 @@ export default function Temples() {
   const activeFilterCount = (selectedDeity !== 'All' ? 1 : 0) + (selectedState !== 'All' ? 1 : 0) + (showLiveOnly ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
+    <>
+      <SEO 
+        title="Sacred Temples | MandirSutra"
+        description="Explore 100+ revered Hindu temples across India. Find temples by deity, state, and location. Book darshan, watch live streams, and plan your spiritual visit."
+        image={TEMPLE_HERO_IMAGES[0]}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
       
       {/* 1. Cinematic Hero Section */}
       <section className="relative h-[70vh] flex items-center justify-center overflow-hidden">
@@ -210,6 +217,7 @@ export default function Temples() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

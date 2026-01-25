@@ -162,7 +162,8 @@ function AstrologerCard({ provider, onChatClick }) {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -267,7 +268,12 @@ export default function Astrology() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
+    <>
+      <SEO 
+        title="Vedic Astrology & Jyotish Consultations | MandirSutra"
+        description="Connect with verified Vedic astrologers for personalized consultations via chat, audio, or video. Get kundli analysis, predictions, and guidance from expert Jyotish."
+      />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 pb-24 font-sans">
       
       {/* Cinematic Hero */}
       <section className="relative h-[60vh] flex items-end justify-center overflow-hidden pb-16">
