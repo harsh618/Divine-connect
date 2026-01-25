@@ -77,7 +77,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link to={createPageUrl('Priests')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
-                    Priests
+                    Pandit
                   </Link>
                 </li>
               </ul>

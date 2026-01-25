@@ -164,7 +164,7 @@ export default function MinimalHero() {
                       Jyotish
                     </Link>
                     <Link to={createPageUrl('PriestPandit')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
-                      Priest
+                      Pandit
                     </Link>
                     <Link to={createPageUrl('Yatra')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
                       Yatra

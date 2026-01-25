@@ -150,11 +150,6 @@ export default function FeaturedPoojasCarousel() {
                               <Clock className="w-4 h-4 text-[#D97706]" />
                               <span>{pooja.duration_minutes} min</span>
                             </div>
-                            {pooja.total_bookings > 0 && (
-                              <div className="text-xs text-gray-500">
-                                {pooja.total_bookings}+ bookings
-                              </div>
-                            )}
                           </div>
 
                           {pooja.purpose && (

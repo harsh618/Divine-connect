@@ -17,34 +17,11 @@ export default function JoinUsSection() {
             Share Your Sacred Knowledge
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Join thousands of priests and astrologers serving devotees across India through our platform
+            Join our community of priests and astrologers serving devotees across India
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          <Card className="p-6 text-center bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-orange-600" />
-            </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">10,000+</p>
-            <p className="text-gray-600">Active Devotees</p>
-          </Card>
-          <Card className="p-6 text-center bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
-              <Flame className="w-8 h-8 text-purple-600" />
-            </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">500+</p>
-            <p className="text-gray-600">Verified Priests</p>
-          </Card>
-          <Card className="p-6 text-center bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-              <Stars className="w-8 h-8 text-blue-600" />
-            </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">300+</p>
-            <p className="text-gray-600">Expert Astrologers</p>
-          </Card>
-        </div>
+
 
         {/* Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -55,7 +32,7 @@ export default function JoinUsSection() {
               <Flame className="w-20 h-20 text-white relative z-10" />
             </div>
             <div className="p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Join as a Priest</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Join as a Pandit</h3>
               <p className="text-gray-600 mb-6">
                 Connect with devotees seeking sacred rituals and ceremonies. Perform poojas, havans, and spiritual services.
               </p>
@@ -81,7 +58,7 @@ export default function JoinUsSection() {
 
               <Link to={createPageUrl('OnboardPriest')}>
                 <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-6 text-lg group">
-                  Register as Priest
+                  Register as Pandit
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -172,7 +149,7 @@ export default function JoinUsSection() {
         {/* Bottom CTA */}
         <div className="text-center mt-16">
           <p className="text-gray-600 mb-4">
-            Have questions? <a href="mailto:partners@divine.com" className="text-orange-600 hover:text-orange-700 font-medium">Contact our partnership team</a>
+            Have questions? <a href="mailto:partners@mandirsutra.com" className="text-orange-600 hover:text-orange-700 font-medium">Contact our partnership team</a>
           </p>
         </div>
       </div>
