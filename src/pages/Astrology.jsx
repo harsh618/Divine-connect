@@ -163,8 +163,7 @@ function AstrologerCard({ provider, onChatClick }) {
           </Button>
         </div>
       </div>
-      </div>
-    </>
+    </div>
   );
 }
 
