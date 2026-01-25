@@ -38,6 +38,7 @@ import TempleDetail from './pages/TempleDetail';
 import TempleDetails from './pages/TempleDetails';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
+import EditorDashboard from './pages/EditorDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -82,6 +83,7 @@ export const PAGES = {
     "TempleDetails": TempleDetails,
     "Temples": Temples,
     "Yatra": Yatra,
+    "EditorDashboard": EditorDashboard,
 }
 
 export const pagesConfig = {

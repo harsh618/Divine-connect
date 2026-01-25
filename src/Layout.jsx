@@ -30,7 +30,8 @@ import {
   Heart,
   Search,
   Settings,
-  Compass
+  Compass,
+  Edit
 } from 'lucide-react';
 
 function LayoutContent({ children, currentPageName }) {
@@ -195,11 +196,20 @@ function LayoutContent({ children, currentPageName }) {
                       </>
                     )}
 
-                    {user.role === 'admin' && (
+                    {(user.role === 'admin' || user.app_role === 'admin') && (
                       <Link to={createPageUrl('AdminDashboard')}>
                         <DropdownMenuItem>
                           <Settings className="w-4 h-4 mr-2" />
                           Admin Panel
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+
+                    {(user.app_role === 'editor' || user.role === 'admin') && (
+                      <Link to={createPageUrl('EditorDashboard')}>
+                        <DropdownMenuItem>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Content Editor
                         </DropdownMenuItem>
                       </Link>
                     )}
