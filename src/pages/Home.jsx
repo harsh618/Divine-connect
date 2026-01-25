@@ -31,8 +31,13 @@ export default function Home() {
   const displayTemples = temples?.length > 0 ? temples : allTemples;
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <MinimalHero />
+    <>
+      <SEO 
+        title="MandirSutra - Find Your Inner Peace | Sacred Temples & Spiritual Services"
+        description="Discover 100+ sacred temples, book authentic poojas, connect with verified priests and astrologers, plan spiritual yatras, and support noble causes. Your complete spiritual companion."
+      />
+      <div className="min-h-screen bg-background pb-20 md:pb-0">
+        <MinimalHero />
       <FeaturedTemplesMinimal temples={displayTemples} isLoading={isLoading && isLoadingAll} />
       <FeaturedPoojasCarousel />
       <FeaturedProvidersCarousel />
