@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Calendar, Sparkles } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from '../TranslationProvider';
 
 function TimelineCard({ event }) {
   return (
@@ -15,6 +16,7 @@ function TimelineCard({ event }) {
 }
 
 export default function AuspiciousTimeline() {
+  const { t } = useTranslation();
   const scrollRef = useRef(null);
 
   const { data: adminDays } = useQuery({
@@ -42,10 +44,10 @@ export default function AuspiciousTimeline() {
             <div className="flex items-center gap-3 mb-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
               <h2 className="text-3xl font-serif font-semibold text-[#1C1917] tracking-tight">
-                Auspicious Days
+                {t('Auspicious Days')}
               </h2>
             </div>
-            <p className="text-stone-600 text-sm">Check daily for sacred moments</p>
+            <p className="text-stone-600 text-sm">{t('Check daily for sacred moments')}</p>
           </div>
         </div>
       </div>
@@ -72,7 +74,7 @@ export default function AuspiciousTimeline() {
                 <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-amber-500" />
                 </div>
-                <p className="text-stone-500 text-sm">No days scheduled</p>
+                <p className="text-stone-500 text-sm">{t('No days scheduled')}</p>
               </div>
             }
           </div>

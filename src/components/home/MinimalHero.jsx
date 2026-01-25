@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Sparkles, Loader2, MapPin, Flame, Users, Heart } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useTranslation } from '../TranslationProvider';
 
 const heroImages = [
 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6939ab07ccfe16dc9f48421b/8cd80df37_pexels-thash-11656202.jpg',
@@ -13,6 +14,7 @@ const heroImages = [
 
 
 export default function MinimalHero() {
+  const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [typedText, setTypedText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,11 +127,11 @@ export default function MinimalHero() {
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         <h1 className="text-6xl md:text-8xl font-serif font-medium text-white mb-6 tracking-tight leading-[0.95] mix-blend-overlay">
-          Find Your Inner<br />Sanctum
+          {t('Find Your Inner')}<br />{t('Sanctum')}
         </h1>
         
         <p className="text-lg md:text-xl text-white/70 mb-16 font-light tracking-wide max-w-2xl mx-auto">
-          Step into a portal of ancient wisdom and modern spirituality
+          {t('Step into a portal of ancient wisdom and modern spirituality')}
         </p>
 
         {/* Floating Omnibox */}
@@ -151,26 +153,26 @@ export default function MinimalHero() {
                   <Button 
                     className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold px-6 py-2 text-sm"
                   >
-                    Explore
+                    {t('Explore')}
                   </Button>
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     <Link to={createPageUrl('Temples')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors">
-                      Mandir
+                      {t('Mandir')}
                     </Link>
                     <Link to={createPageUrl('Pooja')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
-                      Pooja
+                      {t('Pooja')}
                     </Link>
                     <Link to={createPageUrl('Astrology')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
-                      Jyotish
+                      {t('Jyotish')}
                     </Link>
                     <Link to={createPageUrl('PriestPandit')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
-                      Pandit
+                      {t('Pandit')}
                     </Link>
                     <Link to={createPageUrl('Yatra')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
-                      Yatra
+                      {t('Yatra')}
                     </Link>
                     <Link to={createPageUrl('Donate')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
-                      Daan
+                      {t('Daan')}
                     </Link>
                   </div>
                 </div>
@@ -183,7 +185,7 @@ export default function MinimalHero() {
             <div className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-h-[500px] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="p-3 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
                 <p className="text-xs font-semibold text-orange-900 uppercase tracking-wide">
-                  Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                  {t('Found')} {searchResults.length} {t('result')}{searchResults.length !== 1 ? t('s') : ''}
                 </p>
               </div>
               {searchResults.map((result) => {
@@ -219,7 +221,7 @@ export default function MinimalHero() {
                       <p className="text-sm text-gray-600 mt-0.5 truncate">{result.subtitle}</p>
                     </div>
                     <div className="flex items-center gap-2 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-xs font-medium">View</span>
+                      <span className="text-xs font-medium">{t('View')}</span>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
@@ -236,14 +238,14 @@ export default function MinimalHero() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-orange-500" />
               </div>
-              <p className="text-gray-900 font-semibold mb-2">No results found for "{searchQuery}"</p>
-              <p className="text-sm text-gray-600 mb-4">Try searching for:</p>
+              <p className="text-gray-900 font-semibold mb-2">{t('No results found for')} "{searchQuery}"</p>
+              <p className="text-sm text-gray-600 mb-4">{t('Try searching for')}:</p>
               <div className="flex flex-wrap gap-2 justify-center">
-                <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium">Temples</span>
-                <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">Poojas</span>
-                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">Priests</span>
-                <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">Astrologers</span>
-                <span className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-medium">Donations</span>
+                <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium">{t('Temples')}</span>
+                <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">{t('Poojas')}</span>
+                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">{t('Priests')}</span>
+                <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">{t('Astrologers')}</span>
+                <span className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-medium">{t('Donations')}</span>
               </div>
             </div>
           )}

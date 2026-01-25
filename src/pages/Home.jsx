@@ -12,8 +12,11 @@ import JoinUsSection from '../components/home/JoinUsSection';
 import ArticlesSection from '../components/articles/ArticlesSection';
 import FeaturedProvidersCarousel from '../components/home/FeaturedProvidersCarousel';
 import FeaturedPoojasCarousel from '../components/home/FeaturedPoojasCarousel';
+import { useTranslation } from '../components/TranslationProvider';
 
 export default function Home() {
+  const { t } = useTranslation();
+  
   const { data: temples, isLoading } = useQuery({
     queryKey: ['featured-temples'],
     queryFn: () => base44.entities.Temple.filter({ is_deleted: false, is_featured: true, is_hidden: false }, '-created_date', 8),

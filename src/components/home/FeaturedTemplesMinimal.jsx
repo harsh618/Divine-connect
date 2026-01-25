@@ -4,8 +4,10 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { MapPin, ArrowRight } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from '../TranslationProvider';
 
 function TempleCard({ temple }) {
+  const { t } = useTranslation();
   const defaultImage = "https://images.unsplash.com/photo-1548013146-72479768bada?w=800";
   
   return (
@@ -37,7 +39,7 @@ function TempleCard({ temple }) {
               }}
               className="rounded-full bg-amber-500 px-6 py-2 text-sm font-bold text-black hover:bg-white transition-colors"
             >
-              Darshan Now
+              {t('Darshan Now')}
             </button>
           </div>
         </div>
@@ -57,19 +59,21 @@ function TempleCardSkeleton() {
 }
 
 export default function FeaturedTemplesMinimal({ temples, isLoading }) {
+  const { t } = useTranslation();
+  
   return (
     <section className="py-24 px-6 bg-gradient-to-br from-orange-100 via-amber-100 to-orange-50 relative">
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="flex items-start justify-between mb-12">
           <div>
             <h2 className="text-4xl md:text-5xl font-serif font-semibold text-orange-900 mb-3 tracking-tight">
-              Sacred Portals
+              {t('Sacred Portals')}
             </h2>
-            <p className="text-orange-700/70">Discover divine temples across the cosmos</p>
+            <p className="text-orange-700/70">{t('Discover divine temples across the cosmos')}</p>
           </div>
           <Link to={createPageUrl('Temples')}>
             <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
-              View all
+              {t('View all')}
               <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
@@ -92,7 +96,7 @@ export default function FeaturedTemplesMinimal({ temples, isLoading }) {
               ))
             ) : (
               <div className="col-span-full text-center py-12 text-gray-500">
-                No temples available
+                {t('No temples available')}
               </div>
             )}
           </div>
@@ -102,7 +106,7 @@ export default function FeaturedTemplesMinimal({ temples, isLoading }) {
         <div className="mt-8 md:hidden text-center">
           <Link to={createPageUrl('Temples')}>
             <button className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm">
-              View all temples
+              {t('View all temples')}
               <ArrowRight className="w-4 h-4" />
             </button>
           </Link>

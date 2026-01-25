@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useTranslation } from '../TranslationProvider';
 
 function EventCard({ event, temple }) {
   return (
@@ -39,6 +40,7 @@ function EventCard({ event, temple }) {
 }
 
 export default function UpcomingEvents() {
+  const { t } = useTranslation();
   const scrollRef = useRef(null);
 
   const { data: events, isLoading } = useQuery({
@@ -61,9 +63,9 @@ export default function UpcomingEvents() {
     <section className="bg-white pt-16 pr-6 pb-20 pl-6">
       <div className="container mx-auto max-w-7xl mb-12">
         <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-3">
-          Upcoming Events
+          {t('Upcoming Events')}
         </h2>
-        <p className="text-gray-500">Festivals and ceremonies near you</p>
+        <p className="text-gray-500">{t('Festivals and ceremonies near you')}</p>
       </div>
 
       <div
@@ -89,7 +91,7 @@ export default function UpcomingEvents() {
             ) :
 
             <div className="w-96 text-gray-500 text-center py-12">
-                No upcoming events
+                {t('No upcoming events')}
               </div>
             }
           </div>
