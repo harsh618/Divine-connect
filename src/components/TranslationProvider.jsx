@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useLanguage } from './LanguageContext';
 
@@ -16,10 +16,12 @@ export const TranslationProvider = ({ children }) => {
   const { language } = useLanguage();
   const [cache, setCache] = useState({});
   const [pending, setPending] = useState(new Set());
+  const pendingBatchRef = useRef([]);
+  const batchTimeoutRef = useRef(null);
 
   // Load cache from localStorage on mount
   useEffect(() => {
-    const savedCache = localStorage.getItem('translation_cache');
+    const savedCache = localStorage.getItem('translation_cache_v2');
     if (savedCache) {
       try {
         setCache(JSON.parse(savedCache));
@@ -29,58 +31,88 @@ export const TranslationProvider = ({ children }) => {
     }
   }, []);
 
-  // Save cache to localStorage whenever it changes
+  // Save cache to localStorage whenever it changes (debounced)
   useEffect(() => {
-    localStorage.setItem('translation_cache', JSON.stringify(cache));
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem('translation_cache_v2', JSON.stringify(cache));
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [cache]);
+
+  // Batch translation function
+  const batchTranslate = useCallback(async (texts, targetLang) => {
+    if (!texts || texts.length === 0) return {};
+    if (targetLang === 'en') return {};
+
+    try {
+      // Filter out already cached texts
+      const textsToTranslate = texts.filter(text => {
+        const cacheKey = `${targetLang}:${text}`;
+        return !cache[cacheKey];
+      });
+
+      if (textsToTranslate.length === 0) return {};
+
+      const response = await base44.functions.invoke('translateText', {
+        texts: textsToTranslate,
+        targetLanguage: targetLang
+      });
+
+      const translations = response.data.translations;
+      
+      // Update cache with all translations
+      const newCache = {};
+      textsToTranslate.forEach((text, index) => {
+        const cacheKey = `${targetLang}:${text}`;
+        newCache[cacheKey] = translations[index];
+      });
+
+      setCache(prev => ({
+        ...prev,
+        ...newCache
+      }));
+
+      return newCache;
+    } catch (error) {
+      console.error('Batch translation error:', error);
+      return {};
+    }
   }, [cache]);
 
   const translate = useCallback(async (text, targetLang) => {
     if (!text || typeof text !== 'string') return text;
-    if (targetLang === 'en') return text; // No translation needed for English
+    if (targetLang === 'en') return text;
 
     const cacheKey = `${targetLang}:${text}`;
     
-    // Check cache first
     if (cache[cacheKey]) {
       return cache[cacheKey];
     }
 
-    // Check if already pending
-    if (pending.has(cacheKey)) {
-      // Wait a bit and check cache again
-      await new Promise(resolve => setTimeout(resolve, 100));
-      return cache[cacheKey] || text;
+    // Add to pending batch
+    if (!pendingBatchRef.current.includes(text)) {
+      pendingBatchRef.current.push(text);
     }
 
-    // Mark as pending
-    setPending(prev => new Set(prev).add(cacheKey));
-
-    try {
-      const response = await base44.functions.invoke('translateText', {
-        texts: [text],
-        targetLanguage: targetLang
-      });
-
-      const translation = response.data.translations[0];
-      
-      // Update cache
-      setCache(prev => ({
-        ...prev,
-        [cacheKey]: translation
-      }));
-
-      return translation;
-    } catch (error) {
-      console.error('Translation error:', error);
-      return text; // Fallback to original text
-    } finally {
-      setPending(prev => {
-        const newPending = new Set(prev);
-        newPending.delete(cacheKey);
-        return newPending;
-      });
+    // Clear existing timeout
+    if (batchTimeoutRef.current) {
+      clearTimeout(batchTimeoutRef.current);
     }
-  }, [cache, pending]);
+
+    // Set new timeout to process batch
+    batchTimeoutRef.current = setTimeout(async () => {
+      const textsToTranslate = [...pendingBatchRef.current];
+      pendingBatchRef.current = [];
+
+      if (textsToTranslate.length > 0) {
+        await batchTranslate(textsToTranslate, targetLang);
+      }
+    }, 50);
+
+    // Return cached if available after a short wait, otherwise original text
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return cache[cacheKey] || text;
+  }, [cache, batchTranslate]);
 
   const t = useCallback((text) => {
     if (language === 'en' || !text) return text;
