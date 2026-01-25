@@ -100,7 +100,7 @@ function LayoutContent({ children, currentPageName }) {
             {/* Logo */}
             <Link to={createPageUrl('Home')} className="flex items-center gap-2">
               <span className="text-xl font-serif tracking-wide bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent font-bold">
-                Divine
+                MandirSutra
               </span>
             </Link>
 

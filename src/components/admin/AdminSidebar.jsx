@@ -93,7 +93,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, collapsed, setCo
           </div>
           {!collapsed && (
             <div>
-              <h1 className="font-bold text-lg">Divine Admin</h1>
+              <h1 className="font-bold text-lg">MandirSutra Admin</h1>
               <p className="text-xs text-gray-400">Super Panel</p>
             </div>
           )}
