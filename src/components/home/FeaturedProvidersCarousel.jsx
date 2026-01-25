@@ -154,6 +154,15 @@ export default function FeaturedProvidersCarousel() {
                         </div>
                         <Button 
                           size="sm" 
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            const isAuth = await base44.auth.isAuthenticated();
+                            if (!isAuth) {
+                              base44.auth.redirectToLogin(window.location.href);
+                            } else {
+                              window.location.href = createPageUrl(profileUrl);
+                            }
+                          }}
                           className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-bold rounded-xl text-sm py-2"
                         >
                           Connect Now

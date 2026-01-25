@@ -55,12 +55,21 @@ function CampaignCard({ campaign }) {
           </div>
         </div>
 
-        <Link to={createPageUrl('Donate')}>
-          <button className="w-full py-3 rounded-xl font-medium bg-stone-900 text-white hover:bg-black transition-colors flex justify-between px-4 items-center">
-            <span>Donate</span>
-            <Heart className="w-4 h-4" />
-          </button>
-        </Link>
+        <button 
+          onClick={async (e) => {
+            e.preventDefault();
+            const isAuth = await base44.auth.isAuthenticated();
+            if (!isAuth) {
+              base44.auth.redirectToLogin(window.location.href);
+            } else {
+              window.location.href = createPageUrl('Donate');
+            }
+          }}
+          className="w-full py-3 rounded-xl font-medium bg-stone-900 text-white hover:bg-black transition-colors flex justify-between px-4 items-center"
+        >
+          <span>Donate</span>
+          <Heart className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

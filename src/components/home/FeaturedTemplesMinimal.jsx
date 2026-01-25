@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
 import { MapPin, ArrowRight } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -24,7 +25,18 @@ function TempleCard({ temple }) {
           <h3 className="text-3xl font-serif text-white mb-1 leading-tight">{temple.name}</h3>
           <p className="text-sm text-white/60 mb-4">{temple.primary_deity}</p>
           <div className="flex items-center gap-4 opacity-0 transition-opacity delay-100 duration-500 group-hover:opacity-100">
-            <button className="rounded-full bg-amber-500 px-6 py-2 text-sm font-bold text-black hover:bg-white transition-colors">
+            <button 
+              onClick={async (e) => {
+                e.preventDefault();
+                const isAuth = await base44.auth.isAuthenticated();
+                if (!isAuth) {
+                  base44.auth.redirectToLogin(window.location.href);
+                } else {
+                  window.location.href = createPageUrl(`TempleDetail?id=${temple.id}`);
+                }
+              }}
+              className="rounded-full bg-amber-500 px-6 py-2 text-sm font-bold text-black hover:bg-white transition-colors"
+            >
               Darshan Now
             </button>
           </div>
