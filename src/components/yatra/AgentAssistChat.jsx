@@ -9,7 +9,7 @@ import { base44 } from '@/api/base44Client';
 export default function AgentAssistChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Namaste! 🙏 I\'m your Divine Assistant powered by AI. I can help you with temples, poojas, astrology, priests, donations, and yatra planning based on our platform data. How can I assist you today?' }
+    { type: 'bot', text: 'Namaste! 🙏 I\'m your MandirSutra Assistant powered by AI. I can help you with temples, poojas, astrology, priests, donations, and yatra planning based on our platform data. How can I assist you today?' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function AgentAssistChat() {
                 <Bot className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">Divine Assistant</h3>
+                <h3 className="font-semibold text-white">MandirSutra Assistant</h3>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                   <span className="text-xs text-white/90">Online</span>

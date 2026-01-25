@@ -47,7 +47,7 @@ export default function Home() {
         <div className="container mx-auto max-w-7xl">
           {/* Brand Block */}
           <div className="mb-16 pb-12 border-b border-background/10">
-            <h3 className="text-2xl font-normal tracking-wider mb-4">DIVINE</h3>
+            <h3 className="text-2xl font-normal tracking-wider mb-4">MANDIRSUTRA</h3>
             <p className="text-background/70 text-base mb-3 max-w-md font-light">
               Discover temples, book poojas and astrologers, and donate to trusted causes across India
             </p>
@@ -86,7 +86,7 @@ export default function Home() {
               <h4 className="font-normal mb-6 text-background text-xs uppercase tracking-widest">Support</h4>
               <ul className="space-y-3">
                 <li>
-                  <a href="mailto:support@divine.com" className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <a href="mailto:support@mandirsutra.com" className="text-background/60 hover:text-background transition-colors text-sm font-light">
                     Contact
                   </a>
                 </li>
@@ -167,7 +167,7 @@ export default function Home() {
           </div>
           <div className="border-t border-background/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-background/50 text-sm text-center md:text-left font-light">
-              © 2025 Divine. All rights reserved.
+              © 2025 MandirSutra. All rights reserved.
             </p>
             <div className="flex gap-8 text-background/50 text-sm">
               <Link to={createPageUrl('Home')} className="hover:text-background transition-colors font-light">
