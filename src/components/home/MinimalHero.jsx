@@ -116,62 +116,70 @@ export default function MinimalHero() {
           index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`
           } />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-neutral-950" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#5D3A1A]/80 via-[#5D3A1A]/60 to-[#F5F0E8]" />
       </div>
 
       {/* Aurora Gradient Blob */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-r from-[#C17B54]/20 to-[#D4A84B]/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
       </div>
 
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif font-medium text-white mb-4 md:mb-6 tracking-tight leading-tight md:leading-[0.95] mix-blend-overlay px-4">
+        {/* Daily Wisdom Card */}
+        <div className="glass-card rounded-3xl p-6 md:p-8 mb-8 max-w-md mx-auto">
+          <p className="text-xs uppercase tracking-[0.3em] text-[#C17B54] font-medium mb-3">Daily Wisdom</p>
+          <p className="text-[#5D3A1A] font-serif text-lg md:text-xl italic leading-relaxed">
+            "Peace comes from within.<br/>Do not seek it without."
+          </p>
+        </div>
+        
+        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-serif font-semibold text-white mb-4 md:mb-6 tracking-tight leading-tight md:leading-[0.95] px-4 drop-shadow-lg">
           {t('Find Your Inner')}<br />{t('Peace')}
         </h1>
         
-        <p className="text-base sm:text-lg md:text-xl text-white/70 mb-8 md:mb-16 font-light tracking-wide max-w-2xl mx-auto px-4">
+        <p className="text-sm sm:text-base md:text-lg text-white/80 mb-8 md:mb-12 font-light tracking-wide max-w-xl mx-auto px-4">
           {t('Step into a portal of ancient wisdom and modern spirituality')}
         </p>
 
         {/* Floating Omnibox */}
         <div className="relative max-w-2xl mx-auto px-4" ref={searchRef}>
-          <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-full p-1.5 md:p-2 shadow-[0_0_60px_-15px_rgba(217,119,6,0.3)] animate-[breathing_4s_ease-in-out_infinite]">
+          <div className="relative glass-card-strong rounded-full p-1.5 md:p-2 shadow-[0_0_60px_-15px_rgba(193,123,84,0.4)] animate-[breathing_4s_ease-in-out_infinite]">
             <div className="flex items-center gap-2 md:gap-4 px-4 md:px-6 py-3 md:py-4">
-              <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-amber-400 flex-shrink-0" />
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-[#D4A84B] flex-shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={typedText}
-                className="flex-1 bg-transparent border-0 text-white placeholder:text-white/50 focus:outline-none text-sm md:text-base"
+                className="flex-1 bg-transparent border-0 text-[#5D3A1A] placeholder:text-[#5D3A1A]/50 focus:outline-none text-sm md:text-base"
               />
               {isSearching ? (
-                <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />
+                <Loader2 className="w-5 h-5 text-[#C17B54] animate-spin" />
               ) : (
                 <div className="relative group">
                   <Button 
-                    className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-semibold px-6 py-2 text-sm"
+                    className="rounded-full bg-gradient-to-r from-[#C17B54] to-[#A66B48] hover:from-[#A66B48] hover:to-[#8B5A3C] text-[#F5F0E8] font-semibold px-6 py-2 text-sm shadow-lg shadow-[#C17B54]/30"
                   >
-                    {t('Explore')}
+                    {t('Begin Your Journey')}
                   </Button>
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <Link to={createPageUrl('Temples')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors">
+                  <div className="absolute right-0 top-full mt-2 w-48 glass-card-strong rounded-2xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <Link to={createPageUrl('Temples')} className="block px-4 py-3 hover:bg-[#C17B54]/10 text-[#5D3A1A] font-medium text-sm transition-colors">
                       {t('Mandir')}
                     </Link>
-                    <Link to={createPageUrl('Pooja')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                    <Link to={createPageUrl('Pooja')} className="block px-4 py-3 hover:bg-[#C17B54]/10 text-[#5D3A1A] font-medium text-sm transition-colors border-t border-[#C17B54]/10">
                       {t('Pooja')}
                     </Link>
-                    <Link to={createPageUrl('Astrology')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                    <Link to={createPageUrl('Astrology')} className="block px-4 py-3 hover:bg-[#C17B54]/10 text-[#5D3A1A] font-medium text-sm transition-colors border-t border-[#C17B54]/10">
                       {t('Jyotish')}
                     </Link>
-                    <Link to={createPageUrl('PriestPandit')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                    <Link to={createPageUrl('PriestPandit')} className="block px-4 py-3 hover:bg-[#C17B54]/10 text-[#5D3A1A] font-medium text-sm transition-colors border-t border-[#C17B54]/10">
                       {t('Pandit')}
                     </Link>
-                    <Link to={createPageUrl('Yatra')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                    <Link to={createPageUrl('Yatra')} className="block px-4 py-3 hover:bg-[#C17B54]/10 text-[#5D3A1A] font-medium text-sm transition-colors border-t border-[#C17B54]/10">
                       {t('Yatra')}
                     </Link>
-                    <Link to={createPageUrl('Donate')} className="block px-4 py-3 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 text-gray-900 font-medium text-sm transition-colors border-t border-gray-100">
+                    <Link to={createPageUrl('Donate')} className="block px-4 py-3 hover:bg-[#C17B54]/10 text-[#5D3A1A] font-medium text-sm transition-colors border-t border-[#C17B54]/10">
                       {t('Daan')}
                     </Link>
                   </div>
@@ -182,9 +190,9 @@ export default function MinimalHero() {
 
           {/* Search Results Dropdown */}
           {showResults && searchResults.length > 0 && (
-            <div className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden max-h-[500px] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="p-3 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100">
-                <p className="text-xs font-semibold text-orange-900 uppercase tracking-wide">
+            <div className="absolute top-full mt-4 w-full glass-card-strong rounded-3xl overflow-hidden max-h-[500px] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="p-3 bg-gradient-to-r from-[#C17B54]/10 to-[#D4A84B]/10 border-b border-[#C17B54]/20">
+                <p className="text-xs font-semibold text-[#5D3A1A] uppercase tracking-wide">
                   {t('Found')} {searchResults.length} {t('result')}{searchResults.length !== 1 ? t('s') : ''}
                 </p>
               </div>
@@ -194,11 +202,11 @@ export default function MinimalHero() {
                   <div
                     key={`${result.type}-${result.id}`}
                     onClick={() => handleResultClick(result)}
-                    className="group flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 cursor-pointer border-b border-gray-100 last:border-0 transition-all duration-200"
+                    className="group flex items-center gap-4 p-4 hover:bg-[#C17B54]/10 cursor-pointer border-b border-[#C17B54]/10 last:border-0 transition-all duration-200"
                   >
                     <div className="relative">
                       {result.image ? (
-                        <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
+                        <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
                           <img 
                             src={result.image} 
                             alt={result.title}
@@ -206,21 +214,21 @@ export default function MinimalHero() {
                           />
                         </div>
                       ) : (
-                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">
-                          <Icon className="w-8 h-8 text-white" />
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#C17B54] to-[#D4A84B] flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all">
+                          <Icon className="w-8 h-8 text-[#F5F0E8]" />
                         </div>
                       )}
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-sm">
-                        <Icon className="w-3 h-3 text-orange-500" />
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#F5F0E8] rounded-full flex items-center justify-center shadow-sm">
+                        <Icon className="w-3 h-3 text-[#C17B54]" />
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors truncate">
+                      <p className="font-semibold text-[#5D3A1A] group-hover:text-[#C17B54] transition-colors truncate">
                         {result.title}
                       </p>
-                      <p className="text-sm text-gray-600 mt-0.5 truncate">{result.subtitle}</p>
+                      <p className="text-sm text-[#5D3A1A]/70 mt-0.5 truncate">{result.subtitle}</p>
                     </div>
-                    <div className="flex items-center gap-2 text-orange-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 text-[#C17B54] opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-xs font-medium">{t('View')}</span>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -234,18 +242,18 @@ export default function MinimalHero() {
 
           {/* No Results */}
           {showResults && searchQuery.length >= 2 && searchResults.length === 0 && !isSearching && (
-            <div className="absolute top-full mt-4 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 text-center animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-orange-500" />
+            <div className="absolute top-full mt-4 w-full glass-card-strong rounded-3xl p-8 text-center animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#C17B54]/10 flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-[#C17B54]" />
               </div>
-              <p className="text-gray-900 font-semibold mb-2">{t('No results found for')} "{searchQuery}"</p>
-              <p className="text-sm text-gray-600 mb-4">{t('Try searching for')}:</p>
+              <p className="text-[#5D3A1A] font-semibold mb-2">{t('No results found for')} "{searchQuery}"</p>
+              <p className="text-sm text-[#5D3A1A]/70 mb-4">{t('Try searching for')}:</p>
               <div className="flex flex-wrap gap-2 justify-center">
-                <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium">{t('Temples')}</span>
-                <span className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">{t('Poojas')}</span>
-                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">{t('Priests')}</span>
-                <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">{t('Astrologers')}</span>
-                <span className="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-medium">{t('Donations')}</span>
+                <span className="px-3 py-1 bg-[#C17B54]/10 text-[#C17B54] rounded-full text-xs font-medium">{t('Temples')}</span>
+                <span className="px-3 py-1 bg-[#D4A84B]/10 text-[#D4A84B] rounded-full text-xs font-medium">{t('Poojas')}</span>
+                <span className="px-3 py-1 bg-[#5D3A1A]/10 text-[#5D3A1A] rounded-full text-xs font-medium">{t('Priests')}</span>
+                <span className="px-3 py-1 bg-[#C17B54]/10 text-[#C17B54] rounded-full text-xs font-medium">{t('Astrologers')}</span>
+                <span className="px-3 py-1 bg-[#D4A84B]/10 text-[#D4A84B] rounded-full text-xs font-medium">{t('Donations')}</span>
               </div>
             </div>
           )}
@@ -254,8 +262,8 @@ export default function MinimalHero() {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/20 rounded-full flex items-start justify-center p-2">
-          <div className="w-1 h-3 bg-amber-400 rounded-full animate-pulse" />
+        <div className="w-6 h-10 border-2 border-[#F5F0E8]/30 rounded-full flex items-start justify-center p-2">
+          <div className="w-1 h-3 bg-[#D4A84B] rounded-full animate-pulse" />
         </div>
       </div>
     </section>);
