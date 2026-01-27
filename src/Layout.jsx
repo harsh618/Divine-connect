@@ -45,6 +45,17 @@ function LayoutContent({ children, currentPageName }) {
     { name: t('Daan'), icon: Heart, page: 'Donate' },
   ];
 
+  // Lotus SVG for branding
+  const LotusIcon = () => (
+    <svg viewBox="0 0 32 32" className="w-7 h-7 md:w-8 md:h-8" fill="none">
+      <path d="M16 4c0 4-4 8-4 12s4 8 4 8 4-4 4-8-4-8-4-12z" fill="#D4A84B" opacity="0.9"/>
+      <path d="M8 10c2 3 2 8 4 10s4 4 4 4-2-4-2-8-4-6-6-6z" fill="#C17B54" opacity="0.8"/>
+      <path d="M24 10c-2 3-2 8-4 10s-4 4-4 4 2-4 2-8 4-6 6-6z" fill="#C17B54" opacity="0.8"/>
+      <path d="M4 16c3 1 6 4 8 6s4 4 4 4-2-3-4-6-6-5-8-4z" fill="#D4A84B" opacity="0.6"/>
+      <path d="M28 16c-3 1-6 4-8 6s-4 4-4 4 2-3 4-6 6-5 8-4z" fill="#D4A84B" opacity="0.6"/>
+    </svg>
+  );
+
   useEffect(() => {
     const loadUser = async () => {
       setIsLoading(true);
@@ -109,15 +120,16 @@ function LayoutContent({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
+    <div className="min-h-screen relative">
       {/* Desktop Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-orange-200 shadow-lg">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-burnt-sienna">
         <div className="container mx-auto px-4 md:px-8 max-w-7xl">
           <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo */}
-            <Link to={createPageUrl('Home')} className="flex items-center">
-              <span className="text-base md:text-xl font-serif bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent font-bold">
-                Mandir<span className="inline-block w-0.5 md:w-1"></span>Sutra
+            <Link to={createPageUrl('Home')} className="flex items-center gap-2">
+              <LotusIcon />
+              <span className="text-base md:text-xl font-serif text-deep-brown font-semibold tracking-wide">
+                Mandir<span className="text-gold">Sutra</span>
               </span>
             </Link>
 
@@ -127,8 +139,8 @@ function LayoutContent({ children, currentPageName }) {
                 <Link key={link.name} to={createPageUrl(link.page)}>
                   <span className={`text-xs lg:text-sm transition-all cursor-pointer uppercase tracking-wider font-medium pb-1 border-b-2 ${
                     currentPageName === link.page 
-                      ? 'text-orange-600 border-orange-600 font-semibold' 
-                      : 'text-gray-700 border-transparent hover:text-orange-500 hover:border-orange-400'
+                      ? 'text-burnt-sienna border-burnt-sienna font-semibold' 
+                      : 'text-deep-brown border-transparent hover:text-burnt-sienna hover:border-gold'
                   }`}>
                     {link.name}
                   </span>
@@ -139,14 +151,14 @@ function LayoutContent({ children, currentPageName }) {
             {/* Right Side - Auth Buttons */}
             <div className="flex items-center gap-2 md:gap-3">
               {isLoading ? (
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-200 animate-pulse" />
+                <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#EDE5D8] animate-pulse" />
               ) : user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg"
+                      className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-[#C17B54] to-[#A66B48] hover:from-[#A66B48] hover:to-[#8B5A3C] text-[#F5F0E8] shadow-lg shadow-[#C17B54]/30"
                     >
                       <User className="w-4 h-4 md:w-5 md:h-5" />
                     </Button>
@@ -241,16 +253,16 @@ function LayoutContent({ children, currentPageName }) {
               ) : (
                 <Button
                   onClick={handleSignIn}
-                  className="h-9 md:h-10 px-4 md:px-6 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white rounded-full transition-all border-0 shadow-lg text-xs md:text-sm font-semibold"
+                  className="h-9 md:h-10 px-4 md:px-6 btn-spiritual text-xs md:text-sm"
                 >
                   <User className="w-4 h-4 mr-2" />
                   {t('Sign In')}
                 </Button>
               )}
-            </div>
-          </div>
-        </div>
-      </nav>
+              </div>
+              </div>
+              </div>
+              </nav>
 
       {/* Page Content */}
       <main className="pt-14 md:pt-16">
@@ -258,39 +270,39 @@ function LayoutContent({ children, currentPageName }) {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 shadow-lg">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 glass-card-strong border-t border-burnt-sienna z-50">
         <div className="grid grid-cols-7 gap-1 py-2 px-1 safe-area-bottom">
-          <Link to={createPageUrl('Home')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Home' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+          <Link to={createPageUrl('Home')} className={`flex flex-col items-center py-2 rounded-2xl transition-all ${currentPageName === 'Home' ? 'text-[#C17B54] bg-[#C17B54]/10' : 'text-[#5D3A1A]/70'}`}>
             <Home className="w-5 h-5" />
             <span className="text-[9px] mt-1 font-medium">{t('Home')}</span>
           </Link>
-          <Link to={createPageUrl('Temples')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Temples' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+          <Link to={createPageUrl('Temples')} className={`flex flex-col items-center py-2 rounded-2xl transition-all ${currentPageName === 'Temples' ? 'text-[#C17B54] bg-[#C17B54]/10' : 'text-[#5D3A1A]/70'}`}>
             <Building2 className="w-5 h-5" />
             <span className="text-[9px] mt-1 font-medium">{t('Mandir')}</span>
           </Link>
-          <Link to={createPageUrl('Pooja')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Pooja' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+          <Link to={createPageUrl('Pooja')} className={`flex flex-col items-center py-2 rounded-2xl transition-all ${currentPageName === 'Pooja' ? 'text-[#C17B54] bg-[#C17B54]/10' : 'text-[#5D3A1A]/70'}`}>
             <Flame className="w-5 h-5" />
             <span className="text-[9px] mt-1 font-medium">{t('Pooja')}</span>
           </Link>
-          <Link to={createPageUrl('Yatra')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Yatra' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+          <Link to={createPageUrl('Yatra')} className={`flex flex-col items-center py-2 rounded-2xl transition-all ${currentPageName === 'Yatra' ? 'text-[#C17B54] bg-[#C17B54]/10' : 'text-[#5D3A1A]/70'}`}>
             <Compass className="w-5 h-5" />
             <span className="text-[9px] mt-1 font-medium">{t('Yatra')}</span>
           </Link>
-          <Link to={createPageUrl('PriestPandit')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'PriestPandit' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+          <Link to={createPageUrl('PriestPandit')} className={`flex flex-col items-center py-2 rounded-2xl transition-all ${currentPageName === 'PriestPandit' ? 'text-[#C17B54] bg-[#C17B54]/10' : 'text-[#5D3A1A]/70'}`}>
             <Users className="w-5 h-5" />
             <span className="text-[9px] mt-1 font-medium">{t('Pandit')}</span>
           </Link>
-          <Link to={createPageUrl('Astrology')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Astrology' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+          <Link to={createPageUrl('Astrology')} className={`flex flex-col items-center py-2 rounded-2xl transition-all ${currentPageName === 'Astrology' ? 'text-[#C17B54] bg-[#C17B54]/10' : 'text-[#5D3A1A]/70'}`}>
             <Stars className="w-5 h-5" />
             <span className="text-[9px] mt-1 font-medium">{t('Jyotish')}</span>
           </Link>
           {user ? (
-            <Link to={createPageUrl('Profile')} className={`flex flex-col items-center py-2 rounded-lg transition-all ${currentPageName === 'Profile' ? 'text-orange-600 bg-orange-50' : 'text-gray-600'}`}>
+            <Link to={createPageUrl('Profile')} className={`flex flex-col items-center py-2 rounded-2xl transition-all ${currentPageName === 'Profile' ? 'text-[#C17B54] bg-[#C17B54]/10' : 'text-[#5D3A1A]/70'}`}>
               <User className="w-5 h-5" />
               <span className="text-[9px] mt-1 font-medium">{t('Profile')}</span>
             </Link>
           ) : (
-            <button onClick={handleSignIn} className="flex flex-col items-center py-2 rounded-lg transition-all text-orange-600">
+            <button onClick={handleSignIn} className="flex flex-col items-center py-2 rounded-2xl transition-all text-[#C17B54]">
               <User className="w-5 h-5" />
               <span className="text-[9px] mt-1 font-medium">{t('Sign In')}</span>
             </button>
