@@ -52,98 +52,105 @@ export default function Home() {
       <JoinUsSection />
       
       {/* Footer */}
-      <footer className="bg-foreground text-background py-12 md:py-20 px-4 md:px-6 mt-16 md:mt-32">
+      <footer className="bg-[#5D3A1A] text-[#F5F0E8] py-12 md:py-20 px-4 md:px-6 mt-16 md:mt-32">
         <div className="container mx-auto max-w-7xl">
           {/* Brand Block */}
-          <div className="mb-8 md:mb-16 pb-8 md:pb-12 border-b border-background/10">
-            <h3 className="text-xl md:text-2xl font-normal tracking-wider mb-3 md:mb-4">MANDIRSUTRA</h3>
-            <p className="text-background/70 text-sm md:text-base mb-2 md:mb-3 max-w-md font-light">
+          <div className="mb-8 md:mb-16 pb-8 md:pb-12 border-b border-[#F5F0E8]/10">
+            <div className="flex items-center gap-3 mb-3 md:mb-4">
+              <svg viewBox="0 0 32 32" className="w-8 h-8" fill="none">
+                <path d="M16 4c0 4-4 8-4 12s4 8 4 8 4-4 4-8-4-8-4-12z" fill="#D4A84B" opacity="0.9"/>
+                <path d="M8 10c2 3 2 8 4 10s4 4 4 4-2-4-2-8-4-6-6-6z" fill="#C17B54" opacity="0.8"/>
+                <path d="M24 10c-2 3-2 8-4 10s-4 4-4 4 2-4 2-8 4-6 6-6z" fill="#C17B54" opacity="0.8"/>
+              </svg>
+              <h3 className="text-xl md:text-2xl font-serif tracking-wider">Mandir<span className="text-[#D4A84B]">Sutra</span></h3>
+            </div>
+            <p className="text-[#F5F0E8]/70 text-sm md:text-base mb-2 md:mb-3 max-w-md font-light">
               Discover temples, book poojas and astrologers, and donate to trusted causes across India
             </p>
-            <p className="text-background/50 text-xs md:text-sm font-light">
+            <p className="text-[#F5F0E8]/50 text-xs md:text-sm font-light">
               2025 · Built with devotion in India
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div>
-              <h4 className="font-normal mb-6 text-background text-xs uppercase tracking-widest">Services</h4>
+              <h4 className="font-normal mb-6 text-[#D4A84B] text-xs uppercase tracking-widest">Services</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link to={createPageUrl('Temples')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Temples')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Mandir
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Poojas')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Poojas')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Poojas
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Astrology')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Astrology')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Jyotish
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Priests')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Priests')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Pandit
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-normal mb-6 text-background text-xs uppercase tracking-widest">Support</h4>
+              <h4 className="font-normal mb-6 text-[#D4A84B] text-xs uppercase tracking-widest">Support</h4>
               <ul className="space-y-3">
                 <li>
-                  <a href="mailto:support@mandirsutra.com" className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <a href="mailto:support@mandirsutra.com" className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Contact
                   </a>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Home')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Home')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     FAQs
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Home')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Home')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Home')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Home')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Terms of Service
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-normal mb-6 text-background text-xs uppercase tracking-widest">Community</h4>
+              <h4 className="font-normal mb-6 text-[#D4A84B] text-xs uppercase tracking-widest">Community</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link to={createPageUrl('Donate')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Donate')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Daan
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Home')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Home')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Home')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Home')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Events
                   </Link>
                 </li>
                 <li>
-                  <Link to={createPageUrl('Home')} className="text-background/60 hover:text-background transition-colors text-sm font-light">
+                  <Link to={createPageUrl('Home')} className="text-[#F5F0E8]/60 hover:text-[#D4A84B] transition-colors text-sm font-light">
                     Partners
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-normal mb-6 text-background text-xs uppercase tracking-widest">Connect</h4>
-              <p className="text-background/60 text-sm mb-6 font-light">
+              <h4 className="font-normal mb-6 text-[#D4A84B] text-xs uppercase tracking-widest">Connect</h4>
+              <p className="text-[#F5F0E8]/60 text-sm mb-6 font-light">
                 Follow us for daily spiritual content and updates
               </p>
               <div className="flex gap-3">
@@ -151,7 +158,7 @@ export default function Home() {
                   href="https://facebook.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-background/10 hover:bg-primary flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-full bg-[#F5F0E8]/10 hover:bg-[#C17B54] flex items-center justify-center transition-colors"
                 >
                   <span className="text-xs">FB</span>
                 </a>
@@ -159,7 +166,7 @@ export default function Home() {
                   href="https://twitter.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-background/10 hover:bg-primary flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-full bg-[#F5F0E8]/10 hover:bg-[#C17B54] flex items-center justify-center transition-colors"
                 >
                   <span className="text-xs">TW</span>
                 </a>
@@ -167,31 +174,31 @@ export default function Home() {
                   href="https://instagram.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-background/10 hover:bg-primary flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-full bg-[#F5F0E8]/10 hover:bg-[#C17B54] flex items-center justify-center transition-colors"
                 >
                   <span className="text-xs">IG</span>
                 </a>
               </div>
             </div>
           </div>
-          <div className="border-t border-background/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-background/50 text-sm text-center md:text-left font-light">
+          <div className="border-t border-[#F5F0E8]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-[#F5F0E8]/50 text-sm text-center md:text-left font-light">
               © 2025 MandirSutra. All rights reserved.
             </p>
-            <div className="flex gap-8 text-background/50 text-sm">
-              <Link to={createPageUrl('Home')} className="hover:text-background transition-colors font-light">
+            <div className="flex gap-8 text-[#F5F0E8]/50 text-sm">
+              <Link to={createPageUrl('Home')} className="hover:text-[#D4A84B] transition-colors font-light">
                 Sitemap
               </Link>
-              <Link to={createPageUrl('Home')} className="hover:text-background transition-colors font-light">
+              <Link to={createPageUrl('Home')} className="hover:text-[#D4A84B] transition-colors font-light">
                 Accessibility
               </Link>
-              <Link to={createPageUrl('Home')} className="hover:text-background transition-colors font-light">
+              <Link to={createPageUrl('Home')} className="hover:text-[#D4A84B] transition-colors font-light">
                 Cookies
               </Link>
             </div>
           </div>
-        </div>
-      </footer>
+          </div>
+          </footer>
       </div>
     </>
   );
