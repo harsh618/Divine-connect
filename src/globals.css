@@ -4,95 +4,80 @@
 
 @layer base {
   :root {
-    /* Warm Cream Theme - Spiritual Design */
-    --background: 35 33% 95%; /* #F5F0E8 warm cream */
-    --foreground: 24 52% 23%; /* #5D3A1A deep brown */
-    --card: 35 30% 97%;
-    --card-foreground: 24 52% 23%;
-    --popover: 35 30% 97%;
-    --popover-foreground: 24 52% 23%;
-    --primary: 20 53% 54%; /* #C17B54 burnt sienna */
-    --primary-foreground: 35 33% 98%;
-    --secondary: 35 25% 92%;
-    --secondary-foreground: 24 52% 23%;
-    --muted: 35 20% 90%;
-    --muted-foreground: 24 30% 45%;
-    --accent: 40 63% 56%; /* #D4A84B gold */
-    --accent-foreground: 24 52% 18%;
+    --background: 30 6% 98%;
+    --foreground: 24 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 24 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 10% 10%;
+    --primary: 32 95% 44%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 5% 96%;
+    --secondary-foreground: 24 10% 10%;
+    --muted: 30 5% 96%;
+    --muted-foreground: 30 4% 46%;
+    --accent: 32 95% 44%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 35 20% 85%;
-    --input: 35 20% 88%;
-    --ring: 20 53% 54%;
-    --radius: 1.5rem; /* 24px rounded corners */
+    --border: 30 6% 90%;
+    --input: 30 6% 90%;
+    --ring: 32 95% 44%;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 24 30% 12%;
-    --foreground: 35 30% 95%;
-    --card: 24 25% 15%;
-    --card-foreground: 35 30% 95%;
-    --popover: 24 25% 15%;
-    --popover-foreground: 35 30% 95%;
-    --primary: 20 53% 58%;
-    --primary-foreground: 35 33% 98%;
-    --secondary: 24 20% 20%;
-    --secondary-foreground: 35 30% 95%;
-    --muted: 24 20% 18%;
-    --muted-foreground: 35 20% 65%;
-    --accent: 40 63% 60%;
-    --accent-foreground: 35 33% 98%;
+    --background: 30 15% 10%;
+    --foreground: 30 10% 95%;
+    --card: 30 15% 12%;
+    --card-foreground: 30 10% 95%;
+    --popover: 30 15% 12%;
+    --popover-foreground: 30 10% 95%;
+    --primary: 25 60% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 15% 18%;
+    --secondary-foreground: 30 10% 95%;
+    --muted: 30 15% 18%;
+    --muted-foreground: 30 10% 65%;
+    --accent: 25 50% 60%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 24 20% 22%;
-    --input: 24 20% 22%;
-    --ring: 20 53% 58%;
+    --border: 30 15% 20%;
+    --input: 30 15% 20%;
+    --ring: 25 60% 55%;
   }
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 
 @layer base {
   * {
     @apply border-border;
   }
   body {
-    @apply text-foreground;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    @apply bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 text-gray-900;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 400;
     letter-spacing: -0.01em;
-    background: linear-gradient(135deg, #F5F0E8 0%, #EDE5D8 50%, #F5F0E8 100%);
-    background-attachment: fixed;
+    background-image: 
+      radial-gradient(at 40% 20%, rgba(251, 146, 60, 0.2) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(249, 115, 22, 0.15) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(234, 88, 12, 0.1) 0px, transparent 50%);
   }
-  
-  /* Lotus mandala background pattern */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: 
-      radial-gradient(circle at 20% 30%, rgba(193, 123, 84, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(212, 168, 75, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 50% 50%, rgba(93, 58, 26, 0.03) 0%, transparent 60%);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
   }
-  
-  /* Sacred geometry overlay */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 30 L30 55 L5 30 Z' fill='none' stroke='%23C17B54' stroke-width='0.3' opacity='0.06'/%3E%3Ccircle cx='30' cy='30' r='15' fill='none' stroke='%23D4A84B' stroke-width='0.3' opacity='0.05'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
-  
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Playfair Display', serif;
     font-weight: 600;
-    letter-spacing: 0.01em;
-    color: #5D3A1A;
+    letter-spacing: -0.02em;
+    color: #7c2d12;
   }
 }
 
@@ -115,93 +100,8 @@
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-  outline: 2px solid #C17B54;
+  outline: 2px solid #f97316;
   outline-offset: 2px;
-}
-
-/* Frosted Glass Effect */
-.glass-card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(193, 123, 84, 0.15);
-  box-shadow: 
-    0 8px 32px rgba(93, 58, 26, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-}
-
-.glass-card-strong {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(193, 123, 84, 0.2);
-  box-shadow: 
-    0 12px 40px rgba(93, 58, 26, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-/* Spiritual Button Styles */
-.btn-spiritual {
-  background: linear-gradient(135deg, #C17B54 0%, #A66B48 100%);
-  color: #F5F0E8;
-  border-radius: 9999px;
-  font-weight: 500;
-  box-shadow: 0 4px 16px rgba(193, 123, 84, 0.35);
-  transition: all 0.3s ease;
-}
-
-.btn-spiritual:hover {
-  background: linear-gradient(135deg, #A66B48 0%, #8B5A3C 100%);
-  box-shadow: 0 6px 24px rgba(193, 123, 84, 0.45);
-  transform: translateY(-2px);
-}
-
-.btn-gold {
-  background: linear-gradient(135deg, #D4A84B 0%, #B8923F 100%);
-  color: #5D3A1A;
-  border-radius: 9999px;
-  font-weight: 500;
-  box-shadow: 0 4px 16px rgba(212, 168, 75, 0.35);
-}
-
-/* Warm Gradient Backgrounds */
-.bg-warm-gradient {
-  background: linear-gradient(135deg, #F5F0E8 0%, #EDE5D8 100%);
-}
-
-.bg-spiritual-gradient {
-  background: linear-gradient(180deg, rgba(193, 123, 84, 0.1) 0%, rgba(212, 168, 75, 0.05) 100%);
-}
-
-/* Text Colors */
-.text-burnt-sienna {
-  color: #C17B54;
-}
-
-.text-deep-brown {
-  color: #5D3A1A;
-}
-
-.text-gold {
-  color: #D4A84B;
-}
-
-/* Border Colors */
-.border-burnt-sienna {
-  border-color: rgba(193, 123, 84, 0.3);
-}
-
-/* Spiritual Decorative Elements */
-.lotus-divider {
-  position: relative;
-  text-align: center;
-  margin: 2rem 0;
-}
-
-.lotus-divider::before {
-  content: '❀';
-  color: #D4A84B;
-  font-size: 1.5rem;
 }
 
 /* Mobile optimizations */
@@ -227,7 +127,7 @@ input:focus-visible {
   }
   
   h1 {
-    font-size: 1.875rem;
+    font-size: 2rem;
     line-height: 1.2;
   }
   
@@ -253,12 +153,6 @@ input:focus-visible {
   /* Better scrolling */
   * {
     -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Mobile glass effect optimization */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(12px);
   }
 }
 

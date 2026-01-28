@@ -12,20 +12,20 @@ function TempleCard({ temple }) {
   
   return (
     <Link to={createPageUrl(`TempleDetail?id=${temple.id}`)}>
-      <div className="group relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-3xl border border-[#C17B54]/20 bg-gradient-to-br from-[#C17B54]/5 via-[#D4A84B]/5 to-[#F5F0E8] backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:border-[#C17B54]/50 hover:shadow-[0_0_50px_-5px_rgba(193,123,84,0.4)] cursor-pointer">
+      <div className="group relative h-[300px] md:h-[400px] w-full overflow-hidden rounded-3xl md:rounded-[40px] border border-white/10 bg-gradient-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/10 backdrop-blur-sm transition-all duration-500 hover:scale-[1.02] hover:border-amber-500/70 hover:shadow-[0_0_50px_-5px_rgba(217,119,6,0.6)] cursor-pointer">
         <img 
           src={temple.images?.[0] || temple.thumbnail_url || defaultImage}
           alt={temple.name}
-          className="absolute inset-0 h-full w-full object-cover opacity-90 transition-all duration-700 group-hover:opacity-100 group-hover:scale-110"
+          className="absolute inset-0 h-full w-full object-cover opacity-80 transition-all duration-700 group-hover:opacity-100 group-hover:scale-110"
         />
         
-        <div className="absolute bottom-0 w-full bg-gradient-to-t from-[#5D3A1A] via-[#5D3A1A]/80 to-transparent p-4 md:p-8 translate-y-4 transition-transform duration-500 group-hover:translate-y-0">
-          <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-[#D4A84B] mb-1 md:mb-2">
+        <div className="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent p-4 md:p-8 translate-y-4 transition-transform duration-500 group-hover:translate-y-0">
+          <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-amber-400/80 mb-1 md:mb-2">
             <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5" />
             <span>{temple.city}</span>
           </div>
-          <h3 className="text-xl md:text-3xl font-serif text-[#F5F0E8] mb-1 leading-tight">{temple.name}</h3>
-          <p className="text-xs md:text-sm text-[#F5F0E8]/70 mb-2 md:mb-4">{temple.primary_deity}</p>
+          <h3 className="text-xl md:text-3xl font-serif text-white mb-1 leading-tight">{temple.name}</h3>
+          <p className="text-xs md:text-sm text-white/60 mb-2 md:mb-4">{temple.primary_deity}</p>
           <div className="flex items-center gap-4 opacity-0 transition-opacity delay-100 duration-500 group-hover:opacity-100">
             <button 
               onClick={async (e) => {
@@ -37,7 +37,7 @@ function TempleCard({ temple }) {
                   window.location.href = createPageUrl(`TempleDetail?id=${temple.id}`);
                 }
               }}
-              className="rounded-full bg-gradient-to-r from-[#C17B54] to-[#A66B48] px-4 md:px-6 py-1.5 md:py-2 text-xs md:text-sm font-semibold text-[#F5F0E8] hover:from-[#A66B48] hover:to-[#8B5A3C] transition-all shadow-lg shadow-[#C17B54]/30"
+              className="rounded-full bg-amber-500 px-4 md:px-6 py-1.5 md:py-2 text-xs md:text-sm font-bold text-black hover:bg-white transition-colors"
             >
               {t('Darshan Now')}
             </button>
@@ -62,18 +62,17 @@ export default function FeaturedTemplesMinimal({ temples, isLoading }) {
   const { t } = useTranslation();
   
   return (
-    <section className="py-16 md:py-24 px-6 bg-gradient-to-br from-[#F5F0E8] via-[#EDE5D8] to-[#F5F0E8] relative">
+    <section className="py-24 px-6 bg-gradient-to-br from-orange-100 via-amber-100 to-orange-50 relative">
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="flex items-start justify-between mb-12">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-[#C17B54] font-medium mb-2">✧ Explore ✧</p>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-[#5D3A1A] mb-2 md:mb-3 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-semibold text-orange-900 mb-2 md:mb-3 tracking-tight">
               {t('Sacred Portals')}
             </h2>
-            <p className="text-sm md:text-base text-[#5D3A1A]/60">{t('Discover divine temples across the cosmos')}</p>
+            <p className="text-sm md:text-base text-orange-700/70">{t('Discover divine temples across the cosmos')}</p>
           </div>
           <Link to={createPageUrl('Temples')}>
-            <button className="hidden md:flex items-center gap-2 text-[#C17B54] hover:text-[#A66B48] font-medium text-sm hover:gap-3 transition-all">
+            <button className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm hover:gap-3 transition-all">
               {t('View all')}
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -106,7 +105,7 @@ export default function FeaturedTemplesMinimal({ temples, isLoading }) {
         {/* Mobile View All */}
         <div className="mt-8 md:hidden text-center">
           <Link to={createPageUrl('Temples')}>
-            <button className="inline-flex items-center gap-2 text-[#C17B54] hover:text-[#A66B48] font-medium text-sm">
+            <button className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-medium text-sm">
               {t('View all temples')}
               <ArrowRight className="w-4 h-4" />
             </button>
