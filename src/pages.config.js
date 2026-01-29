@@ -84,10 +84,10 @@ import PriestProfile from './pages/PriestProfile';
 import Priests from './pages/Priests';
 import Profile from './pages/Profile';
 import ProviderOnboarding from './pages/ProviderOnboarding';
-import TempleDetail from './pages/TempleDetail';
 import TempleDetails from './pages/TempleDetails';
 import Temples from './pages/Temples';
 import Yatra from './pages/Yatra';
+import TempleDetail from './pages/TempleDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -129,10 +129,10 @@ export const PAGES = {
     "Priests": Priests,
     "Profile": Profile,
     "ProviderOnboarding": ProviderOnboarding,
-    "TempleDetail": TempleDetail,
     "TempleDetails": TempleDetails,
     "Temples": Temples,
     "Yatra": Yatra,
+    "TempleDetail": TempleDetail,
 }
 
 export const pagesConfig = {
