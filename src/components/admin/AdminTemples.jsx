@@ -39,8 +39,7 @@ import {
   StarOff,
   Loader2,
   Eye,
-  EyeOff,
-  RefreshCw
+  EyeOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
@@ -128,20 +127,6 @@ export default function AdminTemples() {
     onSuccess: () => {
       toast.success('Visibility updated');
       queryClient.invalidateQueries(['admin-temples-list']);
-    }
-  });
-
-  const regenerateContentMutation = useMutation({
-    mutationFn: async (temple_id) => {
-      const response = await base44.functions.invoke('regenerateTempleContent', { temple_id });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      toast.success('Content regenerated successfully!');
-      queryClient.invalidateQueries(['admin-temples-list']);
-    },
-    onError: (error) => {
-      toast.error('Failed to regenerate content: ' + error.message);
     }
   });
 
@@ -269,14 +254,6 @@ export default function AdminTemples() {
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => regenerateContentMutation.mutate(temple.id)}
-                          disabled={regenerateContentMutation.isPending}
-                        >
-                          <RefreshCw className={`w-4 h-4 mr-2 ${regenerateContentMutation.isPending ? 'animate-spin' : ''}`} />
-                          Regenerate Content
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           onClick={() => toggleFeatureMutation.mutate({ id: temple.id, is_featured: !temple.is_featured })}
                         >
