@@ -63,6 +63,13 @@ import ItineraryPlannerModal from '../components/temple/ItineraryPlannerModal';
 import JournalsSection from '../components/temple/JournalsSection';
 import ReactMarkdown from 'react-markdown';
 import LiveQueueTracker from '../components/yatra/LiveQueueTracker';
+import TempleSchemaMarkup from '../components/temple/TempleSchemaMarkup';
+import TempleIntroSection from '../components/temple/TempleIntroSection';
+import TempleHistorySection from '../components/temple/TempleHistorySection';
+import TempleArchitectureSection from '../components/temple/TempleArchitectureSection';
+import TempleDeitiesSection from '../components/temple/TempleDeitiesSection';
+import TempleRitualsSection from '../components/temple/TempleRitualsSection';
+import TempleVisitorInfoSection from '../components/temple/TempleVisitorInfoSection';
 
 const timeSlots = [
   '6:00 AM - 8:00 AM',
@@ -479,6 +486,9 @@ export default function TempleDetail() {
 
   return (
     <div className="min-h-screen bg-[#09090b] pb-24 md:pb-8">
+      {/* Schema.org JSON-LD Markup for SEO */}
+      <TempleSchemaMarkup temple={temple} />
+      
       {/* Hero - The Sanctum Sanctorum */}
       <div className="relative w-full h-[90vh] overflow-hidden">
         {/* Slow Zoom Background */}
@@ -620,6 +630,9 @@ export default function TempleDetail() {
       {/* Light Mode Body Content */}
       <div className="bg-[#FAFAF9] py-16">
         <div className="container mx-auto px-8 max-w-7xl">
+          {/* SEO Optimized Header & Introduction */}
+          <TempleIntroSection temple={temple} />
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Left Column - Narrative (2/3) */}
             <div className="lg:col-span-2 space-y-12">
@@ -683,70 +696,23 @@ export default function TempleDetail() {
                     </div>
                   </div>
                 )}
-
-                {temple.history && (
-                  <div className="mt-10 pt-8 border-t border-gray-200">
-                    <h3 className="text-2xl font-serif text-amber-600 mb-4">History</h3>
-                    <div className="prose max-w-none text-gray-700 leading-relaxed">
-                      <ReactMarkdown>
-                        {temple.history}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
-                )}
               </Card>
 
-              {/* Upcoming Festivals - Timeline */}
-              <Card className="p-10 bg-white shadow-sm border-gray-100">
-                <h2 className="text-3xl font-serif text-amber-600 mb-8">Upcoming Festivals</h2>
-                {loadingFestivals ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-amber-600" />
-                  </div>
-                ) : upcomingFestivals?.length > 0 ? (
-                  <div className="relative pl-8">
-                    {/* Vertical Line */}
-                    <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-gray-300/0 via-gray-300 to-gray-300/0" />
-                    
-                    <div className="space-y-8">
-                      {upcomingFestivals.map((festival, idx) => (
-                        <div key={idx} className="relative group">
-                          {/* Timeline Dot */}
-                          <div className="absolute -left-8 top-2 w-4 h-4 bg-amber-500 rounded-full shadow-md group-hover:scale-125 transition-all" />
-                          
-                          {/* Festival Card */}
-                          <div className="group-hover:bg-amber-50/50 p-5 rounded-lg transition-all">
-                            <h3 className="text-xl font-serif text-gray-900 mb-2">{festival.name}</h3>
-                            <p className="font-mono text-xs tracking-widest uppercase text-amber-600 mb-3">{festival.date}</p>
-                            <p className="text-sm text-gray-600 leading-relaxed">{festival.description}</p>
-                            {festival.significance && (
-                              <p className="text-xs text-gray-500 mt-2 italic">
-                                {festival.significance}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-gray-400 text-center py-8">Loading festival information...</p>
-                )}
+              {/* History & Legend Section */}
+              <TempleHistorySection temple={temple} />
 
-              {/* Static Festivals */}
-              {temple.festivals?.length > 0 && (
-                <div className="mt-6 pt-6 border-t">
-                  <p className="text-sm text-muted-foreground mb-3 uppercase tracking-wider font-light">Annual Festivals:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {temple.festivals.map((festival, idx) => (
-                      <Badge key={idx} variant="secondary" className="bg-primary/10 text-primary border-0 font-light">
-                        {festival}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </Card>
+              {/* Architecture Section */}
+              <TempleArchitectureSection temple={temple} />
+
+              {/* Deities Section */}
+              <TempleDeitiesSection temple={temple} />
+
+              {/* Rituals, Poojas & Festivals */}
+              <TempleRitualsSection 
+                temple={temple} 
+                upcomingFestivals={upcomingFestivals} 
+                loadingFestivals={loadingFestivals} 
+              />
 
             {/* FAQs */}
             <FAQSection entityType="temple" entityId={templeId} entityData={temple} />
@@ -830,49 +796,17 @@ export default function TempleDetail() {
               {/* Live Queue Tracker */}
               <LiveQueueTracker templeName={temple.name} />
 
-              {/* Quick Info Card - Sticky */}
-              <Card className="p-8 bg-white shadow-xl border-gray-100">
-                <h3 className="text-xl font-serif text-amber-600 mb-6">Temple Information</h3>
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 mb-1">Opening Hours</p>
-                      <p className="text-sm text-gray-600">{temple.opening_hours || '5:00 AM - 9:00 PM'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 mb-1">Location</p>
-                      <p className="text-sm text-gray-600">{temple.location || `${temple.city}, ${temple.state}`}</p>
-                    </div>
-                  </div>
-                  {temple.dress_code && (
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
-                        <Users className="w-5 h-5 text-amber-600" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900 mb-1">Dress Code</p>
-                        <p className="text-sm text-gray-600">{temple.dress_code}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              {/* Enhanced Visitor Info Section */}
+              <TempleVisitorInfoSection temple={temple} />
 
-                <Button 
-                  onClick={handleGetDirections}
-                  className="w-full mt-6 bg-amber-600 hover:bg-amber-700 text-white h-12 rounded-lg"
-                >
-                  <Navigation className="w-4 h-4 mr-2" />
-                  Get Directions
-                </Button>
-              </Card>
+              {/* Get Directions Button */}
+              <Button 
+                onClick={handleGetDirections}
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white h-12 rounded-lg"
+              >
+                <Navigation className="w-4 h-4 mr-2" />
+                Get Directions
+              </Button>
 
               {/* Saved Itineraries */}
               {savedItineraries?.length > 0 && (
