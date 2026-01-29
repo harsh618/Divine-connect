@@ -603,337 +603,126 @@ export default function TempleDetail() {
         )}
       </div>
 
-      {/* Overview Section */}
-      <div className="relative bg-white py-16">
+      {/* Story Section 1: Introduction & CTA */}
+      <div className="relative bg-gradient-to-br from-orange-50 via-white to-amber-50 py-24">
         <div className="container mx-auto px-6 md:px-12 max-w-6xl">
-          <div className="grid md:grid-cols-3 gap-8 items-start">
-            {/* Overview Text */}
-            <div className="md:col-span-2 space-y-6">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
               <div className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-                Overview
+                Plan Your Divine Journey
               </div>
-              <h2 className="text-3xl md:text-4xl font-serif text-gray-900 leading-tight">
-                About {temple.name}
+              <h2 className="text-4xl md:text-5xl font-serif text-gray-900 leading-tight">
+                Want to experience spiritual bliss?
               </h2>
-              <div className="prose prose-lg text-gray-700 leading-relaxed">
-                <p className="text-lg">
-                  {temple.name} is situated in {temple.location || `${temple.city}, ${temple.state}`}. 
-                  This temple is well-known and considered one of the ancient temples. 
-                  {temple.primary_deity} is a divine form worshipped here, which is extremely enchanting. 
-                  The temple is globally renowned and it is believed that anyone who visits this temple achieves spiritual fulfillment and success in life.
-                </p>
+              <p className="text-lg text-gray-600 leading-relaxed">
+                Book your personalized divine experience with us. From darshan bookings to complete travel planning, we've crafted the perfect spiritual journey for you.
+              </p>
+              
+              <div className="space-y-4">
+                <Button
+                  onClick={async () => {
+                    const isAuth = await base44.auth.isAuthenticated();
+                    if (!isAuth) {
+                      base44.auth.redirectToLogin();
+                      return;
+                    }
+                    setShowBookingModal(true);
+                  }}
+                  disabled={!temple.visit_booking_enabled}
+                  className="w-full md:w-auto bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white h-14 px-8 text-lg rounded-xl shadow-lg"
+                >
+                  <CalendarIcon className="w-5 h-5 mr-2" />
+                  Book Your Darshan
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    const isAuth = await base44.auth.isAuthenticated();
+                    if (!isAuth) {
+                      base44.auth.redirectToLogin();
+                      return;
+                    }
+                    setShowItineraryModal(true);
+                  }}
+                  className="w-full md:w-auto h-14 px-8 text-lg rounded-xl border-2 border-orange-300 hover:bg-orange-50"
+                >
+                  <MapPin className="w-5 h-5 mr-2" />
+                  Plan Complete Trip
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-6 pt-6 border-t border-gray-200">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-orange-600">{reviews?.length || 0}</div>
+                  <div className="text-sm text-gray-500">Devotees</div>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center gap-1 text-3xl font-bold text-orange-600">
+                    <Star className="w-7 h-7 fill-orange-500 text-orange-500" />
+                    4.8
+                  </div>
+                  <div className="text-sm text-gray-500">Rating</div>
+                </div>
               </div>
             </div>
 
-            {/* Quick Services */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Services</h3>
-              <Button
-                onClick={async () => {
-                  const isAuth = await base44.auth.isAuthenticated();
-                  if (!isAuth) {
-                    base44.auth.redirectToLogin();
-                    return;
-                  }
-                  setShowBookingModal(true);
-                }}
-                disabled={!temple.visit_booking_enabled}
-                className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white h-12 rounded-lg justify-start"
-              >
-                <CalendarIcon className="w-5 h-5 mr-3" />
-                Book Darshan
-              </Button>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  const isAuth = await base44.auth.isAuthenticated();
-                  if (!isAuth) {
-                    base44.auth.redirectToLogin();
-                    return;
-                  }
-                  setShowItineraryModal(true);
-                }}
-                className="w-full h-12 rounded-lg border-2 border-gray-200 hover:border-orange-300 justify-start"
-              >
-                <MapPin className="w-5 h-5 mr-3" />
-                Plan Your Trip
-              </Button>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  const isAuth = await base44.auth.isAuthenticated();
-                  if (!isAuth) {
-                    base44.auth.redirectToLogin();
-                    return;
-                  }
-                  setShowDonationTypeModal(true);
-                }}
-                className="w-full h-12 rounded-lg border-2 border-gray-200 hover:border-orange-300 justify-start"
-              >
-                <Heart className="w-5 h-5 mr-3 text-red-500" />
-                Make Donation
-              </Button>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  const isAuth = await base44.auth.isAuthenticated();
-                  if (!isAuth) {
-                    base44.auth.redirectToLogin();
-                    return;
-                  }
-                  if (prasadItems?.length > 0) {
-                    setSelectedPrasadItems(prasadItems);
-                    setShowPrasadOrderModal(true);
-                  } else {
-                    toast.error('No prasad items available');
-                  }
-                }}
-                className="w-full h-12 rounded-lg border-2 border-gray-200 hover:border-orange-300 justify-start"
-              >
-                <Package className="w-5 h-5 mr-3 text-orange-500" />
-                Order Prasad
-              </Button>
-
-              {/* Quick Stats */}
-              <div className="pt-6 border-t border-gray-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Total Reviews</span>
-                  <span className="font-semibold text-orange-600">{reviews?.length || 0}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Rating</span>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-orange-500 text-orange-500" />
-                    <span className="font-semibold text-orange-600">4.8</span>
-                  </div>
-                </div>
-              </div>
+            <div className="relative">
+              <img
+                src={images[1] || images[0]}
+                alt={temple.name}
+                className="rounded-3xl shadow-2xl"
+              />
+              {temple.live_darshan_url && (
+                <button
+                  onClick={() => window.open(temple.live_darshan_url, '_blank')}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-red-500/90 backdrop-blur-md border-4 border-white flex items-center justify-center text-white hover:scale-110 transition-all shadow-2xl"
+                >
+                  <Video className="w-10 h-10 ml-1" />
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sacred Story - Detailed */}
-      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-white py-20">
-        <div className="container mx-auto px-6 md:px-12 max-w-5xl">
-          {/* History of the Temple */}
-          <div className="mb-20">
-            <div className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-6">
-              History
-            </div>
-            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-8">History of the Temple</h2>
-            
-            {temple.history || temple.legend ? (
-              <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                {temple.legend && (
-                  <div className="mb-10">
-                    <ReactMarkdown
-                      components={{
-                        p: ({ children }) => {
-                          const text = String(children);
-                          const firstLetter = text.charAt(0);
-                          const rest = text.slice(1);
-                          return (
-                            <p className="mb-6 leading-relaxed text-lg">
-                              <span className="float-left text-7xl font-serif text-amber-600 leading-none mr-4 mt-2">
-                                {firstLetter}
-                              </span>
-                              {rest}
-                            </p>
-                          );
-                        },
-                      }}
-                    >
-                      {temple.legend}
-                    </ReactMarkdown>
-                  </div>
-                )}
-                
-                {temple.history && (
-                  <ReactMarkdown className="text-lg">
-                    {temple.history}
+      {/* Story Section 2: About & History */}
+      <div className="bg-white py-20">
+        <div className="container mx-auto px-6 md:px-12 max-w-6xl">
+          <div className="max-w-4xl mx-auto">
+            {/* About */}
+            {temple.description && (
+              <div className="mb-16">
+                <h2 className="text-4xl font-serif text-amber-700 mb-8 text-center">The Sacred Story</h2>
+                <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => {
+                        const text = String(children);
+                        const firstLetter = text.charAt(0);
+                        const rest = text.slice(1);
+                        return (
+                          <p className="mb-6 leading-relaxed text-lg">
+                            <span className="float-left text-7xl font-serif text-amber-600 leading-none mr-4 mt-2">
+                              {firstLetter}
+                            </span>
+                            {rest}
+                          </p>
+                        );
+                      },
+                    }}
+                  >
+                    {temple.description}
                   </ReactMarkdown>
-                )}
-                
-                {temple.historical_timeline?.length > 0 && (
-                  <div className="mt-10 p-6 bg-white rounded-xl border border-gray-200">
-                    <h4 className="text-xl font-serif text-amber-700 mb-4">Historical Timeline</h4>
-                    <div className="space-y-3">
-                      {temple.historical_timeline.map((event, idx) => (
-                        <div key={idx} className="flex gap-4">
-                          <div className="font-bold text-orange-600 min-w-[100px]">{event.year}</div>
-                          <div className="text-gray-700">{event.event}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                <p className="text-lg mb-6">
-                  Behind the history of this temple, there is a fascinating story passed down through generations. 
-                  The temple stands as a testament to the devotion and dedication of countless devotees who have 
-                  contributed to its preservation and glory over the centuries.
-                </p>
-                <p className="text-lg">
-                  {temple.description || `The ${temple.name} has been a center of spiritual worship and cultural heritage, 
-                  attracting devotees from across the world who seek blessings and divine grace.`}
-                </p>
+                </div>
               </div>
             )}
+
+            {/* History & Legend */}
+            <TempleHistorySection temple={temple} />
+
+            {/* Deities */}
+            <TempleDeitiesSection temple={temple} />
           </div>
-
-          {/* Significance */}
-          <div className="mb-20">
-            <div className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-6">
-              Significance
-            </div>
-            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-8">Significance of the Temple</h2>
-            
-            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-              {temple.significance ? (
-                <ReactMarkdown className="text-lg">
-                  {temple.significance}
-                </ReactMarkdown>
-              ) : (
-                <>
-                  <p className="text-lg mb-6">
-                    It is believed that whoever gets a darshan of {temple.primary_deity}, they become one with the divine forever. 
-                    The sight of {temple.primary_deity} fills devotees with immense joy and devotion.
-                  </p>
-                  <p className="text-lg mb-6">
-                    Worshipping at {temple.name} is said to eradicate all sorrows and obstacles from one's life. 
-                    Devotees experience profound peace and spiritual awakening after visiting this sacred place.
-                  </p>
-                  <p className="text-lg">
-                    The temple's divine atmosphere and the powerful presence of {temple.primary_deity} create 
-                    a transformative experience for all who visit with sincere devotion.
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Deities Section */}
-          <TempleDeitiesSection temple={temple} />
-
-          {/* Architecture */}
-          {temple.architecture && (
-            <div className="mb-20">
-              <div className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-6">
-                Architecture
-              </div>
-              <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-8">Architecture of the Temple</h2>
-              
-              <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                {temple.architecture.style && (
-                  <p className="text-lg mb-6">
-                    The architectural style of {temple.name} is inspired by the {temple.architecture.style} tradition, 
-                    showcasing intricate craftsmanship and timeless design principles.
-                  </p>
-                )}
-                
-                {temple.architecture.description && (
-                  <ReactMarkdown className="text-lg mb-6">
-                    {temple.architecture.description}
-                  </ReactMarkdown>
-                )}
-                
-                {temple.architecture.key_features?.length > 0 && (
-                  <div className="mt-6">
-                    <h4 className="text-xl font-serif text-amber-700 mb-4">Key Architectural Features:</h4>
-                    <ul className="space-y-2">
-                      {temple.architecture.key_features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <span className="text-orange-500 mt-1">•</span>
-                          <span className="text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Temple Timings */}
-          {temple.opening_hours_structured?.length > 0 && (
-            <div className="mb-20">
-              <div className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-6">
-                Timings
-              </div>
-              <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-8">Temple Timings</h2>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {temple.opening_hours_structured.map((schedule, idx) => (
-                  <Card key={idx} className="p-6 bg-white border-2 border-gray-200 hover:border-orange-300 transition-all">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                        <Clock className="w-6 h-6 text-orange-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 capitalize">{schedule.session}</h3>
-                        <p className="text-sm text-gray-500">Darshan Hours</p>
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      {schedule.opens} - {schedule.closes}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Offerings */}
-          {prasadItems?.length > 0 && (
-            <div>
-              <div className="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-6">
-                Offerings
-              </div>
-              <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-8">Offerings of the Temple</h2>
-              
-              <p className="text-lg text-gray-700 mb-8">
-                At {temple.name}, devotees can offer various sacred items to the deity as part of their worship and devotion.
-              </p>
-              
-              <div className="grid md:grid-cols-3 gap-6">
-                {prasadItems.slice(0, 6).map((item) => (
-                  <Card key={item.id} className="p-5 bg-white border-2 border-gray-200 hover:border-orange-300 transition-all">
-                    <img
-                      src={item.image_url || 'https://images.unsplash.com/photo-1606491956689-2ea866880049?w=400'}
-                      alt={item.name}
-                      className="w-full h-40 object-cover rounded-lg mb-4"
-                    />
-                    <h3 className="font-semibold text-gray-900 mb-2">{item.name}</h3>
-                    {item.description && (
-                      <p className="text-sm text-gray-600 mb-3">{item.description}</p>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-orange-600">₹{item.price}</span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={async () => {
-                          const isAuth = await base44.auth.isAuthenticated();
-                          if (!isAuth) {
-                            base44.auth.redirectToLogin();
-                            return;
-                          }
-                          setSelectedPrasadItems([item]);
-                          setShowPrasadOrderModal(true);
-                        }}
-                        className="text-xs"
-                      >
-                        Order Now
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -1038,84 +827,8 @@ export default function TempleDetail() {
         </div>
       </div>
 
-      {/* CTA Section - Want to Experience */}
-      <div className="relative bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 py-24 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-            backgroundSize: '40px 40px'
-          }} />
-        </div>
-        
-        <div className="container mx-auto px-6 md:px-12 max-w-4xl relative z-10">
-          <div className="text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-sm rounded-full text-white">
-              <Sparkles className="w-4 h-4" />
-              <span className="font-medium">Begin Your Spiritual Journey</span>
-            </div>
-            
-            <h2 className="text-4xl md:text-6xl font-serif text-white leading-tight">
-              Want to Experience Spiritual Bliss?
-            </h2>
-            
-            <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-              Book your personalized divine experience with us. From darshan bookings to complete travel planning, 
-              we've crafted the perfect spiritual journey for you at {temple.name}.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-              <Button
-                onClick={async () => {
-                  const isAuth = await base44.auth.isAuthenticated();
-                  if (!isAuth) {
-                    base44.auth.redirectToLogin();
-                    return;
-                  }
-                  setShowBookingModal(true);
-                }}
-                disabled={!temple.visit_booking_enabled}
-                className="w-full sm:w-auto bg-white text-orange-600 hover:bg-gray-50 h-14 px-10 text-lg rounded-xl shadow-2xl font-semibold"
-              >
-                <CalendarIcon className="w-5 h-5 mr-2" />
-                Book Your Darshan Now
-              </Button>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  const isAuth = await base44.auth.isAuthenticated();
-                  if (!isAuth) {
-                    base44.auth.redirectToLogin();
-                    return;
-                  }
-                  setShowItineraryModal(true);
-                }}
-                className="w-full sm:w-auto bg-transparent border-2 border-white text-white hover:bg-white/10 h-14 px-10 text-lg rounded-xl font-semibold"
-              >
-                <MapPin className="w-5 h-5 mr-2" />
-                Plan Complete Trip
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-center gap-8 pt-8">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-white">{reviews?.length || 0}+</div>
-                <div className="text-white/80 mt-1">Happy Devotees</div>
-              </div>
-              <div className="w-px h-12 bg-white/30" />
-              <div className="text-center">
-                <div className="flex items-center gap-2 text-4xl font-bold text-white">
-                  <Star className="w-8 h-8 fill-white text-white" />
-                  4.8
-                </div>
-                <div className="text-white/80 mt-1">Average Rating</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* FAQs */}
-      <div className="bg-white py-20">
+      <div className="bg-gray-50 py-20">
         <div className="container mx-auto px-6 md:px-12 max-w-4xl">
           <FAQSection entityType="temple" entityId={templeId} entityData={temple} />
         </div>
