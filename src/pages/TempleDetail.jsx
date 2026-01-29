@@ -62,11 +62,9 @@ import DonationTypeModal from '../components/temple/DonationTypeModal';
 import ItineraryPlannerModal from '../components/temple/ItineraryPlannerModal';
 import JournalsSection from '../components/temple/JournalsSection';
 import ReactMarkdown from 'react-markdown';
-import LiveQueueTracker from '../components/yatra/LiveQueueTracker';
 import TempleSchemaMarkup from '../components/temple/TempleSchemaMarkup';
 import TempleIntroSection from '../components/temple/TempleIntroSection';
 import TempleHistorySection from '../components/temple/TempleHistorySection';
-import TempleArchitectureSection from '../components/temple/TempleArchitectureSection';
 import TempleDeitiesSection from '../components/temple/TempleDeitiesSection';
 import TempleRitualsSection from '../components/temple/TempleRitualsSection';
 import TempleVisitorInfoSection from '../components/temple/TempleVisitorInfoSection';
@@ -701,9 +699,6 @@ export default function TempleDetail() {
               {/* History & Legend Section */}
               <TempleHistorySection temple={temple} />
 
-              {/* Architecture Section */}
-              <TempleArchitectureSection temple={temple} />
-
               {/* Deities Section */}
               <TempleDeitiesSection temple={temple} />
 
@@ -793,9 +788,6 @@ export default function TempleDetail() {
 
             {/* Right Column - Sticky Sidebar (1/3) */}
             <div className="lg:col-span-1 space-y-6">
-              {/* Live Queue Tracker */}
-              <LiveQueueTracker templeName={temple.name} />
-
               {/* Enhanced Visitor Info Section */}
               <TempleVisitorInfoSection temple={temple} />
 
