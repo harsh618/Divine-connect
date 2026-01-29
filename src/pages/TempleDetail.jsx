@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -84,6 +85,7 @@ export default function TempleDetail() {
   }, []);
   const queryClient = useQueryClient();
   const contentRef = useRef(null);
+  const heroRef = useRef(null);
 
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
@@ -413,51 +415,53 @@ export default function TempleDetail() {
       <TempleSchemaMarkup temple={temple} />
       
       {/* SECTION 1: Immersive Hero */}
-      <TempleHeroRedesign
-        temple={temple}
-        images={images}
-        isFavorite={isFavorite}
-        onBack={() => window.history.back()}
-        onShare={handleShare}
-        onToggleFavorite={() => toggleFavoriteMutation.mutate()}
-        onScrollDown={scrollToContent}
-      />
-
-      {/* SECTION 2: Quick Actions Bar */}
-      <div ref={contentRef}>
-        <TempleQuickActions
+      <div ref={heroRef}>
+        <TempleHeroRedesign
           temple={temple}
-          onBookDarshan={() => handleAuthAction(() => setShowBookingModal(true))}
-          onDonate={() => handleAuthAction(() => setShowDonationTypeModal(true))}
-          onPlanTrip={() => handleAuthAction(() => setShowItineraryModal(true))}
-          onOrderPrasad={() => handleAuthAction(() => {
-            if (prasadItems?.length > 0) {
-              setSelectedPrasadItems(prasadItems);
-              setShowPrasadOrderModal(true);
-            } else {
-              toast.error('No prasad items available');
-            }
-          })}
-          onGetDirections={handleGetDirections}
-          hasPrasad={prasadItems?.length > 0}
+          images={images}
+          isFavorite={isFavorite}
+          onBack={() => window.history.back()}
+          onShare={handleShare}
+          onToggleFavorite={() => toggleFavoriteMutation.mutate()}
+          onScrollDown={scrollToContent}
         />
       </div>
 
-      {/* SECTION 3: The Sacred Story (About Temple) */}
-      <TempleStorySection temple={temple} />
+      {/* SECTION 2: Auto-Sliding Gallery */}
+      {images.length > 1 && (
+        <TempleGallerySection images={images} templeName={temple.name} />
+      )}
 
-      {/* SECTION 4: Divine Experience CTA */}
+      {/* SECTION 3: The Sacred Story (About Temple) */}
+      <div ref={contentRef}>
+        <TempleStorySection temple={temple} />
+      </div>
+
+      {/* Floating Quick Actions Bar (centered bottom) */}
+      <TempleQuickActions
+        temple={temple}
+        onBookDarshan={() => handleAuthAction(() => setShowBookingModal(true))}
+        onDonate={() => handleAuthAction(() => setShowDonationTypeModal(true))}
+        onPlanTrip={() => handleAuthAction(() => setShowItineraryModal(true))}
+        onOrderPrasad={() => handleAuthAction(() => {
+          if (prasadItems?.length > 0) {
+            setSelectedPrasadItems(prasadItems);
+            setShowPrasadOrderModal(true);
+          } else {
+            toast.error('No prasad items available');
+          }
+        })}
+        hasPrasad={prasadItems?.length > 0}
+      />
+
+      {/* Divine Experience CTA Popup (triggers on scroll) */}
       <TempleDivineExperienceCTA
         temple={temple}
+        triggerRef={heroRef}
         onBookDarshan={() => handleAuthAction(() => setShowBookingModal(true))}
         onPlanTrip={() => handleAuthAction(() => setShowItineraryModal(true))}
         onDonate={() => handleAuthAction(() => setShowDonationTypeModal(true))}
       />
-
-      {/* SECTION 5: Gallery */}
-      {images.length > 1 && (
-        <TempleGallerySection images={images} templeName={temple.name} />
-      )}
 
       {/* SECTION 6: Deep Dive Content */}
       <div className="bg-gray-50 py-16 md:py-24">
@@ -592,13 +596,7 @@ export default function TempleDetail() {
         </div>
       </div>
 
-      {/* Final CTA */}
-      <TempleDivineExperienceCTA
-        temple={temple}
-        onBookDarshan={() => handleAuthAction(() => setShowBookingModal(true))}
-        onPlanTrip={() => handleAuthAction(() => setShowItineraryModal(true))}
-        onDonate={() => handleAuthAction(() => setShowDonationTypeModal(true))}
-      />
+
 
       {/* ========== MODALS ========== */}
       
